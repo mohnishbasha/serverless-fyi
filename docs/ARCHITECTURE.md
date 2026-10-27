@@ -247,3 +247,8 @@ Zero JS by default and no framework runtime. Allowed inline islands (ADR-026), e
 ## 13. Security and privacy
 
 No cookies, no third-party scripts by default, no trackers. Analytics is optional and cookieless. Secrets: none in the repo or CI for deploy (OIDC); `BEEHIIV_API_KEY` stays local. Secret scanning and push protection on; lefthook blocks key patterns in commits. Subscriber CSVs are git-ignored (`subscribers*.csv`, `*.subscribers.csv`).
+
+## Feeds index and hidden files
+
+- `src/pages/feeds.astro` renders `/feeds/`, a human-readable index of every feed and agent endpoint, linked from the main nav as "RSS" (ADR-030). Feeds themselves stay unstyled XML or JSON; no XSLT.
+- The deploy workflow uploads the Pages artifact with `include-hidden-files: true`, so `dist/.well-known/security.txt` is published (ADR-031). Without it, `actions/upload-pages-artifact` silently drops dot-folders.

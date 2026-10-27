@@ -50,4 +50,7 @@ Source of truth for requirements: docs/PRD.md and the other docs/*.md specs. PRO
 - `tsx scripts/check-content.ts` blocks TODO(owner) in non-draft posts.
 - Migrated posts are `aeoPending: true` until reviewed.
 - Newsletter provider is Kit (free plan), set via `PUBLIC_NEWSLETTER_PROVIDER=kit` + `PUBLIC_NEWSLETTER_ID` (ADR-028). listmonk + SES (infra/newsletter/) is deferred until ~10,000 subscribers; Beehiiv is decommissioned. Kit free has no post-to-email automation, so the owner pastes each broadcast from the post's `/p/<slug>.md` twin.
+- RSS is linked from the main nav ("RSS" → `/feeds/`, a human-readable feeds index) and the subscribe page; feeds are never styled with XSLT (ADR-030).
+- The Pages upload includes hidden files so `/.well-known/security.txt` ships (ADR-031). Indexing (`PUBLIC_INDEXABLE=true`) is switched on only at cutover.
+- Kit sending domain: DNS is at GoDaddy; add Kit's four records (SPF CNAME `ckespa`, two DKIM CNAMEs, DMARC TXT) per docs/RUNBOOK.md.
 - UI is the "serene" theme (ADR-027): calm mint/sage/sky palette, system fonts, no Tailwind. Every template must work from 320px to 1440px+ with zero horizontal overflow and tap targets of at least 44px (ADR-029).

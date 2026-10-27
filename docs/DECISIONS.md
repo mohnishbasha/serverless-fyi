@@ -37,6 +37,8 @@ Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an
 | 027 | Serene color theme adapted from serverlessvc.com            | Accepted                    |
 | 028 | Newsletter = Kit free now; listmonk + SES before ~10k subs  | Accepted                    |
 | 029 | Responsive matrix and tap targets                           | Accepted                    |
+| 030 | RSS visibility: `/feeds/` page + nav link, no XSLT          | Accepted                    |
+| 031 | Deploy hidden files (`.well-known`) to Pages                | Accepted                    |
 
 ---
 
@@ -377,3 +379,28 @@ Estimated monthly cost:
 - E2E runs on chromium-desktop 1280, iPhone 15, Pixel 7, a 320px overflow spec and no-JS, plus axe in light and dark and Linux visual snapshots.
 
 **Consequences:** UI changes need a check at 320 / 375 / 768 / 1280 in light and dark. Overflow regressions fail CI. A few more e2e projects add CI time.
+
+## ADR-030: RSS visibility: `/feeds/` page and nav link, no XSLT
+
+**Status:** Accepted
+
+**Context:** The owner asked to add RSS to the site. Feeds already existed (`/rss.xml`, `/atom.xml`, `/feed.json`, `/t/<tag>/rss.xml`, autodiscovery `<link rel="alternate">`), but they were only linked from the footer. Styling `/rss.xml` with an XSLT stylesheet was tried: Chrome now shows a warning banner on XSLT pages because it is removing XSLT support.
+
+**Decision:**
+
+- Add an **RSS** item to the main navigation (both desktop and compact mobile rows; accessible name "RSS feeds") linking to a new `/feeds/` page.
+- The page lists the RSS 2.0, Atom and JSON Feed URLs as copyable text, a per-topic RSS list, and the agent endpoints.
+- The subscribe page gets a "Prefer RSS?" section.
+- Feeds stay plain XML or JSON, with no XSLT.
+
+**Consequences:** RSS is discoverable by humans without relying on a deprecated browser feature. The page is indexable and covered by `tests/e2e/rss.spec.ts`.
+
+## ADR-031: Deploy hidden files (`.well-known`) to Pages
+
+**Status:** Accepted
+
+**Context:** `/.well-known/security.txt` existed in `dist/` but returned 404 on GitHub Pages. `actions/upload-pages-artifact` excludes dot-files and dot-folders unless `include-hidden-files: true` is set.
+
+**Decision:** Set `include-hidden-files: true` on the Pages upload step, and add a `security.txt` check to `scripts/smoke.sh`.
+
+**Consequences:** `security.txt` and any future `.well-known/*` files (for example, verification files) are published. `.git` and `.github` are always excluded by the action.

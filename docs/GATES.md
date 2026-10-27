@@ -40,7 +40,8 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 ## Gate 4 — SEO, AEO, agent-readiness
 
 - ✅ `validate-seo`: 0 errors across 55 pages.
-- ✅ Feeds valid (24 feeds, 121 items).
+- ✅ Feeds valid (24 feeds, 121 items). `/feeds/` page and the nav RSS link are live (ADR-030). `/.well-known/security.txt` deploys (ADR-031).
+- 👤 At cutover: set `SITE_URL`, `BASE_PATH=/`, `PUBLIC_INDEXABLE=true`; submit the sitemap in Search Console and Bing; run IndexNow once with `all: true`.
 - ✅ Lighthouse on 4 templates (mobile): 100 / 100 / 100 / 100.
 - 👤 Rich Results Test on 3 sample posts against the staging URL, with screenshots in the PR.
 - ⏳ Tag `v0.4.0`.
@@ -49,6 +50,9 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 
 - ✅ The form works with JS on and off: e2e mocks the network; the no-JS project checks the plain form.
 - ✅ The privacy page names the email provider (derived from `PUBLIC_NEWSLETTER_PROVIDER`).
+- ✅ Staging sends sign-ups to Kit form 10105909 (repo variables set 2026-10-27).
+- 👤 Kit domain authentication: add the four Kit records at GoDaddy (RUNBOOK § Kit domain authentication); Gmail "Show original" shows SPF, DKIM and DMARC PASS.
+- 👤 One real test subscription on staging.
 - 👤 Kit free account set up (subscribers imported, form created, sending domain authenticated, DMARC added), then a real test subscription succeeds on staging and a test broadcast is received (ADR-028, RUNBOOK section 10.1).
 - ⏳ Tag `v0.5.0`.
 
