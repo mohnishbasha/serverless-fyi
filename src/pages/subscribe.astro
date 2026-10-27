@@ -43,6 +43,30 @@ const crumbs = [
         Your email is used only to send the newsletter. Every email has a one-click unsubscribe. See the{' '}
         <a href={url('/privacy/')}>privacy policy</a>.
       </p>
+      <section class="stack" aria-labelledby="rss-heading">
+        <h2 id="rss-heading">Prefer RSS?</h2>
+        <p>Skip the inbox: every post, in full, in your feed reader.</p>
+        <ul class="follow">
+          <li>
+            <a class="btn btn-ghost" href={url('/rss.xml')}>
+              RSS feed
+            </a>
+          </li>
+          <li>
+            <a class="btn btn-ghost" href={url('/atom.xml')}>
+              Atom
+            </a>
+          </li>
+          <li>
+            <a class="btn btn-ghost" href={url('/feed.json')}>
+              JSON Feed
+            </a>
+          </li>
+        </ul>
+        <p class="muted">
+          Every topic has its own feed too — see <a href={url('/feeds/')}>all feeds</a>.
+        </p>
+      </section>
       <h2>Recent issues</h2>
       <ul class="link-list">
         {recent.map((p) => (

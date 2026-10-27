@@ -522,3 +522,7 @@ Only tags that contain `-` in the new slug need a `~` stub (9 today); all 22 tag
 - `robots.txt` production and staging outputs match sections 6.1 and 6.2.
 - `llms.txt`, `llms-full.txt`, twins and `api/posts.json` present and validated.
 - No `media.beehiiv.com` string in `dist/`.
+
+## Feeds page
+
+`/feeds/` is a human-readable index of every feed: site-wide RSS 2.0, Atom and JSON Feed URLs as copyable text, a per-topic RSS list, and the agent endpoints (`llms.txt`, `llms-full.txt`, `api/posts.json`). It is linked from the main navigation ("RSS"). Feeds are not styled with XSLT, because Chrome is removing XSLT support and already shows a warning on XSLT pages.

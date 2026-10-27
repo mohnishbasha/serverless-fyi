@@ -19,5 +19,7 @@
     "THIRD_PARTY_LICENSES.md",
     "coverage/**",
     "playwright-report/**",
+    "test-results/**",
+    ".lighthouseci/**",
   ],
 }

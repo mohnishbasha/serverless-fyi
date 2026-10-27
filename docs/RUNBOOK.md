@@ -319,3 +319,7 @@ Gate: Kit is live (subscribers imported, domain authenticated, test broadcast re
 ## 12. Search Console monitoring after cutover
 
 Daily for 14 days: Pages report (indexed count vs pre-migration), 404 (Not found) list, Core Web Vitals. For each unexpected 404 that is a legitimate legacy URL, ask the owner to approve a new manifest entry (agents cannot edit `legacy-urls.json`), then ship it. Gate 8: indexed pages at or above pre-migration; no open `incident` issues; retro written in `docs/`.
+
+## Deploy artifact includes hidden files
+
+`actions/upload-pages-artifact` drops dot-folders unless `include-hidden-files: true` is set. The deploy workflow sets it so `/.well-known/security.txt` is published, and `scripts/smoke.sh` checks that it returns 200. If you add other dot-paths, they ship automatically.

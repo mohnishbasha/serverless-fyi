@@ -24,6 +24,7 @@ check "$BASE/feed.json" 200 "jsonfeed.org"
 check "$BASE/sitemap-index.xml" 200 "<sitemapindex"
 check "$BASE/robots.txt" 200 "User-agent"
 check "$BASE/llms.txt" 200 "# 2 Minute Serverless"
+check "$BASE/.well-known/security.txt" 200 "Contact:"
 check "$BASE/this-does-not-exist-$(date +%s)/" 404
 # HTTPS + apex → www (production only)
 if [[ "$BASE" == "https://www.serverless.fyi" ]]; then
