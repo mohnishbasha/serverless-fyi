@@ -14,6 +14,7 @@ corepack enable && pnpm install   # installs lefthook git hooks via `prepare`
 - Use [Conventional Commits](https://www.conventionalcommits.org): `<type>(<scope>): <subject>`.
   - Types: `feat fix content docs style refactor perf test build ci chore revert`.
   - Scopes: `seo aeo layout post feeds migration newsletter search deps a11y`.
+- GitHub code-scanning autofix commits ("Potential fix for pull request finding…") are exempt from commitlint; the squash commit uses the linted PR title.
 - Every change lands via a PR, squash-merged, with the PR title as the commit subject. Never push to `main` and never force-push. Agents open draft PRs and never merge their own.
 
 ## Tests (TDD)
