@@ -236,17 +236,31 @@ Kit's free "Newsletter" plan is $0 up to 10,000 subscribers with unlimited broad
 7. Send a test broadcast to yourself; in Gmail, "Show original" must show SPF, DKIM and DMARC PASS.
 8. Then cancel Beehiiv (section 11).
 
-**DNS records for Kit** 👤
+**Kit domain authentication (DKIM, SPF, DMARC)** 👤
 
-Kit's DNS wizard shows the exact values; copy them into the zone. Do not guess them.
+DNS for `serverless.fyi` is hosted at **GoDaddy** (nameservers `ns19/ns20.domaincontrol.com`). As of 2026-10-27 the zone has no SPF, DMARC or MX records, so nothing needs merging.
 
-| Name              | Type  | Value                                  | Purpose                                  |
-| ----------------- | ----- | -------------------------------------- | ---------------------------------------- |
-| from Kit's wizard | CNAME | from Kit's wizard                      | DKIM                                     |
-| from Kit's wizard | TXT   | from Kit's wizard (SPF include)        | SPF (merge into any existing SPF record) |
-| `_dmarc`          | TXT   | `v=DMARC1; p=none; rua=mailto:<owner>` | DMARC, monitor only                      |
+1. In Kit, open your account name (top right), then **Settings**, then **Email**. Under **Verified Sending Domains**, click **Set up your Verified Sending Domain** and enter `serverless.fyi`.
+2. Kit shows **four records**. Copy the exact values from Kit; never guess them.
 
-Send from `newsletter@serverless.fyi`. Keep only one SPF TXT record per name. Move DMARC to `quarantine` only after 30 clean days.
+   | Purpose | Type  | Name (host)                              | Value                                                             |
+   | ------- | ----- | ---------------------------------------- | ----------------------------------------------------------------- |
+   | SPF     | CNAME | `ckespa` (envelope sender subdomain)     | as shown by Kit                                                   |
+   | DKIM 1  | CNAME | `<selector>._domainkey`, as shown by Kit | as shown by Kit                                                   |
+   | DKIM 2  | CNAME | `<selector>._domainkey`, as shown by Kit | as shown by Kit                                                   |
+   | DMARC   | TXT   | `_dmarc`                                 | as shown by Kit, or `v=DMARC1; p=none; rua=mailto:<your address>` |
+
+3. In GoDaddy, open **My Products → Domains → serverless.fyi → DNS → Add New Record** for each one. Enter only the part before `.serverless.fyi` in **Name** (GoDaddy appends the domain), paste the value exactly, and leave TTL at the default.
+4. Back in Kit, click **Verify**. DNS usually propagates in minutes but can take up to 48 hours. Check from a terminal with `dig +short CNAME ckespa.serverless.fyi` and `dig +short TXT _dmarc.serverless.fyi`.
+5. In Kit, set the sender to **`newsletter@serverless.fyi`**, and the reply-to to an inbox you read.
+6. Send a test broadcast to a Gmail address. Under **⋮ → Show original**, SPF, DKIM and DMARC must all say **PASS**.
+7. After 30 days of clean sending, tighten DMARC from `p=none` to `p=quarantine`.
+
+Notes:
+
+- Kit's SPF is a CNAME on `ckespa`, so no SPF TXT on the root domain is needed. If you later add another sender (for example SES in Phase B, or Google Workspace), add a root SPF TXT for that sender. Keep exactly one SPF TXT per name.
+- If DNS ever moves to Cloudflare, set Kit's CNAMEs to **DNS only** (grey cloud). Proxied CNAMEs break DKIM.
+- These records sit alongside the GitHub Pages records added at cutover (`www` CNAME and apex A/AAAA) and don't conflict with them.
 
 **Send an issue**
 

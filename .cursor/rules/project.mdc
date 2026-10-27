@@ -31,4 +31,5 @@ Astro static site for the "2 Minute Serverless" newsletter. Full guidance: AGENT
 ## Newsletter and UI
 
 - Newsletter provider is Kit free (`PUBLIC_NEWSLETTER_PROVIDER=kit`, `PUBLIC_NEWSLETTER_ID`); listmonk + SES is the planned move before ~10,000 subscribers (ADR-028).
+- RSS: nav link "RSS" → `/feeds/`; no XSLT-styled feeds (ADR-030). Pages upload includes hidden files (ADR-031).
 - Serene theme (ADR-027); every template works from 320px to 1440px+ with no horizontal overflow and tap targets of at least 44px (ADR-029).

@@ -10,7 +10,7 @@ This repository is the source of **<https://www.serverless.fyi>**. It's a static
 
 - **Fast and accessible:** Lighthouse mobile scores 100 across the board, axe reports 0 violations, and pages ship no framework JS.
 - **Responsive and calm:** a serene mint/sage/sky theme (system fonts, no Tailwind) that works from 320px to 1440px+ with no horizontal overflow and 44px tap targets.
-- **Agent-ready:** [`/llms.txt`](https://www.serverless.fyi/llms.txt), [`/llms-full.txt`](https://www.serverless.fyi/llms-full.txt), a Markdown twin at `/p/<slug>.md`, [`/api/posts.json`](https://www.serverless.fyi/api/posts.json), and RSS, Atom and JSON feeds.
+- **Agent-ready:** [`/llms.txt`](https://www.serverless.fyi/llms.txt), [`/llms-full.txt`](https://www.serverless.fyi/llms-full.txt), a Markdown twin at `/p/<slug>.md`, [`/api/posts.json`](https://www.serverless.fyi/api/posts.json), and RSS, Atom and JSON feeds, all listed on [`/feeds/`](https://www.serverless.fyi/feeds/) (linked as **RSS** in the menu).
 - **SEO:** a JSON-LD graph on every page, OG images built at deploy time, a sitemap with `lastmod`, and IndexNow pings.
 
 ## Quickstart

@@ -7,18 +7,22 @@
 > **Current host:** Beehiiv (https://www.serverless.fyi/)
 > **Target host:** GitHub Pages, built by GitHub Actions, custom domain `www.serverless.fyi`
 > **Repository:** `github.com/mohnishbasha/serverless-fyi`
-> **Prompt version:** 1.2.0 · 2026-10-27
+> **Prompt version:** 1.3.0 · 2026-10-27
 > **Hand this entire file to Claude Code (or any coding agent) as-is.** It is self-contained.
 
 ---
 
-## Amendments (v1.2.0, 2026-10-27)
+## Amendments (v1.2.0 → v1.3.0, 2026-10-27)
 
-Three owner decisions made on 2026-10-27 override the text below wherever they conflict (ADR-027 to ADR-029 in `docs/DECISIONS.md` are the source of truth):
+Owner decisions made on 2026-10-27 override the text below wherever they conflict (ADR-027 to ADR-031 in `docs/DECISIONS.md` are the source of truth):
 
 1. **Newsletter provider = Kit (kit.com) free plan, replacing Beehiiv immediately (ADR-028).** Beehiiv's paid Lite plan (~$59/mo at 1k subscribers) is too expensive. Kit free is $0 up to 10,000 subscribers (unlimited broadcasts and forms; one basic automation, no sequences, no A/B tests, no third-party integrations, Kit branding). Site config: `PUBLIC_NEWSLETTER_PROVIDER=kit`, `PUBLIC_NEWSLETTER_ID=<Kit form id>`, optional `PUBLIC_NEWSLETTER_URL` (host from Kit's embed code, default `https://app.kit.com`); the form POSTs `email_address` to `<host>/forms/<id>/subscriptions`. Authenticate `serverless.fyi` in Kit (DKIM/SPF) and add DMARC `p=none`; send from `newsletter@serverless.fyi`. There is no automatic post-to-email on the free plan: the owner pastes each broadcast from the post's `/p/<slug>.md` twin. The self-hosted listmonk + Amazon SES stack (`infra/newsletter/`) remains the long-term target: migrate before ~10,000 subscribers. Beehiiv is decommissioned now (export, then cancel); its provider code stays in the adapter until removal is tracked.
 2. **Serene UI theme (ADR-027):** calm white/mint base, sage green `#15803d`, sky-teal accent `#0e7490`, system fonts, no Tailwind.
 3. **Responsive requirement (ADR-029):** every template works from 320px to 1440px+ with zero horizontal overflow and 44px tap targets, checked at 320 / 375 / 414 / 768 / 1024 / 1280 / 1440.
+4. **RSS made visible (ADR-030):** the main navigation has an **RSS** link to a human-readable `/feeds/` page. It lists the RSS 2.0, Atom and JSON Feed URLs as copyable text, the per-topic RSS feeds, and the agent endpoints (`llms.txt`, `llms-full.txt`, `api/posts.json`). The subscribe page has a "Prefer RSS?" section. Feeds are **not** styled with XSLT, because Chrome is removing XSLT and warns on such pages.
+5. **Dot-files must deploy (ADR-031):** the Pages artifact is uploaded with `include-hidden-files: true` so `/.well-known/security.txt` is published. `scripts/smoke.sh` checks it.
+6. **SEO/AEO switch-on is a cutover step:** staging stays `noindex` with `PUBLIC_INDEXABLE=false`. At cutover set `SITE_URL=https://www.serverless.fyi`, `BASE_PATH=/`, `PUBLIC_INDEXABLE=true`, then submit the sitemap in Search Console and Bing, and run the IndexNow workflow once with `all: true`. Never set `PUBLIC_INDEXABLE=true` before DNS points to Pages, because the build would emit `CNAME`.
+7. **Kit sending domain:** authenticate `serverless.fyi` in Kit (Settings → Email → Verified Sending Domains). Kit shows four records: a CNAME for SPF (`ckespa`), two DKIM CNAMEs and a DMARC TXT. Add them at GoDaddy (the DNS host); see `docs/RUNBOOK.md` § Kit domain authentication.
 
 ---
 
@@ -253,7 +257,7 @@ serverless-fyi/
 │   │   ├── archive/[...page].astro
 │   │   ├── authors.astro
 │   │   ├── subscribe.astro
-│   │   ├── about.astro  privacy.astro  404.astro
+│   │   ├── about.astro  privacy.astro  404.astro  feeds.astro (v1.3.0)
 │   │   ├── rss.xml.ts  atom.xml.ts  feed.json.ts
 │   │   ├── llms.txt.ts  llms-full.txt.ts
 │   │   ├── robots.txt.ts
@@ -595,6 +599,7 @@ Structured data must match visible content (no hidden FAQ). `scripts/validate-se
 
 - `/rss.xml` (RSS 2.0, full content via `content:encoded`, absolute URLs, categories = tags), `/atom.xml`, `/feed.json` (JSON Feed 1.1). Last 50 posts, full HTML content.
 - `/t/<tag>/rss.xml` per tag.
+- `/feeds/` — human-readable index of all feeds (RSS nav link). No XSLT styling (v1.3.0).
 - Validate all feeds in CI (`scripts/validate-feeds.ts`: well-formed XML, required elements, absolute links, no relative image src).
 
 ### 9.4 Sitemap & robots
@@ -920,7 +925,7 @@ jobs:
         run: test -f dist/CNAME && grep -q 'Allow: /' dist/robots.txt
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
-        with: { path: dist }
+        with: { path: dist, include-hidden-files: true } # publish /.well-known/ (v1.3.0)
   deploy:
     needs: build
     runs-on: ubuntu-latest

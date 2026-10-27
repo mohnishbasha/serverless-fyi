@@ -80,7 +80,7 @@ URL mapping:
 
 Each feature maps to a template or capability. "AC" items are testable and are enforced by the suites named in `docs/TEST_PLAN.md`.
 
-New pages that Beehiiv never had (additive, no parity impact): `/tags/` (all-topics index), `/about/`, `/privacy/`, `/search/` (`noindex`, not in the sitemap), `/archive/N/`, `/t/<tag>/N/`, `/t/<tag>/rss.xml`, `/p/<slug>.md`, `/og/<slug>.png`, feeds, `llms.txt`, `llms-full.txt`, `robots.txt`, `api/posts.json`, `site.webmanifest`, `humans.txt`, `/.well-known/security.txt`.
+New pages that Beehiiv never had (additive, no parity impact): `/tags/` (all-topics index), `/feeds/` (feeds index, linked as **RSS** in the main nav, ADR-030), `/about/`, `/privacy/`, `/search/` (`noindex`, not in the sitemap), `/archive/N/`, `/t/<tag>/N/`, `/t/<tag>/rss.xml`, `/p/<slug>.md`, `/og/<slug>.png`, feeds, `llms.txt`, `llms-full.txt`, `robots.txt`, `api/posts.json`, `site.webmanifest`, `humans.txt`, `/.well-known/security.txt`.
 
 ### F-01 BaseLayout
 
@@ -117,6 +117,7 @@ Intro, paginated cards (10 per page), JSON-LD `CollectionPage` + `ItemList` + `B
 
 - AC: all 22 tag URLs (17 live plus 5 from ADR-020) exist at `/t/<tag>/`. A tag with no posts renders a "No posts with this tag yet" note, `noindex`, no feed, not in the sitemap (ADR-021).
 - AC: `/tags/` lists every tag with post counts.
+- AC: `/feeds/` lists RSS, Atom and JSON Feed URLs as copyable text and every per-topic RSS feed. The main nav links it as "RSS", and the subscribe page has a "Prefer RSS?" section (e2e `rss.spec.ts`).
 - AC: pagination at `/t/<tag>/2/` etc. only when more than 10 posts; no empty pages.
 - AC: tags without a description file use the default template description (70-160 chars).
 

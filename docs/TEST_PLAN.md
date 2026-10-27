@@ -231,3 +231,13 @@ Checklist to paste in the PR:
 - [ ] Visual snapshots reviewed
 - [ ] Lighthouse URL added if needed
 - [ ] Fixture posts excluded from production output (verified by sitemap sanity)
+
+## RSS and feeds page (ADR-030)
+
+`tests/e2e/rss.spec.ts` checks three things:
+
+- The nav "RSS" link opens `/feeds/`.
+- `/feeds/` shows the RSS 2.0, Atom and JSON Feed links and copyable absolute URLs, and per-topic feeds return valid RSS.
+- The subscribe page's "Prefer RSS?" section links all three formats.
+
+`scripts/smoke.sh` also checks that `/.well-known/security.txt` returns 200 with `Contact:` (ADR-031).
