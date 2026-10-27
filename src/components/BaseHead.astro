@@ -3,7 +3,8 @@ import '../styles/base.css';
 import '../styles/tokens.css';
 import '../styles/components.css';
 import '../styles/prose.css';
-import { CF_ANALYTICS_TOKEN } from '../lib/env';
+import { gaSnippet, isGaId } from '../lib/analytics';
+import { CF_ANALYTICS_TOKEN, GA_MEASUREMENT_ID, INDEXABLE } from '../lib/env';
 import type { Node } from '../lib/jsonld';
 import { SITE, SITE_VERSION } from '../lib/site';
 import { url } from '../lib/urls';
@@ -14,15 +15,17 @@ export interface Props extends SeoProps {
   jsonld: Array<Node | null | undefined>;
 }
 const { jsonld, ...seo } = Astro.props;
+// Production only (ADR-032): staging and previews never send analytics.
+const ga = INDEXABLE && isGaId(GA_MEASUREMENT_ID) ? gaSnippet(GA_MEASUREMENT_ID) : '';
 
 // GitHub Pages cannot send response headers (ADR-008): the policy is delivered via <meta>.
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self'",
-  "connect-src 'self' https://cloudflareinsights.com https://lists.serverless.fyi https://magic.beehiiv.com https://buttondown.com https://app.kit.com https://app.convertkit.com",
+  "connect-src 'self' https://cloudflareinsights.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://lists.serverless.fyi https://magic.beehiiv.com https://buttondown.com https://app.kit.com https://app.convertkit.com",
   "form-action 'self' https://lists.serverless.fyi https://magic.beehiiv.com https://buttondown.com https://app.kit.com https://app.convertkit.com",
   'frame-src https://www.youtube-nocookie.com https://platform.twitter.com',
   "base-uri 'self'",
@@ -62,3 +65,4 @@ const csp = [
     data-cf-beacon={JSON.stringify({ token: CF_ANALYTICS_TOKEN })}
   />
 )}
+{ga && <script is:inline data-analytics="ga4" set:html={ga} />}

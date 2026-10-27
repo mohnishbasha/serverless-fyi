@@ -20,4 +20,5 @@
 - RSS: feeds are linked from the nav ("RSS" → `/feeds/`) and the subscribe page; never style feeds with XSLT (ADR-030).
 - Deploy: Pages upload includes hidden files so `/.well-known/` ships (ADR-031). SEO indexing is switched on only at cutover (`PUBLIC_INDEXABLE=true`).
 - Kit sending domain: DNS is at GoDaddy; Kit's four records (SPF CNAME `ckespa`, two DKIM CNAMEs, DMARC TXT) are documented in `docs/RUNBOOK.md`.
+- Analytics: GA4 via `PUBLIC_GA_MEASUREMENT_ID` (production only, deferred to after `load`, skipped on GPC/DNT; ADR-032). Never add other trackers without an ADR.
 - Responsive: every UI change must work from 320 px to 1440 px+, with no horizontal overflow and 44 px tap targets (ADR-029). Use the a11y-reviewer subagent for UI PRs.
