@@ -1,5 +1,5 @@
 /** Site-wide constants. SITE_VERSION must equal package.json version (scripts/check-versions.sh). */
-export const SITE_VERSION = '0.1.0';
+export const SITE_VERSION = '1.0.0';
 
 export const SITE = {
   name: '2 Minute Serverless',

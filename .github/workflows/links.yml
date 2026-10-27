@@ -1,3 +1,4 @@
+# Weekly external link check; opens an issue on dead links.
 name: External links
 on:
   schedule: [{ cron: '0 9 * * 1' }] # Mondays 09:00 UTC

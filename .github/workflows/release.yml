@@ -1,3 +1,4 @@
+# Creates a GitHub Release when a vX.Y.Z tag is pushed.
 name: Release
 on:
   push:

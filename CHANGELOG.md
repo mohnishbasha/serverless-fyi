@@ -4,6 +4,18 @@ All notable changes to the site codebase are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-27
+
+Production cutover: `https://www.serverless.fyi` is served from GitHub Pages instead of Beehiiv.
+
+### Changed
+
+- DNS points to GitHub Pages, with the custom domain `www.serverless.fyi`, HTTPS enforced, and the apex redirecting to www.
+- Production build is indexable (`PUBLIC_INDEXABLE=true`); IndexNow was pinged with all 52 sitemap URLs.
+- A serene, calm color theme adapted from serverlessvc.com. It has a white and mint base, sage green accents, a soft gradient wash, pastel tag pills, a frosted sticky header, and a matching dark mode. OG cards, the favicon and the email template follow suit (ADR-027).
+- The newsletter provider is now Kit's free plan, replacing Beehiiv (`PUBLIC_NEWSLETTER_PROVIDER=kit`); self-hosted listmonk + SES is the planned migration before ~10,000 subscribers (ADR-028).
+- Responsive refinements: every template works from 320px to 1440px+ with no horizontal overflow, 44px tap targets (`.more-link`, `.link-list`), a full-width subscribe form below 30rem and a second scrollable nav row on mobile (ADR-029).
+
 ### Added
 
 - `/feeds/` page with RSS 2.0, Atom and JSON Feed URLs, per-topic feeds and agent endpoints. It is linked as "RSS" in the main navigation, and the subscribe page has a "Prefer RSS?" section.
@@ -11,12 +23,6 @@ All notable changes to the site codebase are documented here. The format follows
 ### Fixed
 
 - `/.well-known/security.txt` returned 404 on GitHub Pages because the Pages artifact excluded dot-folders. The deploy now includes hidden files, and smoke checks the file.
-
-### Changed
-
-- A serene, calm color theme adapted from serverlessvc.com. It has a white and mint base, sage green accents, a soft gradient wash, pastel tag pills, a frosted sticky header, and a matching dark mode. OG cards, the favicon and the email template follow suit (ADR-027).
-- The newsletter provider is now Kit's free plan, replacing Beehiiv (`PUBLIC_NEWSLETTER_PROVIDER=kit`); self-hosted listmonk + SES is the planned migration before ~10,000 subscribers (ADR-028).
-- Responsive refinements: every template works from 320px to 1440px+ with no horizontal overflow, 44px tap targets (`.more-link`, `.link-list`), a full-width subscribe form below 30rem and a second scrollable nav row on mobile (ADR-029).
 
 ## [0.1.0] - 2026-10-27
 
@@ -40,5 +46,6 @@ All notable changes to the site codebase are documented here. The format follows
 - CI/CD: CI, Pages deploy, smoke tests every 6 hours, weekly link check, IndexNow, release, CodeQL, labeler, Dependabot.
 - Agent and harness files: AGENTS.md, CLAUDE.md, SOUL.md, SKILLS.md, Claude Code commands, agents and skills, `.agent/skills`, Copilot and Cursor rules.
 
-[Unreleased]: https://github.com/mohnishbasha/serverless-fyi/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/mohnishbasha/serverless-fyi/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/mohnishbasha/serverless-fyi/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/mohnishbasha/serverless-fyi/releases/tag/v0.1.0

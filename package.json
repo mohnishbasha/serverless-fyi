@@ -1,6 +1,6 @@
 {
   "name": "serverless-fyi",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "2 Minute Serverless — static site for www.serverless.fyi (Astro → GitHub Pages).",
   "type": "module",

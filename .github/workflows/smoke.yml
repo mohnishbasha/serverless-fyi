@@ -1,3 +1,4 @@
+# Post-deploy (reusable) and scheduled live-site checks.
 name: Smoke
 on:
   workflow_call:
