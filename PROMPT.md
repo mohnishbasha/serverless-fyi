@@ -23,8 +23,9 @@ Owner decisions made on 2026-10-27 override the text below wherever they conflic
 5. **Dot-files must deploy (ADR-031):** the Pages artifact is uploaded with `include-hidden-files: true` so `/.well-known/security.txt` is published. `scripts/smoke.sh` checks it.
 6. **SEO/AEO switch-on is a cutover step:** staging stays `noindex` with `PUBLIC_INDEXABLE=false`. At cutover set `SITE_URL=https://www.serverless.fyi`, `BASE_PATH=/`, `PUBLIC_INDEXABLE=true`, then submit the sitemap in Search Console and Bing, and run the IndexNow workflow once with `all: true`. Never set `PUBLIC_INDEXABLE=true` before DNS points to Pages, because the build would emit `CNAME`.
 7. **Kit sending domain:** authenticate `serverless.fyi` in Kit (Settings → Email → Verified Sending Domains). Kit shows four records: a CNAME for SPF (`ckespa`), two DKIM CNAMEs and a DMARC TXT. Add them at GoDaddy (the DNS host); see `docs/RUNBOOK.md` § Kit domain authentication.
+8. **Card thumbnails and a livelier home:** every post card shows its cover as a 16:9 thumbnail (`astro:assets` `<Picture>`, AVIF/WebP, lazy except the lead card, decorative `alt=""` because the title link names the post). Posts without a cover fall back to their OG image. The home page shows "Latest posts" first, led by a full-width **Latest issue** featured card, then "Start here".
+9. **Analytics = Google Analytics 4 `G-DKDHH7T239` (ADR-032):** production builds only, loaded after the page `load` event, skipped when the browser sends Global Privacy Control or Do Not Track. Set via the `PUBLIC_GA_MEASUREMENT_ID` repo variable. The privacy page discloses GA cookies. This replaces the cookieless-analytics default in §2.1 and §9.6.
 
-9. **Card thumbnails and a livelier home:** every post card shows its cover as a 16:9 thumbnail (`astro:assets` `<Picture>`, AVIF/WebP, lazy except the lead card, decorative `alt=""` because the title link names the post). Posts without a cover fall back to their OG image. The home page shows "Latest posts" first, led by a full-width **Latest issue** featured card, then "Start here".
 
 ---
 

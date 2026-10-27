@@ -1,5 +1,8 @@
 export default {
   extends: ['@commitlint/config-conventional'],
+  // GitHub code-scanning autofix commits can't be reworded without a force push; PRs are squash-merged
+  // under a linted PR title, so these never reach main as-is.
+  ignores: [(msg) => /Copilot Autofix|github-advanced-security\[bot\]/.test(msg)],
   rules: {
     'type-enum': [
       2,

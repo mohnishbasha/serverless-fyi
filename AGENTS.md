@@ -53,4 +53,5 @@ Source of truth for requirements: docs/PRD.md and the other docs/*.md specs. PRO
 - RSS is linked from the main nav ("RSS" → `/feeds/`, a human-readable feeds index) and the subscribe page; feeds are never styled with XSLT (ADR-030).
 - The Pages upload includes hidden files so `/.well-known/security.txt` ships (ADR-031). Indexing (`PUBLIC_INDEXABLE=true`) is switched on only at cutover.
 - Kit sending domain: DNS is at GoDaddy; add Kit's four records (SPF CNAME `ckespa`, two DKIM CNAMEs, DMARC TXT) per docs/RUNBOOK.md.
+- Analytics is GA4 (`PUBLIC_GA_MEASUREMENT_ID`), production only, loaded after `load`, skipped on GPC/DNT (ADR-032).
 - UI is the "serene" theme (ADR-027): calm mint/sage/sky palette, system fonts, no Tailwind. Every template must work from 320px to 1440px+ with zero horizontal overflow and tap targets of at least 44px (ADR-029).

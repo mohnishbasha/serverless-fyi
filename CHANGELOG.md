@@ -22,6 +22,10 @@ Production cutover: `https://www.serverless.fyi` is served from GitHub Pages ins
 
 ### Added
 
+- Google Analytics 4 (`G-DKDHH7T239`). It runs on production only, loads after the page has finished loading, and is skipped for Global Privacy Control and Do Not Track; the privacy page is updated (ADR-032).
+
+### Added
+
 - `/feeds/` page with RSS 2.0, Atom and JSON Feed URLs, per-topic feeds and agent endpoints. It is linked as "RSS" in the main navigation, and the subscribe page has a "Prefer RSS?" section.
 
 ### Fixed

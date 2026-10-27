@@ -6,39 +6,40 @@ Statuses: `Accepted`, `Accepted — owner to confirm` (agent proceeds with the d
 
 Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an ADR in the same PR. Do not delete ADRs; supersede them.
 
-| ADR | Title                                                       | Status                      |
-| --- | ----------------------------------------------------------- | --------------------------- |
-| 001 | Static site generator = Astro                               | Accepted                    |
-| 002 | Hosting = GitHub Pages, public repo                         | Accepted — owner to confirm |
-| 003 | URL scheme preserves Beehiiv paths                          | Accepted                    |
-| 004 | Trailing slashes always                                     | Accepted                    |
-| 005 | Canonical host = `https://www.serverless.fyi`               | Accepted                    |
-| 006 | Newsletter: Beehiiv interim sender, then listmonk + SES     | Superseded by ADR-028       |
-| 007 | Redirects via static stubs                                  | Accepted                    |
-| 008 | Security headers via `<meta http-equiv>`                    | Accepted                    |
-| 009 | AI crawlers allowed by default                              | Accepted                    |
-| 010 | Content license                                             | Accepted — owner to confirm |
-| 011 | Styling = plain CSS + custom properties + `@layer`          | Accepted                    |
-| 012 | HTML to Markdown = unified / rehype-remark                  | Accepted                    |
-| 013 | Migration source = sitemap + `window.__remixContext` scrape | Accepted                    |
-| 014 | Mermaid: no build-time renderer in v1                       | Accepted                    |
-| 015 | Astro pinned at 7.4.x exactly                               | Accepted                    |
-| 016 | Node 24 LTS pinned                                          | Accepted                    |
-| 017 | Remote cover images are downloaded and committed            | Accepted                    |
-| 018 | Migrated post descriptions are never invented               | Accepted                    |
-| 019 | Search page at `/search/`                                   | Accepted                    |
-| 020 | Untagged posts get tags from `migration/tag-overrides.json` | Accepted — owner to confirm |
-| 021 | Empty legacy tag pages render `noindex`                     | Accepted                    |
-| 022 | Base-path links in post bodies via a remark plugin          | Accepted                    |
-| 023 | GitHub Pages emulator for tests; Linux-rendered snapshots   | Accepted                    |
-| 024 | Shiki light theme = `github-light-high-contrast`            | Accepted                    |
-| 025 | Phase A subscribe form uses Beehiiv magic links             | Superseded by ADR-028       |
-| 026 | Minimal client JS islands (inline, no framework)            | Accepted                    |
-| 027 | Serene color theme adapted from serverlessvc.com            | Accepted                    |
-| 028 | Newsletter = Kit free now; listmonk + SES before ~10k subs  | Accepted                    |
-| 029 | Responsive matrix and tap targets                           | Accepted                    |
-| 030 | RSS visibility: `/feeds/` page + nav link, no XSLT          | Accepted                    |
-| 031 | Deploy hidden files (`.well-known`) to Pages                | Accepted                    |
+| ADR | Title                                                            | Status                      |
+| --- | ---------------------------------------------------------------- | --------------------------- |
+| 001 | Static site generator = Astro                                    | Accepted                    |
+| 002 | Hosting = GitHub Pages, public repo                              | Accepted — owner to confirm |
+| 003 | URL scheme preserves Beehiiv paths                               | Accepted                    |
+| 004 | Trailing slashes always                                          | Accepted                    |
+| 005 | Canonical host = `https://www.serverless.fyi`                    | Accepted                    |
+| 006 | Newsletter: Beehiiv interim sender, then listmonk + SES          | Superseded by ADR-028       |
+| 007 | Redirects via static stubs                                       | Accepted                    |
+| 008 | Security headers via `<meta http-equiv>`                         | Accepted                    |
+| 009 | AI crawlers allowed by default                                   | Accepted                    |
+| 010 | Content license                                                  | Accepted — owner to confirm |
+| 011 | Styling = plain CSS + custom properties + `@layer`               | Accepted                    |
+| 012 | HTML to Markdown = unified / rehype-remark                       | Accepted                    |
+| 013 | Migration source = sitemap + `window.__remixContext` scrape      | Accepted                    |
+| 014 | Mermaid: no build-time renderer in v1                            | Accepted                    |
+| 015 | Astro pinned at 7.4.x exactly                                    | Accepted                    |
+| 016 | Node 24 LTS pinned                                               | Accepted                    |
+| 017 | Remote cover images are downloaded and committed                 | Accepted                    |
+| 018 | Migrated post descriptions are never invented                    | Accepted                    |
+| 019 | Search page at `/search/`                                        | Accepted                    |
+| 020 | Untagged posts get tags from `migration/tag-overrides.json`      | Accepted — owner to confirm |
+| 021 | Empty legacy tag pages render `noindex`                          | Accepted                    |
+| 022 | Base-path links in post bodies via a remark plugin               | Accepted                    |
+| 023 | GitHub Pages emulator for tests; Linux-rendered snapshots        | Accepted                    |
+| 024 | Shiki light theme = `github-light-high-contrast`                 | Accepted                    |
+| 025 | Phase A subscribe form uses Beehiiv magic links                  | Superseded by ADR-028       |
+| 026 | Minimal client JS islands (inline, no framework)                 | Accepted                    |
+| 027 | Serene color theme adapted from serverlessvc.com                 | Accepted                    |
+| 028 | Newsletter = Kit free now; listmonk + SES before ~10k subs       | Accepted                    |
+| 029 | Responsive matrix and tap targets                                | Accepted                    |
+| 030 | RSS visibility: `/feeds/` page + nav link, no XSLT               | Accepted                    |
+| 031 | Deploy hidden files (`.well-known`) to Pages                     | Accepted                    |
+| 032 | Google Analytics 4, deferred, production only, GPC/DNT respected | Accepted                    |
 
 ---
 
@@ -404,3 +405,19 @@ Estimated monthly cost:
 **Decision:** Set `include-hidden-files: true` on the Pages upload step, and add a `security.txt` check to `scripts/smoke.sh`.
 
 **Consequences:** `security.txt` and any future `.well-known/*` files (for example, verification files) are published. `.git` and `.github` are always excluded by the action.
+
+## ADR-032: Google Analytics 4, deferred, production only, GPC/DNT respected
+
+**Status:** Accepted
+
+**Context:** The owner wants Google Analytics (measurement ID `G-DKDHH7T239`). The original plan used cookieless Cloudflare analytics and a 30 KB first-paint JS budget. GA4's `gtag.js` is about 50 KB gzipped and sets first-party cookies (`_ga`).
+
+**Decision:**
+
+- `src/lib/analytics.ts` renders a small inline snippet, only when `PUBLIC_INDEXABLE=true` and `PUBLIC_GA_MEASUREMENT_ID` is a valid `G-…` ID. The ID is validated before it is interpolated into the snippet.
+- The snippet does nothing when the browser sends Global Privacy Control or Do Not Track. Otherwise it queues `gtag('config')` and injects `gtag.js` after the window `load` event, so LCP, TBT and the first-paint JS budget are unaffected.
+- CSP allows `www.googletagmanager.com` (scripts) and the Google Analytics collection hosts (connect).
+- The privacy page describes GA, its cookies and the opt-out signals.
+- Lighthouse CI blocks Google's hosts so scores measure the site's own code. CI builds with the ID and e2e mocks the network.
+
+**Consequences:** Page-view analytics in GA4. Third-party cookies have consent implications: if the audience includes EU/UK visitors, a consent banner (or GA Consent Mode with default-denied) may be required. That is an owner/legal call, tracked as a follow-up. Lighthouse scores with GA enabled stay at 100 in CI. Real-user INP may cost a few milliseconds after load.
