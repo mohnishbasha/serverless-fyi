@@ -1,0 +1,117 @@
+---
+title: "Post-Quantum Cryptography"
+subtitle: "Preparing Modern Systems for the Quantum Threat"
+description: "Preparing Modern Systems for the Quantum Threat. Quantum computing is no longer experimental fiction. With breakthroughs like Google’s new “Quantum Echoes”…"
+slug: post-quantum-cryptography-fd6d
+pubDate: 2025-11-04T15:51:36.580Z
+tags:
+  - pqca
+cover: ./cover-03349afbefc2.jpg
+coverAlt: "Cover image for “Post-Quantum Cryptography”"
+aeoPending: true
+beehiivId: "0ded5eed-09bf-4ef8-852e-536259485e79"
+beehiivUrl: "https://www.serverless.fyi/p/post-quantum-cryptography-fd6d"
+---
+
+## The Quantum-Safe Imperative: Why Engineers Need Post-Quantum Cryptography Now
+
+Quantum computing is no longer experimental fiction. With breakthroughs like Google’s new “Quantum Echoes” algorithm running 13,000× faster than classical supercomputers on its Willow chip, engineers must treat post-quantum cryptography (PQC) as an _engineering requirement_, not a future upgrade.
+
+Classical cryptographic systems like RSA and ECC underpin TLS handshakes, VPNs, SSH, banking systems, and blockchain wallets. A sufficiently powerful quantum computer could break these by solving problems like integer factorization and discrete logarithms exponentially faster. The real threat is “store now, decrypt later”: attackers capture encrypted data today and decrypt it when quantum capabilities mature.
+
+---
+
+## From Strategy to Execution: The Role of PQCA
+
+The **Post-Quantum Cryptography Alliance (PQCA)**, under the Linux Foundation, is building the roadmap for quantum-safe infrastructure. Their goals include:
+
+- Defining migration pathways for organizations and protocols
+- Building open-source reference implementations of PQC algorithms
+- Creating tools that support crypto-agility and compliance
+- Aligning vendors, academia, and security engineers around standards
+
+The PQCA Technical Advisory Council (TAC) governs project standards, lifecycles, interoperability, and documentation.
+
+---
+
+## GitHub Repositories Engineers Should Explore
+
+Engineers can start experimenting with [PQCA](https://pqca.org/) today using these [open repositories](https://github.com/pqca):
+
+- **pq-code-package**: High-assurance C and assembly implementations of ML-KEM (Kyber), ML-DSA (Dilithium), and optimized microcontroller variants.
+- **cbomkit**: A crypto bill-of-materials generator that scans your source code or container images to list cryptographic assets like RSA, ECC, and PQC usage.
+- **PQCA GitHub Organization**: A growing collection of reference code, documentation, and tooling.
+
+These are production-ready starting points to experiment, benchmark, and integrate hybrid classical plus PQC protocols in CI or staging environments.
+
+---
+
+## Signals from the Field: Quantum Computing Is Accelerating
+
+From Reddit discussions to engineering subforums, urgency is growing. One highly upvoted Reddit comment said:
+
+Google’s quantum system solved in minutes what classical systems would need longer than the age of the universe to compute.
+
+Google’s blog confirmed:
+
+Our Willow quantum chip achieved the first-ever verifiable quantum advantage, performing 13,000× faster than classical machines.
+
+There is also increasing attention on new world records like a 0.000015 percent quantum error rate and Google’s new algorithm breaking performance barriers.
+
+---
+
+## Why This Matters for Engineers
+
+These breakthroughs translate into three core engineering problems:
+
+### 1. Crypto-Agility
+
+Design systems to allow seamless replacement of cryptographic algorithms. Decouple protocol logic from crypto primitives.
+
+### 2. Inventory and Visibility
+
+You cannot migrate what you cannot measure. Use tools like cbomkit to audit:
+
+- TLS configurations
+- API gateways
+- Firmware update mechanisms
+- SSH key distribution
+- Certificate authorities and code-signing systems
+
+### 3. Hybrid Deployment
+
+Until PQC becomes fully standardized and supported by browsers and hardware, use hybrid models. Example: ECDHE + Kyber for key exchange in TLS.
+
+---
+
+## Practical Roadmap for Engineers
+
+**Step 1: Audit your stack**
+
+Run cryptographic inventories across repositories and infrastructure. Identify where RSA, ECC, and long-lived keys are used.
+
+**Step 2: Benchmark PQC libraries**
+
+Clone implementations like ML-KEM or Dilithium. Measure handshake time, CPU cycles, binary size, and RAM usage.
+
+**Step 3: Prototype hybrid TLS**
+
+Implement a hybrid handshake in a test service. Log metrics like latency impact and certificate size.
+
+**Step 4: Prioritize migration targets**
+
+Focus on systems handling long-lifetime data: medical records, financial contracts, firmware for IoT devices, and digital identities.
+
+**Step 5: Monitor quantum and standards progress**
+
+Track NIST PQC standardization, PQCA announcements, and hardware error-rate improvements.
+
+---
+
+## Final Thoughts
+
+Post-quantum cryptography is no longer theoretical. With Google demonstrating verifiable quantum advantage and industry groups like PQCA building usable standards and codebases, engineers must begin real implementation work.
+
+Start small. Test in staging. Build for crypto-agility. Your future systems, users, and data integrity depend on it.
+
+---

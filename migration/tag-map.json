@@ -1,0 +1,11 @@
+{
+  "ai~agents": "ai-agents",
+  "apache~flink": "apache-flink",
+  "apache~kafka": "apache-kafka",
+  "apache~pulsar": "apache-pulsar",
+  "distributed~filesystem": "distributed-filesystem",
+  "distributed~systems": "distributed-systems",
+  "object~storage": "object-storage",
+  "serverless~meetup": "serverless-meetup",
+  "video~streaming": "video-streaming"
+}

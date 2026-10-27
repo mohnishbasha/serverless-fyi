@@ -1,0 +1,11 @@
+{
+  "$comment": "Tags for posts that had no Beehiiv content_tags (schema requires >= 1). Chosen by the migrator from post content; owner to review (listed in migration/report.md).",
+  "2-minute-serverless-newsletter-bitesized-tech-feast": ["newsletter"],
+  "buildpacks-vs-docker-oci-simplifying-hello-world-in-containers": ["containers"],
+  "current2024-austin-texas": ["apache-kafka", "apache-flink"],
+  "maximizing-qsbs-benefits-for-early-employees-a-guide-to-tax-smart-equity": ["tax", "qsbs"],
+  "openhands-declarative-automation-for-developers": ["ai-agents"],
+  "stream-processing-future-modern-data-stack": ["apache-kafka", "apache-flink"],
+  "understanding-tree-search-time-complexity-a-guide-for-developers": ["algorithms"],
+  "vector-clocks-in-distributed-systems": ["distributed-systems"]
+}

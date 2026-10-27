@@ -1,0 +1,140 @@
+---
+title: "Using Terraform Null Resource vs External Data vs Custom Provider: A Deep Dive"
+subtitle: "Optimizing Usage Of Scripts in Infrastructure as Code: A Practical Guide"
+description: "Optimizing Usage Of Scripts in Infrastructure as Code: A Practical Guide"
+slug: using-terraform-null-resource-vs-external-data-vs-custom-provider-a-deep-dive
+pubDate: 2024-12-25T18:15:46.836Z
+updatedDate: 2025-04-14T11:06:44.000Z
+tags:
+  - iac
+  - terraform
+cover: ./cover-57d570d4d385.jpg
+coverAlt: "Cover image for “Using Terraform Null Resource vs External Data vs Custom Provider: A Deep Dive”"
+aeoPending: true
+beehiivId: "1433f3c5-10a3-4286-a13b-bf24c48d5ca8"
+beehiivUrl: "https://www.serverless.fyi/p/using-terraform-null-resource-vs-external-data-vs-custom-provider-a-deep-dive"
+---
+
+During a recent interview, I was asked about the practice of invoking scripts to handle some custom resource management task, lets say creating s3 buckets or ensuring the bucket policies are intact for a set of s3 buckets.
+
+When using Terraform, practitioners often encounter scenarios requiring custom logic that isn’t natively supported by Terraform’s resource providers. One such workaround involves leveraging the **null resource** to invoke a Python script. While this method is simple and quick to implement, alternative approaches such as using the **data external resource** or creating a custom **Terraform provider** offer their own unique advantages. This blog explores these three approaches and compares them based on use cases, pros, and cons.
+
+Thus integrating Python scripts with Terraform, there are three main approaches: null_resource with local-exec provisioner, data "external" blocks, and custom providers.
+
+Let's analyze each approach and their optimal use cases.
+
+## Null Resource with Python Script
+
+[Null resources](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) in Terraform act as placeholder resources that don't create any real infrastructure but allow you to trigger provisioners and execute arbitrary commands, making them ideal for running Python scripts during Terraform operations.
+
+```hcl
+resource "null_resource" "python_executor" {
+  provisioner "local-exec" {
+    command = "python script.py ${var.input_param}"
+  }
+}
+```
+
+The [null_resource](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) approach executes Python scripts as local commands during Terraform's apply phase. This is straightforward but has limitations in state management and data return handling.
+
+### Pros:
+
+1. Quick to implement with minimal setup.
+2. No need for additional tools or plugins.
+3. Ideal for small, one-off customizations.
+
+#### Cons:
+
+1. Tightly coupled to the execution environment, requiring dependencies (e.g., Python) to be installed.
+2. Difficult to scale and maintain as complexity grows.
+3. Error handling and state management are rudimentary.
+
+---
+
+## External Data Source
+
+The [external data source](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) in Terraform provides a standardized interface for executing external programs and incorporating their output into Terraform's state management system, requiring the external program to accept JSON input and return JSON output in a specific format.
+
+```hcl
+data "external" "python_data" {
+  program = ["python", "script.py"]
+  query = {
+    param = var.input_param
+  }
+}
+```
+
+The [external data source](https://registry.terraform.io/providers/hashicorp/external/latest/docs/data-sources/external) provides a structured way to execute external programs and capture their output in Terraform's state.
+
+### Pros:
+
+1. Provides a cleaner interface for input and output handling.
+2. Decouples execution logic from Terraform resources.
+3. Output can be used dynamically in other Terraform resources.
+
+#### Cons:
+
+1. Slightly more setup compared to `null_resource`.
+2. Limited to simple input-output tasks.
+3. Performance can be a concern for long-running scripts.
+
+---
+
+## Custom Provider
+
+[Custom providers](https://www.hashicorp.com/blog/writing-custom-terraform-providers) in Terraform allow you to encapsulate complex business logic into a dedicated, maintainable Go package that integrates natively with Terraform's plugin system, offering full state management, validation, and resource lifecycle control through a well-defined API.
+
+```hcl
+provider "custom" {
+  // Configuration options
+}
+
+resource "custom_resource" "example" {
+  input_param = var.input_param
+}
+```
+
+Creating a [custom provider](https://www.hashicorp.com/blog/writing-custom-terraform-providers) requires more initial setup but offers the best integration with Terraform's ecosystem.
+
+### Pros:
+
+1. Highly scalable and maintainable.
+2. Offers first-class integration with Terraform workflows.
+3. Well-suited for complex, reusable logic.
+
+#### Cons:
+
+1. Requires significant time and expertise to develop.
+2. Written in Go, not Python.
+3. Overhead might be unnecessary for simple use cases.
+
+## Comparision
+
+| Aspect               | Null Resource                          | External Data                             | Custom Provider                        |
+| -------------------- | -------------------------------------- | ----------------------------------------- | -------------------------------------- |
+| Setup Complexity     | Low - Simple script execution          | Medium - Requires JSON I/O handling       | High - Requires Go development         |
+| State Management     | Poor - No built-in state tracking      | Good - State managed via data source      | Excellent - Full state management      |
+| Error Handling       | Basic - Exit codes only                | Moderate - JSON response validation       | Robust - Native error handling         |
+| Reusability          | Limited - Script-dependent             | Moderate - Reusable across configurations | Excellent - Distributable as package   |
+| Development Time     | Quick - Immediate implementation       | Medium - JSON interface needed            | Long - Provider development required   |
+| Maintenance          | Challenging - Manual script updates    | Moderate - Version control needed         | Simple - Managed via registry          |
+| Input/Output Control | Limited - Environment variables/CLI    | Good - Structured JSON                    | Excellent - Schema-validated           |
+| Testing              | Difficult - Manual testing required    | Moderate - JSON testing possible          | Excellent - Built-in testing framework |
+| Documentation        | Manual - Separate documentation needed | Basic - Data source docs                  | Excellent - Registry documentation     |
+| Version Control      | Manual - Script versioning needed      | Good - Script + configuration             | Excellent - Provider versioning        |
+
+Choose based on your requirements:
+
+- Use null_resource for simple, one-off script executions
+
+  - Personally, I would try to avoid the usage of scripts since it introduces security and governance risk with systems where they get invoked.
+
+- Use external data for structured data exchange without complex logic
+
+  - Personally, I would use these for limited use cases.
+
+- Develop a custom provider for production-grade, reusable infrastructure components
+
+  - This is the best approach but requires heavy lifting.
+
+The choice ultimately depends on factors like development time, maintenance requirements, and reusability needs.

@@ -1,0 +1,11 @@
+// Migrated posts keep the author's original formatting (ADR-018: never rewrite prose).
+// Empty alt = decorative image (STYLE_GUIDE); heading punctuation and link spacing are the author's.
+{
+  "config": {
+    "MD024": false,
+    "MD026": false,
+    "MD039": false,
+    "MD045": false,
+    "MD050": false
+  }
+}

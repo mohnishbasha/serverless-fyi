@@ -1,0 +1,317 @@
+[
+  {
+    "old": "/",
+    "new": "/",
+    "type": "same"
+  },
+  {
+    "old": "/account",
+    "new": "/subscribe/",
+    "type": "redirect"
+  },
+  {
+    "old": "/archive",
+    "new": "/archive/",
+    "type": "same"
+  },
+  {
+    "old": "/authors",
+    "new": "/authors/",
+    "type": "same"
+  },
+  {
+    "old": "/authors/mohinish-s",
+    "new": "/authors/",
+    "type": "redirect"
+  },
+  {
+    "old": "/login",
+    "new": "/subscribe/",
+    "type": "redirect"
+  },
+  {
+    "old": "/p/2-minute-serverless-newsletter-bitesized-tech-feast",
+    "new": "/p/2-minute-serverless-newsletter-bitesized-tech-feast/",
+    "type": "same"
+  },
+  {
+    "old": "/p/aleo-and-zero-knowledge-proofs-the-future-of-privacy-enhanced-blockchain-technology",
+    "new": "/p/aleo-and-zero-knowledge-proofs-the-future-of-privacy-enhanced-blockchain-technology/",
+    "type": "same"
+  },
+  {
+    "old": "/p/buildpacks-vs-docker-oci-simplifying-hello-world-in-containers",
+    "new": "/p/buildpacks-vs-docker-oci-simplifying-hello-world-in-containers/",
+    "type": "same"
+  },
+  {
+    "old": "/p/current2024-austin-texas",
+    "new": "/p/current2024-austin-texas/",
+    "type": "same"
+  },
+  {
+    "old": "/p/distributed-file-system",
+    "new": "/p/distributed-file-system/",
+    "type": "same"
+  },
+  {
+    "old": "/p/ensuring-distributed-system-reliability-with-jepsen",
+    "new": "/p/ensuring-distributed-system-reliability-with-jepsen/",
+    "type": "same"
+  },
+  {
+    "old": "/p/how-apache-pulsar-manages-multi-tenancy",
+    "new": "/p/how-apache-pulsar-manages-multi-tenancy/",
+    "type": "same"
+  },
+  {
+    "old": "/p/maximizing-qsbs-benefits-for-early-employees-a-guide-to-tax-smart-equity",
+    "new": "/p/maximizing-qsbs-benefits-for-early-employees-a-guide-to-tax-smart-equity/",
+    "type": "same"
+  },
+  {
+    "old": "/p/netskope-agentic-ai-nextgen-sre-meetup",
+    "new": "/p/netskope-agentic-ai-nextgen-sre-meetup/",
+    "type": "same"
+  },
+  {
+    "old": "/p/openhands-declarative-automation-for-developers",
+    "new": "/p/openhands-declarative-automation-for-developers/",
+    "type": "same"
+  },
+  {
+    "old": "/p/post-quantum-cryptography-fd6d",
+    "new": "/p/post-quantum-cryptography-fd6d/",
+    "type": "same"
+  },
+  {
+    "old": "/p/reflecting-on-2024-growth-learning-and-milestones",
+    "new": "/p/reflecting-on-2024-growth-learning-and-milestones/",
+    "type": "same"
+  },
+  {
+    "old": "/p/relational-foundation-models-bridging-databases-and-ai",
+    "new": "/p/relational-foundation-models-bridging-databases-and-ai/",
+    "type": "same"
+  },
+  {
+    "old": "/p/serverless-ft-anchainai-ai-in-fintech-security-meetup",
+    "new": "/p/serverless-ft-anchainai-ai-in-fintech-security-meetup/",
+    "type": "same"
+  },
+  {
+    "old": "/p/stream-processing-future-modern-data-stack",
+    "new": "/p/stream-processing-future-modern-data-stack/",
+    "type": "same"
+  },
+  {
+    "old": "/p/the-qsbs-tax-exclusion-how-founders-early-employees-can-avoid-taxes-on-massive-paydays",
+    "new": "/p/the-qsbs-tax-exclusion-how-founders-early-employees-can-avoid-taxes-on-massive-paydays/",
+    "type": "same"
+  },
+  {
+    "old": "/p/understanding-apache-pulsar-topics-a-deep-dive-into-naming-conventions",
+    "new": "/p/understanding-apache-pulsar-topics-a-deep-dive-into-naming-conventions/",
+    "type": "same"
+  },
+  {
+    "old": "/p/understanding-rtmp-hls-and-rtsp-a-guide-to-streaming-protocols",
+    "new": "/p/understanding-rtmp-hls-and-rtsp-a-guide-to-streaming-protocols/",
+    "type": "same"
+  },
+  {
+    "old": "/p/understanding-the-dns-header",
+    "new": "/p/understanding-the-dns-header/",
+    "type": "same"
+  },
+  {
+    "old": "/p/understanding-tree-search-time-complexity-a-guide-for-developers",
+    "new": "/p/understanding-tree-search-time-complexity-a-guide-for-developers/",
+    "type": "same"
+  },
+  {
+    "old": "/p/unlocking-tax-savings-with-qualified-small-business-stock-qsbs",
+    "new": "/p/unlocking-tax-savings-with-qualified-small-business-stock-qsbs/",
+    "type": "same"
+  },
+  {
+    "old": "/p/using-terraform-null-resource-vs-external-data-vs-custom-provider-a-deep-dive",
+    "new": "/p/using-terraform-null-resource-vs-external-data-vs-custom-provider-a-deep-dive/",
+    "type": "same"
+  },
+  {
+    "old": "/p/vector-clocks-in-distributed-systems",
+    "new": "/p/vector-clocks-in-distributed-systems/",
+    "type": "same"
+  },
+  {
+    "old": "/signup",
+    "new": "/subscribe/",
+    "type": "redirect"
+  },
+  {
+    "old": "/subscribe",
+    "new": "/subscribe/",
+    "type": "same"
+  },
+  {
+    "old": "/t/2024",
+    "new": "/t/2024/",
+    "type": "same"
+  },
+  {
+    "old": "/t/ai-agents",
+    "new": "/t/ai-agents/",
+    "type": "same"
+  },
+  {
+    "old": "/t/ai~agents",
+    "new": "/t/ai-agents/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/algorithms",
+    "new": "/t/algorithms/",
+    "type": "same"
+  },
+  {
+    "old": "/t/apache-flink",
+    "new": "/t/apache-flink/",
+    "type": "same"
+  },
+  {
+    "old": "/t/apache-kafka",
+    "new": "/t/apache-kafka/",
+    "type": "same"
+  },
+  {
+    "old": "/t/apache-pulsar",
+    "new": "/t/apache-pulsar/",
+    "type": "same"
+  },
+  {
+    "old": "/t/apache~flink",
+    "new": "/t/apache-flink/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/apache~kafka",
+    "new": "/t/apache-kafka/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/apache~pulsar",
+    "new": "/t/apache-pulsar/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/containers",
+    "new": "/t/containers/",
+    "type": "same"
+  },
+  {
+    "old": "/t/crypto",
+    "new": "/t/crypto/",
+    "type": "same"
+  },
+  {
+    "old": "/t/distributed-filesystem",
+    "new": "/t/distributed-filesystem/",
+    "type": "same"
+  },
+  {
+    "old": "/t/distributed-systems",
+    "new": "/t/distributed-systems/",
+    "type": "same"
+  },
+  {
+    "old": "/t/distributed~filesystem",
+    "new": "/t/distributed-filesystem/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/distributed~systems",
+    "new": "/t/distributed-systems/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/dns",
+    "new": "/t/dns/",
+    "type": "same"
+  },
+  {
+    "old": "/t/iac",
+    "new": "/t/iac/",
+    "type": "same"
+  },
+  {
+    "old": "/t/newsletter",
+    "new": "/t/newsletter/",
+    "type": "same"
+  },
+  {
+    "old": "/t/object-storage",
+    "new": "/t/object-storage/",
+    "type": "same"
+  },
+  {
+    "old": "/t/object~storage",
+    "new": "/t/object-storage/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/pqca",
+    "new": "/t/pqca/",
+    "type": "same"
+  },
+  {
+    "old": "/t/qsbs",
+    "new": "/t/qsbs/",
+    "type": "same"
+  },
+  {
+    "old": "/t/rfm",
+    "new": "/t/rfm/",
+    "type": "same"
+  },
+  {
+    "old": "/t/serverless-meetup",
+    "new": "/t/serverless-meetup/",
+    "type": "same"
+  },
+  {
+    "old": "/t/serverless~meetup",
+    "new": "/t/serverless-meetup/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/tax",
+    "new": "/t/tax/",
+    "type": "same"
+  },
+  {
+    "old": "/t/terraform",
+    "new": "/t/terraform/",
+    "type": "same"
+  },
+  {
+    "old": "/t/video-streaming",
+    "new": "/t/video-streaming/",
+    "type": "same"
+  },
+  {
+    "old": "/t/video~streaming",
+    "new": "/t/video-streaming/",
+    "type": "redirect"
+  },
+  {
+    "old": "/t/xrp",
+    "new": "/t/xrp/",
+    "type": "same"
+  },
+  {
+    "old": "/upgrade",
+    "new": "/subscribe/",
+    "type": "redirect"
+  }
+]

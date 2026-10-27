@@ -1,0 +1,8 @@
+<div id="content-blocks"><div><p> Run this: </p></div><div style="padding:15px;"><pre style="background:#282828;"><code>dig @8.8.8.8 serverless.fyi +norecurse +tcp</code></pre></div><div><pre><code>from scapy.all import *
+dns_query = IP(dst="8.8.8.8")/UDP()
+send(dns_query)</code></pre></div><div><pre><code><span>resource</span> <span>"null_resource"</span> <span>"python_executor"</span> <span>{</span>
+  <span>provisioner</span> <span>"local-exec"</span> <span>{}</span>
+<span>}</span></code></pre></div><div><pre><code><span>FROM</span><span> python:3.9-slim  </span>
+<span>COPY</span><span> hello.py /app/hello.py</span></code></pre></div><div><pre class="language-yaml"><code>key: value</code></pre></div><div><pre><code>+-----+-----+
+|  ID | Flags |
++-----+-----+</code></pre></div><div><p> Inline <code>persistent://tenant/ns/topic</code> works. </p></div></div>

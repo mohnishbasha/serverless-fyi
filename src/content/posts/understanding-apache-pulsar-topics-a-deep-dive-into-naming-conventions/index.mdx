@@ -1,0 +1,74 @@
+---
+title: "Understanding Apache Pulsar Topics: A Deep Dive into Naming Conventions"
+subtitle: "From Hierarchical Naming to Production Best Practices: Mastering Pulsar's Topic Architecture"
+description: "From Hierarchical Naming to Production Best Practices: Mastering Pulsar's Topic Architecture"
+slug: understanding-apache-pulsar-topics-a-deep-dive-into-naming-conventions
+pubDate: 2024-11-04T20:53:48.963Z
+updatedDate: 2025-04-14T11:18:09.000Z
+tags:
+  - apache-pulsar
+cover: ./cover-ea67a1c18565.jpg
+coverAlt: "Cover image for “Understanding Apache Pulsar Topics: A Deep Dive into Naming Conventions”"
+aeoPending: true
+beehiivId: "15e8482b-ee2f-484b-bc59-002e09150c7d"
+beehiivUrl: "https://www.serverless.fyi/p/understanding-apache-pulsar-topics-a-deep-dive-into-naming-conventions"
+---
+
+In the world of distributed messaging systems, Apache Pulsar stands out for its sophisticated approach to topic organization. Unlike other messaging systems, Pulsar implements a hierarchical naming structure that brings clarity and organization to your messaging architecture. Let's dive into how Pulsar topics work and how to effectively use them.
+
+## The Anatomy of a Pulsar Topic
+
+A Pulsar topic follows this format:
+
+```text
+persistent://tenant/namespace/topic-name
+```
+
+This three-level hierarchy isn't just for show – it's a powerful feature that enables better organization and control of your messaging infrastructure. Let's break down each component:
+
+### 1. Persistence Prefix
+
+The `persistent://` prefix indicates that messages will be durably stored. For scenarios where persistence isn't needed, you can use `non-persistent://` instead. This choice affects how Pulsar handles your messages and their storage.
+
+### 2. Tenant
+
+The tenant represents the highest level of isolation in Pulsar. Think of it as your organization's private space. For example, if your company is called Acme, you might use `acme-corp` as your tenant name.
+
+### 3. Namespace
+
+Namespaces provide logical grouping within a tenant. They're perfect for separating different departments, environments, or regions. For instance, you might have namespaces like `marketing`, `production`, or `us-east`.
+
+### 4. Topic Name
+
+The final component is your actual topic name, which describes the specific message stream, such as `order-events` or `user-clicks`.
+
+## Real-World Examples
+
+Here are some practical examples of Pulsar topics:
+
+```text
+persistent://trading-company/market-data/stock-quotes
+persistent://ecommerce/order-processing/purchase-events
+persistent://gaming-platform/us-west/player-statistics
+```
+
+## Best Practices for Topic Organization
+
+Consider these patterns when structuring your topics:
+
+1. **Regional Separation**
+
+   - `persistent://company/us-west/events`
+   - `persistent://company/eu-central/events`
+
+2. **Environment Isolation**
+
+   - `persistent://company/production/user-events`
+   - `persistent://company/staging/user-events`
+
+3. **Team-Based Organization**
+
+   - `persistent://company/marketing/email-campaigns`
+   - `persistent://company/sales/lead-tracking`
+
+This hierarchical structure not only provides clear organization but also enables granular control over authentication, authorization, and resource quotas at each level. Whether you're building a small application or a large-scale distributed system, understanding Pulsar's topic structure is key to effectively organizing your messaging architecture.
