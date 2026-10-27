@@ -64,11 +64,19 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 - 👤 RUNBOOK rehearsed: rollback dry run on staging.
 - ⏳ Every CI job green on GitHub. Tag `v0.9.0`.
 
-## Gate 7 — Cutover (§14)
+## Gate 7 — Cutover (§14), done 2026-10-27
 
-- 👤 DNS (copy the current Beehiiv records into RUNBOOK first), Pages custom domain and verified domain, Enforce HTTPS.
-- 👤 Disconnect web hosting only in Beehiiv.
-- ⏳ Production smoke, live parity (`pnpm exec tsx scripts/validate-parity.ts --live https://www.serverless.fyi`), apex → www, sitemap submitted, subscribe form feeds the Kit list. Tag `v1.0.0`.
+- ✅ DNS points to GitHub Pages (`www` CNAME plus apex A/AAAA). The previous values are recorded in RUNBOOK §9 for rollback.
+- ✅ Custom domain `www.serverless.fyi` is set. The Let's Encrypt certificate covers `serverless.fyi` and `www`, and Enforce HTTPS is on.
+- ✅ Production variables are set: `SITE_URL=https://www.serverless.fyi`, `BASE_PATH=/`, `PUBLIC_INDEXABLE=true`, `SMOKE_URL`.
+- ✅ Production smoke passed 15/15, including apex → www and `security.txt`.
+- ✅ Live parity passed: 63/63 legacy URLs return 200.
+- ✅ IndexNow pinged with all 52 sitemap URLs (HTTP 202).
+- ✅ The subscribe form feeds Kit form 10105909.
+- 👤 Add the `_github-pages-challenge-mohnishbasha` TXT record to verify the domain (prevents takeover).
+- 👤 Search Console Domain property (DNS TXT), submit `https://www.serverless.fyi/sitemap-index.xml`, and import into Bing Webmaster Tools.
+- 👤 Disconnect the custom domain in Beehiiv, export everything, then cancel the plan.
+- ⏳ Tag `v1.0.0` after the release PR merges (see RUNBOOK §6).
 
 ## Gate 8 — Post-launch
 

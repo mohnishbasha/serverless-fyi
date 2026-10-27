@@ -193,31 +193,28 @@ If production is broken and cannot be fixed within the TTL window:
 3. 👤 Remove the custom domain in GitHub Pages settings (or leave it; it will fail verification).
 4. Investigate on staging. Retry cutover.
 
-## 9. DNS rollback record (owner must fill before cutover) 👤
+## 9. DNS rollback record
 
-Do not start cutover until every placeholder is replaced with the real value copied from the registrar/Cloudflare DNS zone for `serverless.fyi` and from Beehiiv Settings, Domain. Paste exports (for example `dig` output or a zone export) below. Do not paste secrets.
+Captured on **2026-10-27** from GoDaddy (nameservers `ns19/ns20.domaincontrol.com`), just before cutover. There were no TXT, MX, SPF or DMARC records at the time, so Beehiiv sent email from its own domain.
 
-Captured on: `<YYYY-MM-DD>` by `<owner>` from `<registrar / Cloudflare>`.
+**Before cutover (Beehiiv):**
 
-| Name       | Type                  | Value                              | TTL     | Purpose                                                     |
-| ---------- | --------------------- | ---------------------------------- | ------- | ----------------------------------------------------------- |
-| `www`      | `<CNAME or A>`        | `<PASTE CURRENT BEEHIIV VALUE>`    | `<ttl>` | Beehiiv web hosting                                         |
-| `@` (apex) | `<A / ALIAS / CNAME>` | `<PASTE CURRENT BEEHIIV VALUE(S)>` | `<ttl>` | Beehiiv apex or redirect                                    |
-| `<PASTE>`  | `<TXT/CNAME>`         | `<PASTE>`                          | `<ttl>` | Beehiiv domain verification                                 |
-| `<PASTE>`  | `<CNAME>`             | `<PASTE>`                          | `<ttl>` | Beehiiv email sending (DKIM/return-path)                    |
-| `<PASTE>`  | `<TXT>`               | `<PASTE>`                          | `<ttl>` | SPF                                                         |
-| `<PASTE>`  | `<TXT>`               | `<PASTE>`                          | `<ttl>` | DMARC (current policy)                                      |
-| `<PASTE>`  | `<MX>`                | `<PASTE>`                          | `<ttl>` | Mail (for example inbound mail at the domain; do not break) |
-| `<PASTE>`  | `<TXT>`               | `<PASTE>`                          | `<ttl>` | Search Console verification (keep)                          |
+| Name       | Type  | Value                                            | Purpose                             |
+| ---------- | ----- | ------------------------------------------------ | ----------------------------------- |
+| `www`      | CNAME | `cname.beehiiv.com`                              | Beehiiv web hosting                 |
+| `@` (apex) | A     | `3.33.130.190`, `15.197.148.33`, `104.16.243.55` | GoDaddy forwarding and Beehiiv apex |
 
-Raw `dig` output (paste):
+**After cutover (GitHub Pages), live since 2026-10-27:**
 
-```text
-<dig +noall +answer www.serverless.fyi>
-<dig +noall +answer serverless.fyi A>
-<dig +noall +answer serverless.fyi TXT>
-<dig +noall +answer serverless.fyi MX>
-```
+| Name       | Type  | Value                                                                                      |
+| ---------- | ----- | ------------------------------------------------------------------------------------------ |
+| `www`      | CNAME | `mohnishbasha.github.io`                                                                   |
+| `@` (apex) | A     | `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`                 |
+| `@` (apex) | AAAA  | `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153` |
+
+Kit email records (unchanged by cutover): CNAME `ckespa`, `cka._domainkey` and `cka2._domainkey`, plus TXT `_dmarc`.
+
+**Rollback:** in GoDaddy, set `www` back to CNAME `cname.beehiiv.com` and the apex back to the three A records above. In GitHub, remove the custom domain under repo Settings → Pages. This only works while the Beehiiv publication and its domain connection still exist.
 
 ## 10. Newsletter operations
 
