@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const GA = /^https?:\/\/(?:[^\/]+\.)?(?:googletagmanager\.com|google-analytics\.com|analytics\.google\.com)(?:[\/?#:]|$)/;
+const GA = /^https?:\/\/(?:[^/]+\.)?(?:googletagmanager\.com|google-analytics\.com|analytics\.google\.com)(?:[/?#:]|$)/;
 
 test.describe('Google Analytics (ADR-032)', () => {
   test('loads gtag only after the load event, and only on indexable builds', async ({ page }) => {
