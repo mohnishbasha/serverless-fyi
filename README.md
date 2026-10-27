@@ -9,6 +9,7 @@ _Freshly baked serverless nuggets in 2 minutes._ Data, AI, distributed systems a
 This repository is the source of **<https://www.serverless.fyi>**. It's a static [Astro](https://astro.build) site, built by GitHub Actions and hosted on GitHub Pages. Every post is a Markdown/MDX file in git. The site was migrated from Beehiiv with every legacy URL preserved.
 
 - **Fast and accessible:** Lighthouse mobile scores 100 across the board, axe reports 0 violations, and pages ship no framework JS.
+- **Responsive and calm:** a serene mint/sage/sky theme (system fonts, no Tailwind) that works from 320px to 1440px+ with no horizontal overflow and 44px tap targets.
 - **Agent-ready:** [`/llms.txt`](https://www.serverless.fyi/llms.txt), [`/llms-full.txt`](https://www.serverless.fyi/llms-full.txt), a Markdown twin at `/p/<slug>.md`, [`/api/posts.json`](https://www.serverless.fyi/api/posts.json), and RSS, Atom and JSON feeds.
 - **SEO:** a JSON-LD graph on every page, OG images built at deploy time, a sitemap with `lastmod`, and IndexNow pings.
 
@@ -61,7 +62,7 @@ flowchart LR
   F --> G[smoke every 6h · IndexNow]
 ```
 
-Full details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Requirements are in [docs/PRD.md](docs/PRD.md), and decisions in [docs/DECISIONS.md](docs/DECISIONS.md). Operations are covered in [docs/RUNBOOK.md](docs/RUNBOOK.md). The newsletter's self-hosted stack (listmonk + Amazon SES) lives in [infra/newsletter/](infra/newsletter/README.md).
+Full details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Requirements are in [docs/PRD.md](docs/PRD.md), and decisions in [docs/DECISIONS.md](docs/DECISIONS.md). Operations are covered in [docs/RUNBOOK.md](docs/RUNBOOK.md). Email is sent with Kit's free plan (`PUBLIC_NEWSLETTER_PROVIDER=kit`, [ADR-028](docs/DECISIONS.md)). The self-hosted stack (listmonk + Amazon SES) in [infra/newsletter/](infra/newsletter/README.md) is the planned migration target before ~10,000 subscribers.
 
 ## Harnesses
 

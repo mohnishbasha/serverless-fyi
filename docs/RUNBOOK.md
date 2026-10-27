@@ -28,7 +28,7 @@ Target: merge to live in under 5 minutes.
 9. Get approval and squash-merge.
 10. Watch Actions: Deploy, then Smoke. Confirm the post at the live URL; confirm it is in `/rss.xml`, `/llms.txt`, and `sitemap-0.xml`.
 11. `indexnow.yml` runs automatically after a successful deploy (only when `PUBLIC_INDEXABLE=true`). Optionally request indexing in Search Console.
-12. Newsletter: Phase A: send from Beehiiv. Phase B: `newsletter-draft.yml` creates a draft campaign in listmonk; review and send (section 10.2).
+12. Newsletter: Phase A (now): create a Kit broadcast by hand and send it (section 10.1). Phase B (future): `newsletter-draft.yml` creates a draft campaign in listmonk; review and send (section 10.2).
 
 Scheduling: set `pubDate` in the future and `draft: true`; to publish, flip `draft` to `false` and set the date in a PR. Future-dated non-draft posts fail CI.
 
@@ -102,7 +102,7 @@ The site needs no secrets for deploy (Pages OIDC). Secrets that exist:
 
 | Secret                                     | Where                          | Rotation                                                                                                                    |
 | ------------------------------------------ | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `BEEHIIV_API_KEY`                          | owner `.env.local` only        | Beehiiv dashboard, Settings, Integrations, API: create new, revoke old. Retire after Sprint 10.                             |
+| `BEEHIIV_API_KEY`                          | owner `.env.local` only        | Beehiiv dashboard, Settings, Integrations, API: create new, revoke old. Revoke when Beehiiv is cancelled.                   |
 | listmonk admin password and API user token | AWS Secrets Manager            | Rotate in listmonk UI; update Secrets Manager; update GitHub secret `LISTMONK_API_TOKEN` used by the draft-campaign Action. |
 | SES SMTP credentials / IAM access keys     | AWS IAM, Secrets Manager       | Create a new IAM key, update listmonk SMTP settings, verify a test send, delete the old key. Rotate every 90 days.          |
 | SNS bounce webhook secret/basic auth       | listmonk + SNS subscription    | Update both; test with an SES simulator address.                                                                            |
@@ -132,7 +132,7 @@ SemVer on the codebase; content-only changes do not bump the version.
 10. `release.yml` verifies versions, extracts the CHANGELOG section, creates the GitHub Release.
 11. Verify smoke and Release page.
 
-Milestones: v0.1.0 scaffold + CI, v0.2.0 migrated content, v0.3.0 templates, v0.4.0 SEO/AEO, v0.5.0 newsletter, v0.9.0 staging RC, **v1.0.0 production cutover**, v1.1.0 listmonk live, v1.2.0 Beehiiv decommissioned.
+Milestones: v0.1.0 scaffold + CI, v0.2.0 migrated content, v0.3.0 templates, v0.4.0 SEO/AEO, v0.5.0 newsletter, v0.9.0 staging RC, **v1.0.0 production cutover**, v1.1.0 listmonk live (future, before ~10k subscribers), v1.2.0 Beehiiv decommissioned (can ship now).
 
 ## 7. Repo settings to apply 👤 (Prompt §11.5)
 
@@ -141,18 +141,18 @@ Apply once, verify after any repo transfer.
 1. **Branch protection on `main`:** require pull request; 1 approval (CODEOWNERS = @mohnishbasha, so agent PRs need the human); required status checks `verify`, `e2e`, `lighthouse`, `spec-touch`, `commitlint`; require linear history; squash merge only (disable merge commits and rebase); auto-delete head branches; no force pushes; no deletions; require conversation resolution; do not allow bypass.
 2. **Environments:** `github-pages` restricted to `main`.
 3. **Pages:** Settings, Pages, Source = **GitHub Actions**.
-4. **Actions variables** (Settings, Secrets and variables, Actions, Variables): `SITE_URL`, `BASE_PATH`, `PUBLIC_INDEXABLE`, `PUBLIC_NEWSLETTER_PROVIDER`, `PUBLIC_NEWSLETTER_ID`, `PUBLIC_NEWSLETTER_URL`, `PUBLIC_CF_ANALYTICS_TOKEN`, `INDEXNOW_KEY`, optional `SMOKE_URL`. CI builds with provider `beehiiv` and publication id `85ca74d5-31ae-4c86-965a-77f25e1d51da` (public; ADR-025).
+4. **Actions variables** (Settings, Secrets and variables, Actions, Variables): `SITE_URL`, `BASE_PATH`, `PUBLIC_INDEXABLE`, `PUBLIC_NEWSLETTER_PROVIDER`, `PUBLIC_NEWSLETTER_ID`, `PUBLIC_NEWSLETTER_URL`, `PUBLIC_CF_ANALYTICS_TOKEN`, `INDEXNOW_KEY`, optional `SMOKE_URL`. CI builds with provider `kit` and a placeholder form id (ADR-028).
 
-   | Variable                     | Staging                          | Production                                |
-   | ---------------------------- | -------------------------------- | ----------------------------------------- |
-   | `SITE_URL`                   | `https://mohnishbasha.github.io` | `https://www.serverless.fyi`              |
-   | `BASE_PATH`                  | `/serverless-fyi/`               | `/`                                       |
-   | `PUBLIC_INDEXABLE`           | `false`                          | `true`                                    |
-   | `PUBLIC_NEWSLETTER_PROVIDER` | `beehiiv` or `none`              | `beehiiv` (Phase A), `listmonk` (Phase B) |
-   | `PUBLIC_NEWSLETTER_ID`       | Beehiiv publication UUID         | Beehiiv UUID, or listmonk list UUID       |
-   | `PUBLIC_NEWSLETTER_URL`      | unset                            | unset (Phase A), listmonk base URL (B)    |
+   | Variable                     | Staging                          | Production                                   |
+   | ---------------------------- | -------------------------------- | -------------------------------------------- |
+   | `SITE_URL`                   | `https://mohnishbasha.github.io` | `https://www.serverless.fyi`                 |
+   | `BASE_PATH`                  | `/serverless-fyi/`               | `/`                                          |
+   | `PUBLIC_INDEXABLE`           | `false`                          | `true`                                       |
+   | `PUBLIC_NEWSLETTER_PROVIDER` | `kit` or `none`                  | `kit` (Phase A), `listmonk` (Phase B)        |
+   | `PUBLIC_NEWSLETTER_ID`       | Kit form id                      | Kit form id, or listmonk list UUID           |
+   | `PUBLIC_NEWSLETTER_URL`      | unset                            | optional Kit host (A), listmonk base URL (B) |
 
-   Providers: `beehiiv`, `listmonk`, `buttondown`, `kit`, `none`.
+   Providers: `kit`, `listmonk`, `buttondown`, `beehiiv` (legacy), `none`.
 
 5. **Secrets:** none required for deploy. `BEEHIIV_API_KEY` stays local. Add `LISTMONK_API_TOKEN` only in Phase B.
 6. **Security:** enable secret scanning + push protection, Dependabot alerts and security updates, private vulnerability reporting, CodeQL default setup (or `codeql.yml`).
@@ -165,7 +165,7 @@ Steps in order. 👤 = owner. Do not skip. Do not start until Gate 6 is green an
 
 1. Staging is live at `https://mohnishbasha.github.io/serverless-fyi/` with `PUBLIC_INDEXABLE=false`. Full test suite and smoke are green against staging.
 2. 👤 Content review: sign off `migration/report.md`; spot-check 10 posts side by side with Beehiiv (23 posts total in the inventory).
-3. 👤 Newsletter Phase A (the Beehiiv form is a plain GET to `magic.beehiiv.com/v1/<publication uuid>`; verify one real subscription on staging first): confirm the subscriber CSV from Sprint 2 is backed up outside the repo; set `PUBLIC_NEWSLETTER_PROVIDER=beehiiv` so the new form feeds the Beehiiv list.
+3. 👤 Newsletter Phase A (Kit; do section 10.1 first and verify one real subscription on staging): confirm the subscriber export is backed up outside the repo; set `PUBLIC_NEWSLETTER_PROVIDER=kit` and `PUBLIC_NEWSLETTER_ID` so the new form feeds the Kit list.
 4. 👤 Search Console: confirm the **Domain property** `serverless.fyi` is verified by DNS TXT (before touching DNS). Import to Bing Webmaster.
 5. 👤 **Record current Beehiiv DNS records** into section 9 below (before any change). Gate: the placeholders must be replaced.
 6. 👤 Lower TTL on `www` and apex to 300 s, 24 hours before cutover.
@@ -175,14 +175,14 @@ Steps in order. 👤 = owner. Do not skip. Do not start until Gate 6 is green an
    - `www` CNAME to `mohnishbasha.github.io`
    - apex `serverless.fyi` A: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
    - apex AAAA: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`
-   - Remove the Beehiiv web-hosting records. Keep any Beehiiv email-sending records (Phase A).
+   - Remove the Beehiiv web-hosting records. Beehiiv email-sending records are no longer needed once Kit is verified (section 10.1).
 10. 👤 Wait for the TLS certificate (can take up to an hour); then tick **Enforce HTTPS**.
-11. 👤 In Beehiiv, disconnect the custom domain from **web hosting only**. Keep the publication and the email DNS records. Downgrade to the cheapest plan that still sends to the list.
+11. 👤 In Beehiiv, disconnect the custom domain from **web hosting only**. If Kit is not yet verified, keep the publication and email DNS records until it is; otherwise follow section 11.
 12. Run `smoke.yml` (workflow_dispatch, production). Run `pnpm exec tsx scripts/validate-parity.ts --live` and require 100 percent.
 13. 👤 Submit `https://www.serverless.fyi/sitemap-index.xml` in Search Console and Bing. Run `indexnow.yml` manually (workflow_dispatch) with `all: true` once to ping every sitemap URL.
 14. Tag `v1.0.0` (section 6). Monitor GSC Pages and Core Web Vitals, 404s, and `incident` issues for 14 days. Scheduled smoke continues.
 
-Gate 7: production smoke green, live parity 100 percent, HTTPS enforced, apex to www, sitemap submitted, subscribe form still feeding the interim list, tag `v1.0.0`.
+Gate 7: production smoke green, live parity 100 percent, HTTPS enforced, apex to www, sitemap submitted, subscribe form feeding the Kit list, tag `v1.0.0`.
 
 ### 8.1 Cutover rollback
 
@@ -221,13 +221,47 @@ Raw `dig` output (paste):
 
 ## 10. Newsletter operations
 
-### 10.1 Phase A (Beehiiv sends, interim)
+### 10.1 Phase A (Kit free plan, current)
 
-- Compose and send issues in Beehiiv. Web archive is on the new site; link posts to `https://www.serverless.fyi/p/<slug>/`.
-- Subscribe form feeds Beehiiv (`PUBLIC_NEWSLETTER_PROVIDER=beehiiv`).
-- Keep the CSV export current; re-export before Sprint 9 and Sprint 10 to catch new signups.
+Kit's free "Newsletter" plan is $0 up to 10,000 subscribers with unlimited broadcasts, forms and tagging. Limits: one basic visual automation, no email sequences, no A/B testing, no third-party integrations, Kit branding on emails. RSS-to-email is a paid feature, so there is no automatic post-to-email (ADR-028).
 
-### 10.2 Phase B (listmonk + SES)
+**Set up Kit** 👤
+
+1. Export the Beehiiv subscriber CSV with signup dates. Keep it private, never in the repo.
+2. Create a Kit free account.
+3. Import the CSV as confirmed subscribers (these people already opted in; keep signup dates as consent evidence).
+4. Create one form. Copy its id, and the host from the form's HTML embed code (usually `https://app.kit.com`).
+5. Authenticate the sending domain `serverless.fyi` with Kit's DNS wizard and add DMARC (records below). Confirm the free plan allows domain authentication.
+6. Set repo variables `PUBLIC_NEWSLETTER_PROVIDER=kit` and `PUBLIC_NEWSLETTER_ID=<form id>` (and `PUBLIC_NEWSLETTER_URL=<host>` only if the host is not `https://app.kit.com`). Redeploy and verify one real subscription on the live form.
+7. Send a test broadcast to yourself; in Gmail, "Show original" must show SPF, DKIM and DMARC PASS.
+8. Then cancel Beehiiv (section 11).
+
+**DNS records for Kit** 👤
+
+Kit's DNS wizard shows the exact values; copy them into the zone. Do not guess them.
+
+| Name              | Type  | Value                                  | Purpose                                  |
+| ----------------- | ----- | -------------------------------------- | ---------------------------------------- |
+| from Kit's wizard | CNAME | from Kit's wizard                      | DKIM                                     |
+| from Kit's wizard | TXT   | from Kit's wizard (SPF include)        | SPF (merge into any existing SPF record) |
+| `_dmarc`          | TXT   | `v=DMARC1; p=none; rua=mailto:<owner>` | DMARC, monitor only                      |
+
+Send from `newsletter@serverless.fyi`. Keep only one SPF TXT record per name. Move DMARC to `quarantine` only after 30 clean days.
+
+**Send an issue**
+
+1. Merge the post and confirm it is live.
+2. In Kit, Broadcasts, New broadcast. Paste the body from the post's `/p/<slug>.md` twin; link back to `https://www.serverless.fyi/p/<slug>/`. Images must use absolute URLs on the new site.
+3. Send a test to yourself and check subject, preheader, links and the unsubscribe link.
+4. Send or schedule. Check bounce and complaint rates in Kit afterward.
+
+`newsletter-draft.yml` does nothing in this phase; it runs only when the provider is `listmonk`.
+
+Keep the subscriber export current: export from Kit before the Phase B migration.
+
+### 10.2 Phase B (listmonk + SES; future, before ~10,000 subscribers)
+
+Migrate before the list reaches about 10,000 subscribers, when Kit's free plan ends (Kit Creator is about $139/month at 10k and $679/month at 100k; listmonk + SES is about $11/month at 10k). Gate 9 covers this work.
 
 Hosts: listmonk at `https://lists.serverless.fyi` in `infra/newsletter/` (Docker Compose: PostgreSQL 17, listmonk v6.2.0, Caddy, backup; Terraform for SES, SNS, S3, KMS, IAM and an optional Lightsail host). The Caddyfile allowlists `/admin` and `/api` (except `/api/public`) by IP and exposes only the SES webhook and `POST /api/campaigns`. Admin also needs a strong password.
 
@@ -268,15 +302,15 @@ Thresholds: bounce > 2 percent or complaints > 0.1 percent on a send. SES may pa
 8. If SES paused the account, open an SES support case with the remediation plan.
 9. Write an incident note in the repo (`docs/audits/` or an issue labeled `incident`) with cause and fix.
 
-## 11. Beehiiv decommission (Sprint 10) 👤
+## 11. Beehiiv decommission (Sprint 10, can run now) 👤
 
-Gate: Sprint 9 done (listmonk live and a full list send succeeded).
+Gate: Kit is live (subscribers imported, domain authenticated, test broadcast received). No longer waits for listmonk.
 
-1. 👤 Final exports, stored privately (not in the repo): subscribers (merge anyone who joined during Phase A into listmonk, keeping signup timestamps), per-post stats and open/click history, raw post JSON.
-2. 👤 Pause the Beehiiv publication (no sends) for 30 to 60 days as a rollback window.
-3. 👤 Remove every remaining Beehiiv DNS record (web and email). Confirm with `dig` that only GitHub Pages and SES/listmonk records remain.
+1. 👤 Final exports, stored privately (not in the repo): subscribers with signup timestamps (already imported into Kit), per-post stats and open/click history, raw post JSON.
+2. 👤 Optionally pause the Beehiiv publication (no sends) for a short rollback window.
+3. 👤 Remove every remaining Beehiiv DNS record (web and email). Confirm with `dig` that only GitHub Pages and Kit records remain.
 4. 👤 Cancel the Beehiiv paid plan. After the rollback window, delete the publication.
-5. Remove the `beehiiv` provider branch from the adapter (or keep it behind a test and record it in `docs/DECISIONS.md`). `grep -ri beehiiv` over the repo and `dist/`: only migration provenance fields and docs may mention it.
+5. The `beehiiv` provider code stays in the adapter for now; removal is tracked for decommission. Remove it (or keep it behind a test and record it in `docs/DECISIONS.md`). `grep -ri beehiiv` over the repo and `dist/`: only migration provenance fields and docs may mention it.
 6. Run smoke and parity; both stay green.
 7. Tag `v1.2.0`.
 

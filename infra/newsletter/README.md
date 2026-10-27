@@ -1,5 +1,7 @@
 # Self-hosted newsletter infrastructure
 
+> **Status: deferred — planned migration target before ~10,000 subscribers (ADR-028); Kit is the current provider.**
+
 Infrastructure as code for the Phase B newsletter stack (PROMPT.md section 8.1, Sprint 9): listmonk for list management, Amazon SES for delivery. Nothing here is applied automatically; the owner runs it. 👤 marks owner actions.
 
 ## Architecture

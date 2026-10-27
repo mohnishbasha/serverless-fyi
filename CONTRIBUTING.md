@@ -38,6 +38,10 @@ Snapshots are rendered on Linux, so they skip on macOS and Windows. If a UI chan
 
 Say in the PR why the snapshots changed.
 
+### Responsive checklist
+
+Every template must work from 320px to 1440px+. Before a UI PR, check 320, 375, 768 and 1280px in light and dark: no horizontal overflow, no fixed widths, and standalone links and controls at least 44px tall (use `.more-link` / `.link-list`). See [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md) and ADR-029.
+
 ## Writing a post
 
 Follow [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md) and the 5 steps in the [README](README.md#publish-a-post-in-5-steps). Never change a published post's slug. Never remove entries from `migration/legacy-urls.json`.

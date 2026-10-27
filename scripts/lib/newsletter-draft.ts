@@ -7,7 +7,7 @@ export function renderEmail(
   p: { title: string; url: string; html: string; tldr?: string | undefined },
 ): string {
   const tldr = p.tldr
-    ? `<div style="border-left:6px solid #d9921f;background:#fff4dc;padding:16px;margin:0 0 24px"><strong>TL;DR</strong><br>${esc(p.tldr)}</div>`
+    ? `<div style="border-left:6px solid #86efac;background:#f0fdf4;padding:16px;margin:0 0 24px"><strong>TL;DR</strong><br>${esc(p.tldr)}</div>`
     : '';
   return template
     .replaceAll('{{title}}', esc(p.title))

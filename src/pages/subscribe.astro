@@ -44,7 +44,7 @@ const crumbs = [
         <a href={url('/privacy/')}>privacy policy</a>.
       </p>
       <h2>Recent issues</h2>
-      <ul>
+      <ul class="link-list">
         {recent.map((p) => (
           <li>
             <a href={url(postPath(p))}>{p.data.title}</a>

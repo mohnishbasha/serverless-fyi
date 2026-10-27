@@ -144,7 +144,21 @@ Numbers, versions, limits.
 
 ## 6. Theme and design tokens
 
-Plain CSS with `@layer reset, tokens, base, layout, components, prose, utilities` in `src/styles/` (`tokens.css`, `base.css`, `components.css`, `prose.css`). System font stack (no web fonts), fluid type via `clamp()`, 68ch measure, 44 px tap targets. Light and dark palettes are tokens on `:root` and `:root[data-theme]`; every text/background pair meets 4.5:1 and axe checks it in CI. Code blocks use Shiki `github-light-high-contrast` and `github-dark` (ADR-024). Change colors in `tokens.css` only, then regenerate visual snapshots (`bash scripts/update-snapshots.sh`).
+Plain CSS with `@layer reset, tokens, base, layout, components, prose, utilities` in `src/styles/` (`tokens.css`, `base.css`, `components.css`, `prose.css`). System font stack (no web fonts), fluid type via `clamp()`, 68ch measure, 44 px tap targets. Light and dark palettes are tokens on `:root` and `:root[data-theme]`; every text/background pair meets 4.5:1 and axe checks it in CI. Code blocks use Shiki `github-light-high-contrast` and `github-dark` (ADR-024).
+
+The palette is "serene", adapted from serverlessvc.com (ADR-027):
+
+- **Light:** a near-white base (`#fbfdfc`), gray-800 text, sage green links and buttons (`#15803d`), a sky-teal kicker accent (`#0e7490`), and a mint TL;DR box.
+- **Dark:** a deep green-slate base (`#0d1512`), mint links (`#7ee2a8`) and a sky accent (`#7dd3fc`).
+- **Shared:** the top of every page carries a soft mint → sky → lavender wash (`--hero`) that fades into the background. Tag pills cycle through mint, sky and lavender. The header is frosted glass and sticky from 64rem up. Cards lift 3 px on hover, unless reduced motion is requested. Change colors in `tokens.css` only, then regenerate visual snapshots (`bash scripts/update-snapshots.sh`).
+
+### Responsive rules (ADR-029)
+
+- Every template works from 320px to 1440px+ with zero horizontal overflow. Test at 320, 375, 414, 768, 1024, 1280 and 1440, in light and dark.
+- No fixed widths. Use fluid sizing (`max-width`, `clamp()`, grid/flex wrapping, container queries) and the `40rem` / `64rem` breakpoints.
+- Standalone links and controls are at least 44px tall. Use `.more-link` for "more" links and `.link-list` for link lists; do not hand-roll small tap targets.
+- The subscribe input and button go full width below `30rem`. Mobile shows a second, scrollable nav row.
+- Wide content (tables, code) scrolls inside its own wrapper, never the page.
 
 ## 7. Pre-PR checklist for a post
 

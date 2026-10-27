@@ -45,8 +45,10 @@ const crumbs = [
           : `If you subscribe, your email address is stored by our email service provider (${providerLabel[provider]}) and used only to send ${SITE.name}. Every email includes a one-click unsubscribe link.`}
       </p>
       <p>
-        Subscriber lists are never sold or shared. The self-hosted list (listmonk on AWS, sending through Amazon SES) is
-        backed up encrypted and retained only while you are subscribed.
+        Subscriber lists are never sold or shared, and are kept only while you are subscribed.
+        {provider === 'listmonk' &&
+          ' The self-hosted list (listmonk on AWS, sending through Amazon SES) is backed up encrypted.'}
+        {provider === 'kit' && ' Kit processes the list on our behalf under its own privacy policy (kit.com/privacy).'}
       </p>
       <h2>Contact</h2>
       <p>

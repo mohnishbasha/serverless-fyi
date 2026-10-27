@@ -13,7 +13,7 @@ Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an
 | 003 | URL scheme preserves Beehiiv paths                          | Accepted                    |
 | 004 | Trailing slashes always                                     | Accepted                    |
 | 005 | Canonical host = `https://www.serverless.fyi`               | Accepted                    |
-| 006 | Newsletter: Beehiiv interim sender, then listmonk + SES     | Accepted                    |
+| 006 | Newsletter: Beehiiv interim sender, then listmonk + SES     | Superseded by ADR-028       |
 | 007 | Redirects via static stubs                                  | Accepted                    |
 | 008 | Security headers via `<meta http-equiv>`                    | Accepted                    |
 | 009 | AI crawlers allowed by default                              | Accepted                    |
@@ -32,8 +32,11 @@ Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an
 | 022 | Base-path links in post bodies via a remark plugin          | Accepted                    |
 | 023 | GitHub Pages emulator for tests; Linux-rendered snapshots   | Accepted                    |
 | 024 | Shiki light theme = `github-light-high-contrast`            | Accepted                    |
-| 025 | Phase A subscribe form uses Beehiiv magic links             | Accepted                    |
+| 025 | Phase A subscribe form uses Beehiiv magic links             | Superseded by ADR-028       |
 | 026 | Minimal client JS islands (inline, no framework)            | Accepted                    |
+| 027 | Serene color theme adapted from serverlessvc.com            | Accepted                    |
+| 028 | Newsletter = Kit free now; listmonk + SES before ~10k subs  | Accepted                    |
+| 029 | Responsive matrix and tap targets                           | Accepted                    |
 
 ---
 
@@ -89,7 +92,7 @@ Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an
 
 ## ADR-006: Newsletter: Beehiiv interim sender, then listmonk + SES
 
-**Status:** Accepted
+**Status:** Superseded by ADR-028 (Kit free plan replaces Beehiiv now; listmonk + SES follows before ~10,000 subscribers)
 
 **Context:** The owner wants to stop paying Beehiiv (about $50/month) and own the list. Email deliverability needs SPF, DKIM, DMARC, one-click unsubscribe, and bounce handling.
 
@@ -289,7 +292,7 @@ Deviations log:
 
 ## ADR-025: Phase A subscribe form uses Beehiiv magic links
 
-**Status:** Accepted
+**Status:** Superseded by ADR-028 (the `kit` provider form replaces it)
 
 **Context:** In Phase A the site's form must keep feeding the Beehiiv list without JS, iframes, or API keys.
 
@@ -316,3 +319,61 @@ Deviations log:
 There is no framework runtime.
 
 **Consequences:** A post page ships about 3 KB of JS, against a 30 KB budget. Any new island needs an ADR amendment.
+
+## ADR-027: Serene color theme adapted from serverlessvc.com
+
+**Status:** Accepted
+
+**Context:** The owner asked for a soothing, serene and calm theme, modeled on the serverlessvc.com blog. That site uses a white base, a mint → sky → lavender hero gradient, green accents, gray text, frosted-glass navigation and pastel tag pills, built with Tailwind and the Inter web font.
+
+**Decision:** Keep the visual language but not the stack.
+
+- **Tokens:** retune `tokens.css` to that palette. Sage green `#15803d` is the brand color (5:1 on white); sky-teal `#0e7490` is the secondary accent.
+- **Dark mode:** a matching deep green-slate palette.
+- **Wash:** a page-top gradient wash that fades into the background.
+- **Pills and header:** cycling pastel tag pills, and a frosted sticky header on wide screens.
+- **Fonts and tooling:** system fonts instead of Inter, so there are still zero font requests, and no Tailwind (ADR-011).
+- **Matching assets:** the OG cards, favicon and email template use the same palette.
+
+**Consequences:** The look matches the Serverless Ventures family. Lighthouse 100s and axe (0 violations in light and dark) are unchanged. Visual snapshots were regenerated.
+
+## ADR-028: Newsletter provider = Kit free plan now; listmonk + SES before ~10k subscribers
+
+**Status:** Accepted
+
+**Context:** On 2026-10-27 the owner decided to leave Beehiiv immediately. The paid Lite plan (about $59/month at 1,000 subscribers) is too expensive for a list of about 1,000 subscribers that is meant to grow to 1,000,000. Kit (kit.com) offers a free "Newsletter" plan: $0 up to 10,000 subscribers, unlimited broadcasts, unlimited forms and landing pages, tagging and segmentation. Its limits: one basic visual automation, no email sequences, no A/B testing, no third-party integrations, and Kit branding on emails. RSS-to-email is a paid feature, so there is no automatic post-to-email. The self-hosted listmonk + Amazon SES stack (`infra/newsletter/`) is already built.
+
+**Decision:**
+
+- **Now (Phase A):** Kit free plan replaces Beehiiv. Site config: `PUBLIC_NEWSLETTER_PROVIDER=kit`, `PUBLIC_NEWSLETTER_ID=<Kit form id>`, and optional `PUBLIC_NEWSLETTER_URL` (the host from Kit's HTML embed code; default `https://app.kit.com`). The form POSTs to `<host>/forms/<id>/subscriptions` with the field `email_address`. It works without JS; JS enhances it with `fetch` (`no-cors`) and an inline status. The CSP allows `app.kit.com` and `app.convertkit.com`. The privacy page names Kit.
+- **Sending domain:** authenticate `serverless.fyi` in Kit (DKIM and SPF through Kit's DNS wizard; the owner verifies the free plan allows it), add DMARC `p=none`, and send from `newsletter@serverless.fyi`.
+- **Broadcasts:** the owner creates each broadcast in Kit by hand, pasting from the post's `/p/<slug>.md` twin. The `newsletter-draft.yml` workflow (listmonk draft campaigns) stays but runs only when the provider is `listmonk`.
+- **Later (Phase B):** migrate to listmonk + SES before ~10,000 subscribers.
+- **Beehiiv:** decommissioned now (export subscribers with signup dates, then cancel). The Beehiiv provider code stays in the adapter until removal is tracked and done.
+
+Estimated monthly cost:
+
+| Subscribers | Kit (Creator plan) | listmonk + SES                                   |
+| ----------- | ------------------ | ------------------------------------------------ |
+| 1,000       | $0 (free)          | not needed                                       |
+| 10,000      | about $139         | about $11                                        |
+| 100,000     | about $679         | about $60–105                                    |
+| 1,000,000   | not modelled       | about $480–790 (SES $0.10–0.16 per 1,000 emails) |
+
+**Consequences:** No email cost until the free plan's 10,000-subscriber ceiling. Trade-offs: manual broadcast creation, Kit branding on emails, no sequences or A/B tests, and a second migration later. Subscriber exports contain personal data and stay private, never in the repo. Cutover steps are in the RUNBOOK; Gate 5 now covers Kit, Gate 9 (listmonk) is deferred until ~10,000 subscribers, and Gate 10 can run now.
+
+## ADR-029: Responsive matrix and tap targets
+
+**Status:** Accepted
+
+**Context:** Most readers open the newsletter on a phone. The serene theme (ADR-027) and the second mobile nav row need a written, testable responsive contract.
+
+**Decision:**
+
+- Every template works from 320px to 1440px+ with zero horizontal overflow. Audited widths: 320, 375, 414, 768, 1024, 1280, 1440.
+- No fixed widths; layout uses fluid sizing, container queries and the existing breakpoints (`40rem`, `64rem`).
+- Standalone links and controls are at least 44px tall (classes `.more-link` and `.link-list`). The subscribe input and button go full width below `30rem`.
+- Mobile shows a second, horizontally scrollable nav row.
+- E2E runs on chromium-desktop 1280, iPhone 15, Pixel 7, a 320px overflow spec and no-JS, plus axe in light and dark and Linux visual snapshots.
+
+**Consequences:** UI changes need a check at 320 / 375 / 768 / 1280 in light and dark. Overflow regressions fail CI. A few more e2e projects add CI time.

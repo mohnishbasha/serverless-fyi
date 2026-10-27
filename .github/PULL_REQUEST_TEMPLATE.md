@@ -14,6 +14,7 @@
 - [ ] Spec doc updated in `docs/` (or label `no-spec-change` + reason)
 - [ ] CHANGELOG `[Unreleased]` updated (user-visible changes)
 - [ ] Screenshots (mobile + desktop, light + dark) for UI changes
+- [ ] UI checked at 320 / 375 / 768 / 1280 px, light + dark
 - [ ] For posts: description, tldr, keyTakeaways, cover + alt, tags; previewed the `.md` twin
 - [ ] No secrets, no remote Beehiiv image URLs
 
