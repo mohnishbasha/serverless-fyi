@@ -252,3 +252,7 @@ No cookies, no third-party scripts by default, no trackers. Analytics is optiona
 
 - `src/pages/feeds.astro` renders `/feeds/`, a human-readable index of every feed and agent endpoint, linked from the main nav as "RSS" (ADR-030). Feeds themselves stay unstyled XML or JSON; no XSLT.
 - The deploy workflow uploads the Pages artifact with `include-hidden-files: true`, so `dist/.well-known/security.txt` is published (ADR-031). Without it, `actions/upload-pages-artifact` silently drops dot-folders.
+
+## Analytics (ADR-032)
+
+Google Analytics 4 (`PUBLIC_GA_MEASUREMENT_ID`, repo variable; currently `G-DKDHH7T239`). The snippet comes from `src/lib/analytics.ts` and is emitted by `BaseHead.astro` on production builds only. It skips visitors who send GPC or DNT, and loads `gtag.js` after the `load` event. The CSP allows `www.googletagmanager.com`, `*.google-analytics.com` and `*.analytics.google.com`. Covered by `tests/unit/analytics.test.ts` and `tests/e2e/analytics.spec.ts`.

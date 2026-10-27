@@ -15,6 +15,8 @@ env:
   # Kit (ADR-028). CI uses a placeholder form id; e2e mocks the network. Deploys use repo variables.
   PUBLIC_NEWSLETTER_PROVIDER: kit
   PUBLIC_NEWSLETTER_ID: ci-placeholder-form
+  # Exercised by e2e (network mocked); Lighthouse blocks Google's hosts so scores measure our code only.
+  PUBLIC_GA_MEASUREMENT_ID: G-DKDHH7T239
 jobs:
   verify:
     runs-on: ubuntu-latest

@@ -2,6 +2,7 @@
 import { BASE_URL, SITE_URL } from './urls';
 
 export const INDEXABLE = import.meta.env.PUBLIC_INDEXABLE === 'true';
+export const GA_MEASUREMENT_ID: string = import.meta.env.PUBLIC_GA_MEASUREMENT_ID ?? '';
 export const CF_ANALYTICS_TOKEN: string = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN ?? '';
 export const NEWSLETTER_ID: string = import.meta.env.PUBLIC_NEWSLETTER_ID ?? '';
 export const NEWSLETTER_URL: string = import.meta.env.PUBLIC_NEWSLETTER_URL ?? '';
