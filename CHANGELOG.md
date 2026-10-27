@@ -4,6 +4,14 @@ All notable changes to the site codebase are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `/feeds/` page with RSS 2.0, Atom and JSON Feed URLs, per-topic feeds and agent endpoints. It is linked as "RSS" in the main navigation, and the subscribe page has a "Prefer RSS?" section.
+
+### Fixed
+
+- `/.well-known/security.txt` returned 404 on GitHub Pages because the Pages artifact excluded dot-folders. The deploy now includes hidden files, and smoke checks the file.
+
 ### Changed
 
 - A serene, calm color theme adapted from serverlessvc.com. It has a white and mint base, sage green accents, a soft gradient wash, pastel tag pills, a frosted sticky header, and a matching dark mode. OG cards, the favicon and the email template follow suit (ADR-027).

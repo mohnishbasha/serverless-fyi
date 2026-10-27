@@ -1,0 +1,85 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { breadcrumbList } from '../lib/jsonld';
+import { getPosts, tagCounts } from '../lib/posts';
+import { SITE } from '../lib/site';
+import { tagLabel } from '../lib/tags';
+import { abs, url } from '../lib/urls';
+
+const counts = tagCounts(await getPosts());
+const fileAbs = (p: string) => abs(p).replace(/\/$/, '');
+const feeds = [
+  { name: 'RSS 2.0', path: '/rss.xml', note: 'Works in every feed reader. Full post content.' },
+  { name: 'Atom', path: '/atom.xml', note: 'Same posts, Atom 1.0 format.' },
+  { name: 'JSON Feed', path: '/feed.json', note: 'JSON Feed 1.1, handy for scripts and agents.' },
+];
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'RSS & feeds', path: '/feeds/' },
+];
+---
+
+<BaseLayout
+  title="RSS & feeds"
+  description={`Follow ${SITE.name} in any feed reader: full-content RSS, Atom and JSON feeds, plus a feed for every topic. No account or email needed.`}
+  ogImage="/og/default.png"
+  ogImageAlt={`${SITE.name} feeds`}
+  jsonld={[breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap-narrow">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>RSS &amp; feeds</h1>
+      <p>
+        Get every new post in your feed reader (Feedly, Inoreader, NetNewsWire, Reeder, Thunderbird…). Copy a feed URL
+        below and paste it into your reader. No account or email needed.
+      </p>
+    </header>
+
+    <section class="stack" aria-labelledby="all-feeds">
+      <h2 id="all-feeds">All posts</h2>
+      <ul class="feed-list">
+        {feeds.map((f) => (
+          <li>
+            <a class="more-link" href={url(f.path)}>
+              {f.name}
+            </a>
+            <p class="muted">{f.note}</p>
+            <code>{fileAbs(f.path)}</code>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="stack" aria-labelledby="topic-feeds" style="margin-top:var(--space-7)">
+      <h2 id="topic-feeds">By topic</h2>
+      <p class="muted">Only want one subject? Each topic has its own RSS feed.</p>
+      <ul class="link-list topic-feeds">
+        {[...counts.entries()].map(([t, n]) => (
+          <li>
+            <a href={url(`/t/${t}/rss.xml`)}>
+              {tagLabel(t)} <span class="muted">({n})</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="stack" aria-labelledby="agents" style="margin-top:var(--space-7)">
+      <h2 id="agents">For AI agents and tools</h2>
+      <ul class="link-list">
+        <li>
+          <a href={url('/llms.txt')}>llms.txt</a> — an index of every post in Markdown
+        </li>
+        <li>
+          <a href={url('/llms-full.txt')}>llms-full.txt</a> — every post's full text in one file
+        </li>
+        <li>
+          <a href={url('/api/posts.json')}>api/posts.json</a> — machine-readable post index
+        </li>
+      </ul>
+    </section>
+  </div>
+</BaseLayout>
