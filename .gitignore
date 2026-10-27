@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.astro/
+.env*
+!.env.example
+migration/raw/
+playwright-report/
+test-results/
+.lighthouseci/
+coverage/
+.DS_Store
+*.log
+.pagefind/
+*.subscribers.csv
+subscribers*.csv
+infra/**/*.tfstate*
+infra/**/.terraform/
