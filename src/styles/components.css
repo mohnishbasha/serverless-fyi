@@ -44,6 +44,11 @@
     .brand {
       font-size: var(--step-0);
     }
+    .brand > span {
+      white-space: normal;
+      line-height: 1.1;
+      max-width: 6.5em;
+    }
     .brand svg {
       width: 1.6rem;
       height: 1.6rem;

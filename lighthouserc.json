@@ -1,0 +1,71 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "node scripts/serve-dist.mjs 4398",
+      "startServerReadyPattern": "serving",
+      "url": [
+        "http://127.0.0.1:4398/",
+        "http://127.0.0.1:4398/p/understanding-the-dns-header/",
+        "http://127.0.0.1:4398/t/distributed-systems/",
+        "http://127.0.0.1:4398/archive/"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new"
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": ".*",
+          "assertions": {
+            "categories:performance": [
+              "error",
+              {
+                "minScore": 0.95,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 1,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "categories:best-practices": [
+              "error",
+              {
+                "minScore": 0.95,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "categories:seo": [
+              "error",
+              {
+                "minScore": 1,
+                "aggregationMethod": "median-run"
+              }
+            ],
+            "unused-javascript": ["warn", {}]
+          }
+        },
+        {
+          "matchingUrlPattern": ".*/p/.*",
+          "assertions": {
+            "resource-summary:total:size": [
+              "error",
+              {
+                "maxNumericValue": 409600
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

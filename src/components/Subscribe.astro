@@ -80,6 +80,7 @@ const cfg = formConfig(provider, { id: NEWSLETTER_ID, url: NEWSLETTER_URL, redir
 <script is:inline>
   document.querySelectorAll('form[data-subscribe]:not([data-ready])').forEach(function (form) {
     form.dataset.ready = '1';
+    form.noValidate = true; // inline, announced errors instead of native bubbles
     const status = form.querySelector('.status');
     form.addEventListener('submit', function (e) {
       e.preventDefault();

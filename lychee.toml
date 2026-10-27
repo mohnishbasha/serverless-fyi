@@ -1,0 +1,20 @@
+# Link checking. PRs run offline (internal links + fragments); links.yml runs online weekly.
+include_fragments = "full"
+max_concurrency = 8
+timeout = 20
+max_retries = 2
+accept = ["200..=206", "429"]
+user_agent = "serverless-fyi-linkcheck/1.0 (+https://www.serverless.fyi)"
+exclude_path = ["dist/pagefind"]
+exclude = [
+  # Return 999/403 to bots.
+  "^https://(www\\.)?linkedin\\.com/",
+  "^https://(www\\.)?(twitter|x)\\.com/",
+  "^https://(www\\.)?facebook\\.com/",
+  "^https://(www\\.)?instagram\\.com/",
+  "^https://www\\.threads\\.net/",
+  # Form endpoints, not pages.
+  "^https://magic\\.beehiiv\\.com/",
+  "^https://lists\\.serverless\\.fyi/",
+  "^mailto:",
+]

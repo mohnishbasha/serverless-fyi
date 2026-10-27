@@ -38,7 +38,7 @@ export default defineConfig({
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   markdown: {
     remarkPlugins: [[remarkBaseLinks, { base: BASE }]],
-    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' }, wrap: false },
+    shikiConfig: { themes: { light: 'github-light-high-contrast', dark: 'github-dark' }, wrap: false },
   },
   image: { responsiveStyles: false },
   integrations: [
