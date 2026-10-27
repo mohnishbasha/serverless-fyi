@@ -1,0 +1,23 @@
+name: IndexNow
+on:
+  workflow_run:
+    workflows: [Deploy to GitHub Pages]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      all: { type: boolean, default: false, description: Ping every URL in the sitemap (use once at cutover) }
+permissions:
+  contents: read
+jobs:
+  ping:
+    if: vars.PUBLIC_INDEXABLE == 'true' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 2, ref: '${{ github.event.workflow_run.head_sha || github.sha }}' }
+      - name: Ping changed URLs
+        env:
+          SITE: https://www.serverless.fyi
+          ALL: ${{ inputs.all }}
+        run: bash scripts/indexnow.sh

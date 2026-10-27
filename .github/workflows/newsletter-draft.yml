@@ -1,0 +1,33 @@
+# Phase B (Sprint 9): after a production deploy, create a DRAFT listmonk campaign for each new post.
+# Never sends. The owner reviews and sends from the listmonk UI (docs/RUNBOOK.md § Send an issue).
+name: Newsletter draft
+on:
+  workflow_run:
+    workflows: [Deploy to GitHub Pages]
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  draft:
+    if: github.event.workflow_run.conclusion == 'success' && vars.PUBLIC_NEWSLETTER_PROVIDER == 'listmonk'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 2, ref: '${{ github.event.workflow_run.head_sha }}' }
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Create draft campaigns for new posts
+        env:
+          LISTMONK_URL: ${{ vars.PUBLIC_NEWSLETTER_URL }}
+          LISTMONK_LIST_ID: ${{ vars.LISTMONK_LIST_ID }}
+          LISTMONK_API_USER: ${{ secrets.LISTMONK_API_USER }}
+          LISTMONK_API_TOKEN: ${{ secrets.LISTMONK_API_TOKEN }}
+          SITE_URL: https://www.serverless.fyi
+        run: |
+          new=$(git diff --diff-filter=A --name-only HEAD~1 HEAD -- 'src/content/posts/*/index.md*' || true)
+          [ -z "$new" ] && { echo "No new posts."; exit 0; }
+          # shellcheck disable=SC2086 # one argument per file
+          pnpm exec tsx scripts/newsletter-draft.ts $new

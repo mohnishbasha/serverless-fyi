@@ -1,0 +1,21 @@
+name: Content idea
+description: Propose a 2-minute issue
+labels: [content]
+body:
+  - type: input
+    id: title
+    attributes: { label: Working title }
+    validations: { required: true }
+  - type: textarea
+    id: question
+    attributes: { label: Question it answers, description: The one question the TL;DR answers directly }
+    validations: { required: true }
+  - type: input
+    id: keyword
+    attributes: { label: Target keyword }
+  - type: input
+    id: tags
+    attributes: { label: Tags, description: Existing tags first (see /tags/) }
+  - type: textarea
+    id: sources
+    attributes: { label: Sources, description: Links, papers, docs, versions }

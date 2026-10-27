@@ -1,0 +1,37 @@
+{
+	email {$ACME_EMAIL}
+}
+
+lists.serverless.fyi {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Content-Security-Policy "frame-ancestors 'none'"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Admin UI and authenticated API: allowlisted CIDRs only (space-separated
+	# in ADMIN_ALLOW_CIDRS). Public API (/api/public/*) and the SES bounce
+	# webhook (/webhooks/service/ses, called by SNS) stay open.
+	# POST /api/campaigns stays reachable for .github/workflows/newsletter-draft.yml
+	# (GitHub runner IPs are not stable); it is still protected by the listmonk API token,
+	# and that API user should only have campaign-creation permissions.
+	@blocked {
+		path /admin* /api*
+		not path /api/public/* /webhooks/service/ses
+		not remote_ip {$ADMIN_ALLOW_CIDRS}
+		not {
+			method POST
+			path /api/campaigns
+		}
+	}
+	respond @blocked "Forbidden" 403
+
+	# Open paths (documented for clarity; everything else proxies the same way):
+	#   /subscription/*  /link/*  /campaign/*  /archive*  /public/*
+	#   /api/public/*    /webhooks/service/ses
+	reverse_proxy app:9000
+}

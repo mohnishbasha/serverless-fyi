@@ -1,0 +1,26 @@
+content:
+  - changed-files:
+      - any-glob-to-any-file: ['src/content/posts/**', 'src/content/tags/**']
+infra:
+  - changed-files:
+      - any-glob-to-any-file:
+          [
+            '.github/**',
+            'astro.config.mjs',
+            'package.json',
+            'pnpm-lock.yaml',
+            'integrations/**',
+            'infra/**',
+            '*.config.*',
+            'lighthouserc.json',
+            'lychee.toml',
+          ]
+design:
+  - changed-files:
+      - any-glob-to-any-file: ['src/styles/**', 'src/components/**', 'src/layouts/**']
+migration:
+  - changed-files:
+      - any-glob-to-any-file: ['migration/**']
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ['docs/**', '*.md']

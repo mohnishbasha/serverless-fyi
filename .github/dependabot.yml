@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 10
+    commit-message: { prefix: 'build(deps)' }
+    groups:
+      astro:
+        patterns: ['astro', '@astrojs/*', 'pagefind', 'satori', '@resvg/*', 'sharp']
+      testing:
+        patterns: ['vitest', '@vitest/*', '@playwright/*', '@axe-core/*', '@lhci/*', 'html-validate']
+      lint:
+        patterns:
+          [
+            'eslint',
+            '@eslint/*',
+            'eslint-*',
+            'typescript-eslint',
+            'prettier',
+            'prettier-*',
+            'markdownlint-*',
+            'cspell',
+            '@commitlint/*',
+            'lefthook',
+          ]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    commit-message: { prefix: 'ci' }
+  - package-ecosystem: terraform
+    directory: /infra/newsletter/terraform
+    schedule: { interval: monthly }
+    commit-message: { prefix: 'build(infra)' }

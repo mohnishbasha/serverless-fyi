@@ -1,5 +1,5 @@
 /** RSS / Atom / JSON Feed validity: well-formed, required elements, absolute links, no relative image src. */
-import { XMLParser, XMLValidator } from 'fast-xml-parser';
+import { XMLParser } from 'fast-xml-parser';
 import { DIST, exists, read, Report, walk } from './lib/dist';
 
 const r = new Report('validate-feeds');
@@ -20,12 +20,13 @@ for (const name of xmlFeeds) {
     continue;
   }
   const xml = read(f);
-  const valid = XMLValidator.validate(xml);
-  if (valid !== true) {
-    r.error(`${name}: not well-formed: ${valid.err.msg} (line ${valid.err.line})`);
+  let doc;
+  try {
+    doc = parser.parse(xml, true); // `true` validates well-formedness and throws on errors
+  } catch (e) {
+    r.error(`${name}: not well-formed: ${String(e)}`);
     continue;
   }
-  const doc = parser.parse(xml);
   if (name.endsWith('atom.xml')) {
     const feed = doc.feed;
     for (const k of ['title', 'id', 'updated', 'author']) if (!feed?.[k]) r.error(`${name}: missing <${k}>`);

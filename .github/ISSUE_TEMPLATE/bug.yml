@@ -1,0 +1,22 @@
+name: Bug report
+description: Something on serverless.fyi looks or behaves wrong
+labels: [bug]
+body:
+  - type: input
+    id: url
+    attributes: { label: URL, description: Page where it happens, placeholder: 'https://www.serverless.fyi/p/…' }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: Expected }
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes: { label: Actual }
+    validations: { required: true }
+  - type: input
+    id: device
+    attributes: { label: Device / browser, placeholder: 'iPhone 15, Safari 26' }
+  - type: textarea
+    id: screenshot
+    attributes: { label: Screenshot, description: Drag an image here }

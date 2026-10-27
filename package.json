@@ -23,15 +23,15 @@
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
     "lhci": "lhci autorun",
-    "validate": "tsx scripts/validate-parity.ts && tsx scripts/validate-seo.ts && tsx scripts/validate-feeds.ts && tsx scripts/validate-dist.ts && html-validate \"dist/**/*.html\"",
+    "validate": "tsx scripts/check-content.ts && tsx scripts/validate-parity.ts && tsx scripts/validate-seo.ts && tsx scripts/validate-feeds.ts && tsx scripts/validate-dist.ts && html-validate \"dist/**/*.html\"",
     "check": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm build && pnpm validate",
     "new-post": "tsx scripts/new-post.ts",
     "migrate:fetch": "tsx migration/fetch-beehiiv.ts",
     "migrate:scrape": "tsx migration/scrape-beehiiv.ts",
     "migrate:convert": "tsx migration/html-to-md.ts && tsx migration/localize-images.ts && tsx migration/build-manifest.ts",
-    "licenses": "tsx scripts/third-party-licenses.ts",
     "versions": "bash scripts/check-versions.sh",
-    "prepare": "lefthook install || true"
+    "prepare": "lefthook install || true",
+    "licenses:gen": "tsx scripts/third-party-licenses.ts"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.4",

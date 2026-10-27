@@ -1,0 +1,30 @@
+name: Smoke
+on:
+  workflow_call:
+    inputs: { base_url: { type: string, required: true } }
+  schedule: [{ cron: '17 */6 * * *' }]
+  workflow_dispatch:
+    inputs: { base_url: { type: string, required: false, description: 'Defaults to https://www.serverless.fyi' } }
+permissions:
+  contents: read
+  issues: write
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ inputs.base_url || vars.SMOKE_URL || 'https://www.serverless.fyi' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Wait for CDN propagation
+        run: for _ in $(seq 1 20); do curl -fsS "$BASE_URL/" >/dev/null && break; sleep 15; done
+      - run: bash scripts/smoke.sh "$BASE_URL"
+      - if: failure()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const title = 'Smoke test failing on live site';
+            const { data } = await github.rest.issues.listForRepo({ ...context.repo, state: 'open', labels: 'incident' });
+            const body = `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\nURL: ${process.env.BASE_URL}`;
+            const open = data.find((i) => i.title === title);
+            if (open) await github.rest.issues.createComment({ ...context.repo, issue_number: open.number, body });
+            else await github.rest.issues.create({ ...context.repo, title, labels: ['incident'], body });

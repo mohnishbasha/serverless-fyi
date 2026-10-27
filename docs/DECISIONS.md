@@ -27,6 +27,13 @@ Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an
 | 017 | Remote cover images are downloaded and committed            | Accepted                    |
 | 018 | Migrated post descriptions are never invented               | Accepted                    |
 | 019 | Search page at `/search/`                                   | Accepted                    |
+| 020 | Untagged posts get tags from `migration/tag-overrides.json` | Accepted — owner to confirm |
+| 021 | Empty legacy tag pages render `noindex`                     | Accepted                    |
+| 022 | Base-path links in post bodies via a remark plugin          | Accepted                    |
+| 023 | GitHub Pages emulator for tests; Linux-rendered snapshots   | Accepted                    |
+| 024 | Shiki light theme = `github-light-high-contrast`            | Accepted                    |
+| 025 | Phase A subscribe form uses Beehiiv magic links             | Accepted                    |
+| 026 | Minimal client JS islands (inline, no framework)            | Accepted                    |
 
 ---
 
@@ -182,7 +189,13 @@ Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an
 
 Deviations log:
 
-- (to be filled in Sprint 1: content config import paths, `z` import source, `glob` loader options, `trailingSlash`/`build.format` behavior with endpoints, sitemap `serialize` signature)
+- Content config imports (`astro:content`, `astro/loaders`, `astro/zod`) work as in the prompt. `astro/zod` is Zod 4: `z.string().url()` is deprecated, so the schema uses `z.url()`.
+- `reference('authors').default('mohinish')` does not type-check in Zod 4 (the default must be the transformed output). The schema uses `.default({ collection: 'authors', id: 'mohinish' })`.
+- Astro 7 makes **Sätteri** the default Markdown processor. `markdown.remarkPlugins` needs `@astrojs/markdown-remark` installed; we add it for the base-path link plugin (ADR-022).
+- Astro 7 does not empty `dist/` between builds. `prebuild` removes it, and the redirect-stub integration may overwrite only an older stub, never a real page.
+- `astro preview` daemonizes in Astro 7, which Playwright's `webServer` cannot manage. Tests use `scripts/serve-dist.mjs`, a GitHub Pages emulator (ADR-023).
+- The sitemap `serialize(item)` signature is unchanged. `lastmod` comes from a frontmatter scan at config time (`integrations/content-index.mjs`).
+- TypeScript is pinned at 6.0.x. TS 7 (native) is outside the peer range of `@astrojs/check` and `typescript-eslint`.
 
 ## ADR-016: Node 24 LTS pinned in `.nvmrc` / `engines`
 
@@ -223,3 +236,83 @@ Deviations log:
 **Decision:** Provide `/search/` with Pagefind UI, lazy-loaded on first interaction (or when `?q=` is present). Reads `?q=` and pre-fills. Emit `WebSite.potentialAction` `SearchAction` with target `/search/?q={search_term_string}`. Header search icon links to `/search/` (no JS required to navigate). `/search/` is excluded from the sitemap.
 
 **Consequences:** One extra page, no search JS on content pages. The `SearchAction` is only valid while `/search/?q=` works, so e2e tests it. Pagefind index files add weight to `dist/`, not to page loads.
+
+## ADR-020: Untagged posts get tags from `migration/tag-overrides.json`
+
+**Status:** Accepted — owner to confirm
+
+**Context:** 8 of 23 Beehiiv posts have no content tags, but the schema requires at least one, and tags drive related posts and topic pages.
+
+**Decision:** The migrator takes tags from `migration/tag-overrides.json`, chosen from each post's own subject matter. Existing tags are reused where they fit (`tax`, `qsbs`, `distributed-systems`, `apache-flink`). New tags: `newsletter`, `containers`, `apache-kafka`, `ai-agents`, `algorithms`. Every override is listed in `migration/report.md` for review.
+
+**Consequences:** All posts are reachable by topic. New tag pages exist that Beehiiv never had. They are additive, so URL parity is unaffected. The owner can edit the overrides and re-run the converter.
+
+## ADR-021: Empty legacy tag pages render `noindex`
+
+**Status:** Accepted
+
+**Context:** `/t/object-storage` and `/t/xrp` are in the Beehiiv sitemap but no post carries those tags. Parity requires them to resolve.
+
+**Decision:** Render every tag in `src/content/tags/` as a page. A tag with no posts shows a "No posts with this tag yet" note linking to the archive, is `noindex`, has no RSS feed, and is excluded from the sitemap.
+
+**Consequences:** Parity holds with no thin indexable pages. Once a post uses the tag, the page becomes a normal indexable page automatically.
+
+## ADR-022: Base-path links in post bodies via a remark plugin
+
+**Status:** Accepted
+
+**Context:** Posts link to each other with root-relative URLs (`/p/x/`). On staging (`BASE_PATH=/serverless-fyi/`) those links break. Writing the base into content would break production.
+
+**Decision:** `integrations/remark-base-links.mjs` prefixes root-relative Markdown links with the configured base at build time. It requires `@astrojs/markdown-remark` (ADR-015). `scripts/validate-dist.ts` fails a staging build that contains any root-relative URL without the base.
+
+**Consequences:** Content stays portable, and authors write plain `/p/slug/` links.
+
+## ADR-023: GitHub Pages emulator for tests; Linux-rendered snapshots
+
+**Status:** Accepted
+
+**Context:** Playwright and Lighthouse CI need a foreground static server that behaves like Pages: a 301 to the trailing-slash URL, and `404.html` with status 404. Visual snapshots differ between macOS and Linux font rendering.
+
+**Decision:** `scripts/serve-dist.mjs` serves `dist/` with Pages semantics and base-path support. Visual snapshots are generated in the official Playwright Linux image (`scripts/update-snapshots.sh`), skip on non-Linux hosts, and are updated in CI only on PRs labelled `update-snapshots`.
+
+**Consequences:** E2E results match production behavior, and snapshots are stable in CI. Local visual changes need Docker.
+
+## ADR-024: Shiki light theme = `github-light-high-contrast`
+
+**Status:** Accepted
+
+**Context:** axe reported color-contrast violations for `github-light` token colors on the code background.
+
+**Decision:** Use `github-light-high-contrast` for light mode and keep `github-dark` for dark mode (it passes axe).
+
+**Consequences:** Accessibility is 100 in Lighthouse and axe shows 0 violations, at the cost of slightly bolder syntax colors.
+
+## ADR-025: Phase A subscribe form uses Beehiiv magic links
+
+**Status:** Accepted
+
+**Context:** In Phase A the site's form must keep feeding the Beehiiv list without JS, iframes, or API keys.
+
+**Decision:** The `beehiiv` provider renders a plain `GET` form to `https://magic.beehiiv.com/v1/<publication-uuid>` with `email` and `redirect_to`. The publication UUID is public (it appears in Beehiiv's own page JSON-LD). JS enhancement sends the same request with `fetch` (`no-cors`) and shows an inline status.
+
+**Consequences:** It works with JS disabled, needs no secrets, and is replaced by `listmonk` in Sprint 9 by changing one repo variable. The owner must verify one real subscription on staging (Gate 5).
+
+## ADR-026: Minimal client JS islands (inline, no framework)
+
+**Status:** Accepted
+
+**Context:** The zero-JS default allows only justified islands.
+
+**Decision:** These inline scripts are allowed, each well under 2 KB:
+
+- Theme pre-paint plus toggle.
+- Subscribe enhancement.
+- Code-block wrap toggle (posts).
+- Click-to-load YouTube facade.
+- `?page=N` redirect (archive).
+- Legacy-URL repair (404).
+- Search (lazy-imports Pagefind only on `/search/`).
+
+There is no framework runtime.
+
+**Consequences:** A post page ships about 3 KB of JS, against a 30 KB budget. Any new island needs an ADR amendment.
