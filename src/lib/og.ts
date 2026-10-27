@@ -34,13 +34,13 @@ export async function renderOg(o: {
       flexDirection: 'column',
       justifyContent: 'space-between',
       padding: '72px 80px',
-      background: 'linear-gradient(135deg, #0b2f4a 0%, #0b4f7a 60%, #12679c 100%)',
-      color: '#ffffff',
+      background: 'linear-gradient(135deg, #f0f9f4 0%, #e8f4fd 55%, #f5f0ff 100%)',
+      color: '#1f2937',
       fontFamily: 'Inter',
     },
     [
       h('div', { display: 'flex', alignItems: 'center', gap: '18px', fontSize: 30, fontWeight: 700 }, [
-        h('div', { display: 'flex', width: 18, height: 18, borderRadius: 9, background: '#f3b65a' }),
+        h('div', { display: 'flex', width: 18, height: 18, borderRadius: 9, background: '#16a34a' }),
         h('div', { display: 'flex' }, o.kicker ?? SITE.name),
       ]),
       h(
@@ -48,7 +48,7 @@ export async function renderOg(o: {
         { display: 'flex', fontSize: size, fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.02em' },
         o.title,
       ),
-      h('div', { display: 'flex', justifyContent: 'space-between', fontSize: 28, color: '#cfe6f7' }, [
+      h('div', { display: 'flex', justifyContent: 'space-between', fontSize: 28, color: '#15803d' }, [
         h('div', { display: 'flex' }, o.footer ?? SITE.tagline),
         h('div', { display: 'flex' }, 'serverless.fyi'),
       ]),

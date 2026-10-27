@@ -12,8 +12,8 @@ export const SITE = {
   keywords: ['product management', 'software engineering', 'technology'],
   lang: 'en',
   locale: 'en_US',
-  themeColorLight: '#ffffff',
-  themeColorDark: '#0b0d10',
+  themeColorLight: '#f0f9f4',
+  themeColorDark: '#0d1512',
   twitter: '@mohinishbasha',
   organization: {
     name: 'Serverless Ventures LLC',

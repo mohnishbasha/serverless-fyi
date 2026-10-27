@@ -4,6 +4,10 @@ All notable changes to the site codebase are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- A serene, calm color theme adapted from serverlessvc.com. It has a white and mint base, sage green accents, a soft gradient wash, pastel tag pills, a frosted sticky header, and a matching dark mode. OG cards, the favicon and the email template follow suit (ADR-027).
+
 ## [0.1.0] - 2026-10-27
 
 ### Added

@@ -34,6 +34,7 @@ Process: when a PR deviates from this log or from `docs/PRD.md`, add or amend an
 | 024 | Shiki light theme = `github-light-high-contrast`            | Accepted                    |
 | 025 | Phase A subscribe form uses Beehiiv magic links             | Accepted                    |
 | 026 | Minimal client JS islands (inline, no framework)            | Accepted                    |
+| 027 | Serene color theme adapted from serverlessvc.com            | Accepted                    |
 
 ---
 
@@ -316,3 +317,20 @@ Deviations log:
 There is no framework runtime.
 
 **Consequences:** A post page ships about 3 KB of JS, against a 30 KB budget. Any new island needs an ADR amendment.
+
+## ADR-027: Serene color theme adapted from serverlessvc.com
+
+**Status:** Accepted
+
+**Context:** The owner asked for a soothing, serene and calm theme, modeled on the serverlessvc.com blog. That site uses a white base, a mint → sky → lavender hero gradient, green accents, gray text, frosted-glass navigation and pastel tag pills, built with Tailwind and the Inter web font.
+
+**Decision:** Keep the visual language but not the stack.
+
+- **Tokens:** retune `tokens.css` to that palette. Sage green `#15803d` is the brand color (5:1 on white); sky-teal `#0e7490` is the secondary accent.
+- **Dark mode:** a matching deep green-slate palette.
+- **Wash:** a page-top gradient wash that fades into the background.
+- **Pills and header:** cycling pastel tag pills, and a frosted sticky header on wide screens.
+- **Fonts and tooling:** system fonts instead of Inter, so there are still zero font requests, and no Tailwind (ADR-011).
+- **Matching assets:** the OG cards, favicon and email template use the same palette.
+
+**Consequences:** The look matches the Serverless Ventures family. Lighthouse 100s and axe (0 violations in light and dark) are unchanged. Visual snapshots were regenerated.

@@ -38,15 +38,15 @@
   }
   .prose hr {
     border: 0;
-    height: 3px;
+    height: 2px;
     width: 30%;
     margin: 2.5em auto;
-    background: var(--tldr-border);
+    background: linear-gradient(90deg, transparent, var(--tldr-border), transparent);
     border-radius: 3px;
   }
   .prose blockquote {
     padding-inline-start: 1em;
-    border-inline-start: 4px solid var(--border);
+    border-inline-start: 4px solid var(--tldr-border);
     color: var(--muted);
     font-style: italic;
   }

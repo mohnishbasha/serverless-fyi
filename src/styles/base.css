@@ -42,7 +42,7 @@
 @layer base {
   html {
     background: var(--bg);
-    scroll-padding-top: var(--space-5);
+    scroll-padding-top: 5.5rem; /* clears the sticky header */
   }
   body {
     min-height: 100vh;
@@ -113,6 +113,11 @@
   main {
     display: block;
     padding-block: var(--space-6) var(--space-8);
+    /* Soft mint → sky → lavender wash at the top of every page. */
+    background:
+      linear-gradient(to bottom, transparent 50%, var(--bg) 100%) top / 100% 40rem no-repeat,
+      var(--hero) top / 100% 40rem no-repeat,
+      var(--bg);
   }
   main:focus {
     outline: none;
@@ -140,6 +145,9 @@
 }
 
 @media print {
+  main {
+    background: none;
+  }
   .site-header,
   .site-footer,
   .subscribe,
