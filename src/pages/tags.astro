@@ -1,0 +1,33 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TagList from '../components/TagList.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { breadcrumbList, collectionPage } from '../lib/jsonld';
+import { getPosts, tagCounts } from '../lib/posts';
+import { SITE } from '../lib/site';
+
+const counts = tagCounts(await getPosts());
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Tags', path: '/tags/' },
+];
+const description = `Browse ${SITE.name} by topic: ${[...counts.keys()].slice(0, 6).join(', ')} and more — every tag with its post count.`;
+---
+
+<BaseLayout
+  title="All topics"
+  description={description}
+  ogImage="/og/default.png"
+  ogImageAlt={`${SITE.name} topics`}
+  jsonld={[collectionPage('/tags/', 'All topics', description, ctx), breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>Topics</h1>
+      <p>{counts.size} topics across every issue.</p>
+    </header>
+    <TagList tags={[...counts.keys()]} counts={counts} cloud label="All topics" />
+  </div>
+</BaseLayout>

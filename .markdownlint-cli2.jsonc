@@ -1,0 +1,23 @@
+{
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD033": { "allowed_elements": ["YouTube", "Tweet", "details", "summary", "br", "img", "a", "p"] },
+    "MD041": false,
+    "MD024": { "siblings_only": true },
+    "MD036": false,
+    "MD060": false,
+  },
+  "ignores": [
+    "node_modules/**",
+    "dist/**",
+    "migration/raw/**",
+    "migration/fixtures/**",
+    "CHANGELOG.md",
+    "PROMPT.md",
+    "Prompt.md",
+    "THIRD_PARTY_LICENSES.md",
+    "coverage/**",
+    "playwright-report/**",
+  ],
+}

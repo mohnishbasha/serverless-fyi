@@ -1,0 +1,31 @@
+---
+/* Click-to-load facade: no third-party JS or requests until the reader asks. */
+export interface Props {
+  id: string;
+  title?: string;
+}
+const { id, title = 'YouTube video' } = Astro.props;
+const watch = `https://www.youtube.com/watch?v=${id}`;
+---
+
+<div class="facade" data-youtube={id}>
+  <a class="btn" href={watch}>
+    ▶ Play “{title}” on YouTube
+  </a>
+</div>
+<script is:inline>
+  document.querySelectorAll('[data-youtube]:not([data-ready])').forEach(function (el) {
+    el.dataset.ready = '1';
+    const a = el.querySelector('a');
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      const f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + el.dataset.youtube + '?autoplay=1';
+      f.title = a.textContent;
+      f.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture';
+      f.allowFullscreen = true;
+      f.style.cssText = 'width:100%;height:100%;border:0';
+      el.replaceChildren(f);
+    });
+  });
+</script>

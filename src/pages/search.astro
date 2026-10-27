@@ -1,0 +1,128 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Search from '../components/Search.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { breadcrumbList } from '../lib/jsonld';
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Search', path: '/search/' },
+];
+---
+
+<BaseLayout
+  title="Search"
+  description={`Search every ${SITE.name} post: data, AI, distributed systems and startups. Static full-text search that runs entirely in your browser.`}
+  ogImage="/og/default.png"
+  ogImageAlt={`Search ${SITE.name}`}
+  noindex
+  jsonld={[breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap-narrow">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>Search</h1>
+      <p>
+        Full-text search across every post. Without JavaScript, browse the <a href={url('/archive/')}>archive</a>.
+      </p>
+    </header>
+    <Search id="search-page-q" />
+    <div
+      class="search-results"
+      aria-live="polite"
+      data-search-results
+      data-pagefind={url('/pagefind/pagefind.js')}
+    ></div>
+  </div>
+  <script is:inline>
+    (function () {
+      const box = document.querySelector('[data-search-results]');
+      const input = document.getElementById('search-page-q');
+      let pf;
+      const load = function () {
+        pf =
+          pf ||
+          import(box.dataset.pagefind).then(function (m) {
+            return m.init
+              ? m.init().then(function () {
+                  return m;
+                })
+              : m;
+          });
+        return pf;
+      };
+      const esc = function (s) {
+        return s.replace(/[&<>"]/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+      };
+      const run = function (q) {
+        if (!q) {
+          box.textContent = '';
+          return;
+        }
+        load()
+          .then(function (m) {
+            return m.search(q);
+          })
+          .then(function (res) {
+            return Promise.all(
+              res.results.slice(0, 20).map(function (r) {
+                return r.data();
+              }),
+            );
+          })
+          .then(function (items) {
+            if (!items.length) {
+              box.innerHTML = '<p>No results for “' + esc(q) + '”.</p>';
+              return;
+            }
+            box.innerHTML =
+              '<p>' +
+              items.length +
+              ' result' +
+              (items.length === 1 ? '' : 's') +
+              ' for “' +
+              esc(q) +
+              '”</p><ol>' +
+              items
+                .map(function (d) {
+                  return (
+                    '<li><a href="' +
+                    esc(d.url) +
+                    '">' +
+                    esc(d.meta.title || d.url) +
+                    '</a><p>' +
+                    d.excerpt +
+                    '</p></li>'
+                  );
+                })
+                .join('') +
+              '</ol>';
+          })
+          .catch(function () {
+            box.innerHTML = '<p>Search is unavailable right now.</p>';
+          });
+      };
+      const q = new URLSearchParams(location.search).get('q') || '';
+      input.value = q;
+      run(q);
+      input.addEventListener('focus', load, { once: true });
+      let t;
+      input.addEventListener('input', function () {
+        clearTimeout(t);
+        t = setTimeout(function () {
+          history.replaceState(null, '', '?q=' + encodeURIComponent(input.value));
+          run(input.value.trim());
+        }, 200);
+      });
+      input.form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        run(input.value.trim());
+      });
+    })();
+  </script>
+</BaseLayout>

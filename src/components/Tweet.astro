@@ -1,0 +1,13 @@
+---
+/* Facade: a plain link to the post on X. No widgets.js. */
+export interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<p class="facade" style="aspect-ratio:auto;padding:var(--space-5)">
+  <a class="btn btn-ghost" href={`https://x.com/i/status/${id}`}>
+    View the post on X
+  </a>
+</p>

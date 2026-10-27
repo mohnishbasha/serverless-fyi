@@ -1,0 +1,10 @@
+---
+import { graph, type Node, serialize } from '../lib/jsonld';
+
+export interface Props {
+  nodes: Array<Node | null | undefined>;
+}
+const json = serialize(graph(Astro.props.nodes));
+---
+
+<script type="application/ld+json" set:html={json} />

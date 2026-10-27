@@ -1,0 +1,33 @@
+---
+import { url } from '../lib/urls';
+
+export interface Props {
+  prev?: string | undefined;
+  next?: string | undefined;
+  current: number;
+  last: number;
+}
+const { prev, next, current, last } = Astro.props;
+---
+
+{last > 1 && (
+  <nav class="pagination" aria-label="Pagination">
+    {prev ? (
+      <a class="btn btn-ghost" href={url(prev)} rel="prev">
+        ← Newer
+      </a>
+    ) : (
+      <span />
+    )}
+    <span class="muted">
+      Page {current} of {last}
+    </span>
+    {next ? (
+      <a class="btn btn-ghost" href={url(next)} rel="next">
+        Older →
+      </a>
+    ) : (
+      <span />
+    )}
+  </nav>
+)}

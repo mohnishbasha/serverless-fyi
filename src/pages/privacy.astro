@@ -1,0 +1,58 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CF_ANALYTICS_TOKEN, ctx } from '../lib/env';
+import { breadcrumbList } from '../lib/jsonld';
+import { provider, providerLabel } from '../lib/newsletter';
+import { SITE } from '../lib/site';
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Privacy', path: '/privacy/' },
+];
+---
+
+<BaseLayout
+  title="Privacy policy"
+  description="How 2 Minute Serverless handles your data: no cookies, no trackers, cookieless analytics, and an email list used only to send the newsletter."
+  ogImage="/og/default.png"
+  ogImageAlt={`${SITE.name} privacy policy`}
+  jsonld={[breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap-narrow">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>Privacy policy</h1>
+      <p>Short version: we collect as little as possible and never sell anything.</p>
+    </header>
+    <div class="prose">
+      <h2>Website</h2>
+      <p>
+        This site is static HTML hosted on GitHub Pages. It sets no cookies. GitHub may log IP addresses for security
+        purposes as described in the GitHub privacy statement. A theme preference is stored in your browser's local
+        storage only if you use the theme toggle.
+      </p>
+      <h2>Analytics</h2>
+      <p>
+        {CF_ANALYTICS_TOKEN
+          ? 'We use Cloudflare Web Analytics, which is cookieless and does not fingerprint visitors, to count page views.'
+          : 'This site currently runs no analytics.'}
+      </p>
+      <h2>Newsletter</h2>
+      <p>
+        {provider === 'none'
+          ? 'Email issues are currently paused, so no email addresses are collected through this site.'
+          : `If you subscribe, your email address is stored by our email service provider (${providerLabel[provider]}) and used only to send ${SITE.name}. Every email includes a one-click unsubscribe link.`}
+      </p>
+      <p>
+        Subscriber lists are never sold or shared. The self-hosted list (listmonk on AWS, sending through Amazon SES) is
+        backed up encrypted and retained only while you are subscribed.
+      </p>
+      <h2>Contact</h2>
+      <p>
+        Questions or deletion requests: <a href="mailto:mohinish@serverlessvc.com">mohinish@serverlessvc.com</a>.
+      </p>
+      <p>Serverless Ventures LLC.</p>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,137 @@
+@layer prose {
+  .prose {
+    max-width: var(--measure);
+    line-height: 1.7;
+  }
+  .prose > * + * {
+    margin-block-start: 1.1em;
+  }
+  .prose h2 {
+    font-size: var(--step-2);
+    margin-block-start: 2em;
+  }
+  .prose h3 {
+    font-size: var(--step-1);
+    margin-block-start: 1.7em;
+  }
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    font-size: var(--step-0);
+    margin-block-start: 1.5em;
+  }
+  .prose h2 + *,
+  .prose h3 + *,
+  .prose h4 + * {
+    margin-block-start: 0.6em;
+  }
+  .prose ul,
+  .prose ol {
+    padding-inline-start: 1.4em;
+  }
+  .prose li + li {
+    margin-block-start: 0.4em;
+  }
+  .prose li > ul,
+  .prose li > ol {
+    margin-block-start: 0.4em;
+  }
+  .prose hr {
+    border: 0;
+    height: 3px;
+    width: 30%;
+    margin: 2.5em auto;
+    background: var(--tldr-border);
+    border-radius: 3px;
+  }
+  .prose blockquote {
+    padding-inline-start: 1em;
+    border-inline-start: 4px solid var(--border);
+    color: var(--muted);
+    font-style: italic;
+  }
+  .prose img {
+    border-radius: var(--radius-sm);
+  }
+  .prose :not(pre) > code {
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    overflow-wrap: anywhere;
+  }
+  .prose pre {
+    position: relative;
+    padding: var(--space-4);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    font-size: 0.85em;
+    line-height: 1.55;
+    tab-size: 2;
+  }
+  .prose pre.wrap {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .code-wrap-toggle {
+    position: absolute;
+    top: var(--space-1);
+    right: var(--space-1);
+    min-width: var(--tap);
+    min-height: var(--tap);
+    padding: 0 var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-family: var(--font-sans);
+    cursor: pointer;
+  }
+  .code-block {
+    position: relative;
+  }
+  .prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .prose th,
+  .prose td {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border);
+    text-align: start;
+    vertical-align: top;
+  }
+  .prose th {
+    background: var(--surface-2);
+  }
+  .prose figure figcaption {
+    margin-block-start: var(--space-2);
+    font-size: var(--step--1);
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Shiki dual themes */
+  .astro-code {
+    background-color: var(--code-bg) !important;
+  }
+  :root[data-theme='dark'] .astro-code,
+  :root[data-theme='dark'] .astro-code span {
+    color: var(--shiki-dark) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .astro-code,
+    :root:not([data-theme='light']) .astro-code span {
+      color: var(--shiki-dark) !important;
+      font-style: var(--shiki-dark-font-style) !important;
+      font-weight: var(--shiki-dark-font-weight) !important;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+dist/
+.astro/
+node_modules/
+pnpm-lock.yaml
+migration/raw/
+migration/fixtures/
+migration/legacy-urls.json
+src/content/posts/
+PROMPT.md
+Prompt.md
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+tests/visual/**/*-snapshots/

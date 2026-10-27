@@ -1,0 +1,22 @@
+---
+export interface Props {
+  tldr: string;
+  takeaways: string[];
+}
+const { tldr, takeaways } = Astro.props;
+---
+
+<aside class="tldr" aria-labelledby="tldr-heading">
+  <h2 id="tldr-heading">TL;DR</h2>
+  <p>{tldr}</p>
+</aside>
+{takeaways.length > 0 && (
+  <section class="takeaways" aria-labelledby="takeaways-heading">
+    <h2 id="takeaways-heading">Key takeaways</h2>
+    <ul>
+      {takeaways.map((t) => (
+        <li>{t}</li>
+      ))}
+    </ul>
+  </section>
+)}

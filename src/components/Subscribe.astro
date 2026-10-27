@@ -1,0 +1,113 @@
+---
+/**
+ * Plain HTML form that POSTs (or GETs) to the provider's public endpoint — works with JS disabled.
+ * JS progressively enhances it with fetch + inline status. provider=none → follow block.
+ */
+import { NEWSLETTER_ID, NEWSLETTER_URL } from '../lib/env';
+import { formConfig, provider } from '../lib/newsletter';
+import { SITE } from '../lib/site';
+import { abs, url } from '../lib/urls';
+
+export interface Props {
+  heading?: string;
+  headingLevel?: 2 | 3;
+  id?: string;
+}
+const { heading = 'Get the next 2-minute issue', headingLevel = 2, id = 'subscribe' } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const cfg = formConfig(provider, { id: NEWSLETTER_ID, url: NEWSLETTER_URL, redirect: abs('/subscribe/?subscribed=1') });
+---
+
+<section class="subscribe" aria-labelledby={`${id}-heading`}>
+  <H id={`${id}-heading`}>{cfg ? heading : 'Follow along'}</H>
+  {cfg ? (
+    <>
+      <p>One short, answer-first explainer on data, AI and distributed systems. No spam, unsubscribe any time.</p>
+      <form
+        action={cfg.action}
+        method={cfg.method}
+        data-subscribe
+        data-success={cfg.success}
+        data-honeypot={cfg.honeypot}
+      >
+        <label for={`${id}-email`}>Email address</label>
+        <input
+          id={`${id}-email`}
+          name={cfg.emailField}
+          type="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          placeholder="you@example.com"
+        />
+        {Object.entries(cfg.hidden).map(([k, v]) => (
+          <input type="hidden" name={k} value={v} />
+        ))}
+        <div class="hp" aria-hidden="true">
+          <label for={`${id}-${cfg.honeypot}`}>Leave this field empty</label>
+          <input id={`${id}-${cfg.honeypot}`} name={cfg.honeypot} type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <button class="btn" type="submit">
+          Subscribe
+        </button>
+        <p class="status" role="status" aria-live="polite" />
+      </form>
+    </>
+  ) : (
+    <>
+      <p>New email issues are paused. Follow along here instead:</p>
+      <ul class="follow">
+        <li>
+          <a class="btn btn-ghost" href={url('/rss.xml')}>
+            RSS
+          </a>
+        </li>
+        <li>
+          <a class="btn btn-ghost" href={SITE.social.linkedin}>
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          <a class="btn btn-ghost" href={SITE.social.youtube}>
+            YouTube
+          </a>
+        </li>
+      </ul>
+    </>
+  )}
+</section>
+
+<script is:inline>
+  document.querySelectorAll('form[data-subscribe]:not([data-ready])').forEach(function (form) {
+    form.dataset.ready = '1';
+    const status = form.querySelector('.status');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const hp = form.querySelector('[name="' + form.dataset.honeypot + '"]');
+      const email = form.querySelector('input[type=email]');
+      if (hp && hp.value) return; // bot
+      if (!email.checkValidity()) {
+        status.dataset.state = 'error';
+        status.textContent = 'Please enter a valid email address.';
+        email.focus();
+        return;
+      }
+      const data = new FormData(form);
+      if (hp) data.delete(hp.name);
+      const get = form.method.toLowerCase() === 'get';
+      const target = form.action + (get ? '?' + new URLSearchParams(data).toString() : '');
+      status.dataset.state = 'pending';
+      status.textContent = 'Subscribing…';
+      fetch(target, { method: get ? 'GET' : 'POST', body: get ? undefined : data, mode: 'no-cors' })
+        .then(function () {
+          status.dataset.state = 'ok';
+          status.textContent = form.dataset.success;
+          form.reset();
+        })
+        .catch(function () {
+          status.dataset.state = 'error';
+          status.textContent = 'Something went wrong. Please try again, or use the RSS feed.';
+        });
+    });
+  });
+</script>

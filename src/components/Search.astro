@@ -1,0 +1,19 @@
+---
+import { url } from '../lib/urls';
+
+export interface Props {
+  id?: string;
+  value?: string;
+}
+const { id = 'q', value = '' } = Astro.props;
+---
+
+<form class="search-form" role="search" action={url('/search/')} method="get">
+  <label class="visually-hidden" for={id}>
+    Search posts
+  </label>
+  <input id={id} name="q" type="search" placeholder="Search posts…" value={value} autocomplete="off" />
+  <button class="btn" type="submit">
+    Search
+  </button>
+</form>

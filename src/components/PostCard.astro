@@ -1,0 +1,29 @@
+---
+import { type Post, postPath, summaryOf } from '../lib/posts';
+import { readingTime } from '../lib/reading-time';
+import { url } from '../lib/urls';
+import TagList from './TagList.astro';
+
+export interface Props {
+  post: Post;
+  headingLevel?: 2 | 3;
+}
+const { post, headingLevel = 3 } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const date = post.data.pubDate;
+---
+
+<article class="card">
+  <H>
+    <a href={url(postPath(post))}>{post.data.title}</a>
+  </H>
+  <p>{summaryOf(post)}</p>
+  <TagList tags={post.data.tags.slice(0, 3)} />
+  <p class="meta">
+    <time datetime={date.toISOString()}>
+      {date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
+    </time>
+    {' · '}
+    {readingTime(post.body ?? '')} min read
+  </p>
+</article>

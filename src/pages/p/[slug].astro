@@ -1,0 +1,36 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Tweet from '../../components/Tweet.astro';
+import YouTube from '../../components/YouTube.astro';
+import PostLayout from '../../layouts/PostLayout.astro';
+import { getAuthor, getPosts, type Post, postWords, prevNext, relatedPosts } from '../../lib/posts';
+import { readingTime } from '../../lib/reading-time';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.data.slug }, props: { post, all: posts } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: Post;
+  all: Post[];
+}
+const { post, all } = Astro.props;
+const { Content, headings } = await render(post);
+const author = await getAuthor(post);
+const { prev, next } = prevNext(post, all);
+---
+
+<PostLayout
+  post={post}
+  author={author}
+  headings={headings}
+  words={postWords(post)}
+  minutes={readingTime(post.body ?? '')}
+  prev={prev}
+  next={next}
+  related={relatedPosts(post, all)}
+>
+  <Content components={{ YouTube, Tweet }} />
+</PostLayout>

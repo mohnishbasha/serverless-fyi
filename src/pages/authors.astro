@@ -1,0 +1,62 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { breadcrumbList, person, profilePage } from '../lib/jsonld';
+import { getAuthor, getPosts, postPath } from '../lib/posts';
+import { url } from '../lib/urls';
+
+const author = await getAuthor();
+const posts = await getPosts();
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Authors', path: '/authors/' },
+];
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const labels: Record<string, string> = {
+  'twitter.com': 'X / Twitter',
+  'www.linkedin.com': 'LinkedIn',
+  'www.youtube.com': 'YouTube',
+  'github.com': 'GitHub',
+};
+---
+
+<BaseLayout
+  title={`${author.name} — author`}
+  description={`${author.name} writes 2 Minute Serverless. ${author.bio}.`}
+  ogImage="/og/default.png"
+  ogImageAlt={author.name}
+  jsonld={[profilePage(author, ctx), person(author, ctx), breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap-narrow">
+    <Breadcrumbs items={crumbs} />
+    <section class="author-card" style="margin-block:var(--space-5)">
+      <img src={url(author.avatar)} alt={`Portrait of ${author.name}`} width="160" height="160" />
+      <div class="stack">
+        <h1 style="font-size:var(--step-3)">{author.name}</h1>
+        <p class="muted">{author.jobTitle}</p>
+        <p>{author.bio}</p>
+        <p>Writes about: {author.knowsAbout.join(', ')}.</p>
+        <ul class="follow" aria-label="Profiles">
+          {author.sameAs.map((s) => (
+            <li>
+              <a class="btn btn-ghost" href={s} rel="me">
+                {labels[new URL(s).hostname] ?? new URL(s).hostname}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+    <h2 class="section-title">Posts by {author.shortName}</h2>
+    <ul class="archive-list">
+      {posts.map((p) => (
+        <li>
+          <time datetime={p.data.pubDate.toISOString()}>{fmt(p.data.pubDate)}</time>
+          <a href={url(postPath(p))}>{p.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

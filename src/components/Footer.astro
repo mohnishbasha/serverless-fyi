@@ -1,0 +1,62 @@
+---
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap cols">
+    <div class="stack">
+      <h2>{SITE.name}</h2>
+      <p>
+        {SITE.tagline}. {SITE.description}.
+      </p>
+      <p>
+        © {year} Serverless Ventures LLC. Code MIT; content all rights reserved — quote with attribution and a link.
+      </p>
+    </div>
+    <div>
+      <h2>Follow</h2>
+      <ul>
+        <li>
+          <a href={SITE.social.x} rel="me">
+            X / Twitter
+          </a>
+        </li>
+        <li>
+          <a href={SITE.social.linkedin} rel="me">
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          <a href={SITE.social.youtube} rel="me">
+            YouTube
+          </a>
+        </li>
+        <li>
+          <a href={SITE.social.github} rel="me">
+            GitHub
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h2>Site</h2>
+      <ul>
+        <li>
+          <a href={url('/rss.xml')}>RSS feed</a>
+        </li>
+        <li>
+          <a href={url('/llms.txt')}>llms.txt</a>
+        </li>
+        <li>
+          <a href={url('/subscribe/')}>Subscribe</a>
+        </li>
+        <li>
+          <a href={url('/privacy/')}>Privacy</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>

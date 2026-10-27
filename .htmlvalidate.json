@@ -1,0 +1,24 @@
+{
+  "$schema": "https://html-validate.org/schemas/config.json",
+  "extends": ["html-validate:recommended", "html-validate:prettier"],
+  "rules": {
+    "no-inline-style": "off",
+    "long-title": [
+      "error",
+      {
+        "maxlength": 110
+      }
+    ],
+    "no-trailing-whitespace": "off",
+    "attribute-boolean-style": "off",
+    "attribute-empty-style": "off",
+    "no-redundant-role": "off",
+    "valid-id": [
+      "error",
+      {
+        "relaxed": true
+      }
+    ]
+  },
+  "elements": ["html5"]
+}

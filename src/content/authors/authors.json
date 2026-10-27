@@ -1,0 +1,27 @@
+[
+  {
+    "id": "mohinish",
+    "name": "Mohinish Shaikh",
+    "shortName": "Mohinish S",
+    "jobTitle": "Founder, Serverless Ventures LLC",
+    "bio": "Serverless Ventures | Cloud, Data & Distributed Systems | Angel & Advisor | Infra & Data Startups",
+    "avatar": "/brand/mohinish.jpg",
+    "url": "https://www.serverless.fyi/authors/",
+    "sameAs": [
+      "https://twitter.com/mohinishbasha",
+      "https://www.linkedin.com/in/mohinishbasha",
+      "https://www.youtube.com/@TwoMinuteServerless",
+      "https://github.com/mohnishbasha"
+    ],
+    "knowsAbout": [
+      "Serverless computing",
+      "Distributed systems",
+      "Data streaming",
+      "Apache Pulsar",
+      "Apache Kafka",
+      "Infrastructure as code",
+      "Artificial intelligence",
+      "Startups"
+    ]
+  }
+]

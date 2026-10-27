@@ -1,0 +1,58 @@
+---
+import PostCard from '../components/PostCard.astro';
+import Search from '../components/Search.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPosts } from '../lib/posts';
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const posts = await getPosts();
+const popular = SITE.startHere.map((s) => posts.find((p) => p.data.slug === s)).filter((p) => !!p);
+---
+
+<BaseLayout
+  title="Page not found"
+  description="That page doesn't exist on 2 Minute Serverless. Search the archive or start with one of the most-read posts below."
+  ogImage="/og/default.png"
+  ogImageAlt="Page not found"
+  noindex
+  canonical={undefined}
+  jsonld={[]}
+>
+  <script is:inline define:vars={{ base: import.meta.env.BASE_URL }}>
+    // Try known legacy Beehiiv URL shapes before showing the 404.
+    (function () {
+      const b = ('/' + base + '/').replace(/\/+/g, '/');
+      const p = location.pathname;
+      const rel = p.indexOf(b) === 0 ? '/' + p.slice(b.length) : p;
+      let next = decodeURIComponent(rel)
+        .replace(/^\/t\/([^/]+)/, function (_, t) {
+          return '/t/' + t.replace(/~/g, '-');
+        })
+        .replace(/\.html?$/, '')
+        .replace(/\/index$/, '/')
+        .toLowerCase();
+      if (!/\/$/.test(next) && !/\.[a-z0-9]+$/.test(next)) next += '/';
+      if (next !== rel && next !== decodeURIComponent(rel))
+        location.replace(b.replace(/\/$/, '') + next + location.search + location.hash);
+    })();
+  </script>
+  <div class="wrap">
+    <header class="page-intro">
+      <h1>Page not found</h1>
+      <p>That page doesn't exist (anymore). Try a search, or start with one of these.</p>
+    </header>
+    <Search id="notfound-q" />
+    <h2 class="section-title">Popular posts</h2>
+    <ul class="cards">
+      {popular.map((p) => (
+        <li>
+          <PostCard post={p} />
+        </li>
+      ))}
+    </ul>
+    <p style="margin-top:var(--space-5)">
+      <a href={url('/')}>← Back to the home page</a>
+    </p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,23 @@
+---
+import { tagLabel } from '../lib/tags';
+import { url } from '../lib/urls';
+
+export interface Props {
+  tags: string[];
+  counts?: Map<string, number>;
+  cloud?: boolean;
+  label?: string;
+}
+const { tags, counts, cloud = false, label = 'Tags' } = Astro.props;
+---
+
+<ul class:list={['tags', { 'tag-cloud': cloud }]} aria-label={label}>
+  {tags.map((t) => (
+    <li>
+      <a class="tag" href={url(`/t/${t}/`)}>
+        {tagLabel(t)}
+        {counts?.get(t) !== undefined && <span class="count">{counts.get(t)}</span>}
+      </a>
+    </li>
+  ))}
+</ul>

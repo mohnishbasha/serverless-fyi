@@ -1,0 +1,56 @@
+---
+import { stripBase, url } from '../lib/urls';
+import ThemeToggle from './ThemeToggle.astro';
+
+const here = stripBase(Astro.url.pathname, import.meta.env.BASE_URL);
+const links = [
+  { href: '/', label: 'Posts' },
+  { href: '/archive/', label: 'Archive' },
+  { href: '/tags/', label: 'Tags' },
+  { href: '/about/', label: 'About' },
+  { href: '/search/', label: 'Search' },
+];
+const current = (href: string) => (href === '/' ? here === '/' : here.startsWith(href)) || undefined;
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={url('/')} aria-label="2 Minute Serverless — home">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path fill="currentColor" d="M18 50a12 12 0 0 1-1.6-23.9A16 16 0 0 1 47 22.4 11 11 0 0 1 48 50Z"></path>
+        <circle cx="32" cy="37" r="6" fill="var(--bg)" stroke="currentColor" stroke-width="3"></circle>
+      </svg>
+      <span>
+        <span class="two">2</span> Minute Serverless
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        {links.map((l) => (
+          <li>
+            <a href={url(l.href)} aria-current={current(l.href) && 'page'}>
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <ThemeToggle />
+    <a class="btn" href={url('/subscribe/')}>
+      Subscribe
+    </a>
+  </div>
+  <div class="nav-row">
+    <nav class="wrap site-nav" aria-label="Main (compact)">
+      <ul>
+        {links.map((l) => (
+          <li>
+            <a href={url(l.href)} aria-current={current(l.href) && 'page'}>
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>

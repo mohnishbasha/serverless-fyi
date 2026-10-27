@@ -1,0 +1,88 @@
+/* Design tokens. Every text/background pair meets WCAG AA (≥ 4.5:1); axe verifies in CI. */
+@layer tokens {
+  :root {
+    color-scheme: light dark;
+
+    --font-sans:
+      system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+    --step--1: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+    --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+    --step-1: clamp(1.2rem, 1.12rem + 0.4vw, 1.4rem);
+    --step-2: clamp(1.44rem, 1.3rem + 0.7vw, 1.8rem);
+    --step-3: clamp(1.73rem, 1.5rem + 1.2vw, 2.4rem);
+    --step-4: clamp(2.07rem, 1.7rem + 2vw, 3.2rem);
+
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4.5rem;
+
+    --radius: 0.75rem;
+    --radius-sm: 0.375rem;
+    --measure: 68ch;
+    --page: 72rem;
+    --tap: 2.75rem;
+
+    /* Light */
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --surface-2: #f2f0ea;
+    --text: #15181c;
+    --muted: #4b5561;
+    --border: #dcd8ce;
+    --brand: #0b4f7a;
+    --brand-strong: #083a5a;
+    --on-brand: #ffffff;
+    --accent: #9a4a07;
+    --tldr-bg: #fff4dc;
+    --tldr-border: #d9921f;
+    --focus: #1d6fd6;
+    --code-bg: #f4f2ec;
+    --shadow: 0 1px 2px rgb(20 20 20 / 6%), 0 4px 16px rgb(20 20 20 / 6%);
+  }
+
+  :root[data-theme='dark'] {
+    --bg: #0c0e11;
+    --surface: #14181d;
+    --surface-2: #1b2026;
+    --text: #e8eaed;
+    --muted: #a7b0ba;
+    --border: #2c333b;
+    --brand: #8ccaf5;
+    --brand-strong: #b5ddf9;
+    --on-brand: #06233a;
+    --accent: #f3b65a;
+    --tldr-bg: #2a2110;
+    --tldr-border: #c88a2a;
+    --focus: #7ab7ff;
+    --code-bg: #161b22;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 30%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #0c0e11;
+      --surface: #14181d;
+      --surface-2: #1b2026;
+      --text: #e8eaed;
+      --muted: #a7b0ba;
+      --border: #2c333b;
+      --brand: #8ccaf5;
+      --brand-strong: #b5ddf9;
+      --on-brand: #06233a;
+      --accent: #f3b65a;
+      --tldr-bg: #2a2110;
+      --tldr-border: #c88a2a;
+      --focus: #7ab7ff;
+      --code-bg: #161b22;
+      --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 30%);
+    }
+  }
+}

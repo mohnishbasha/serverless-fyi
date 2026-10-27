@@ -1,0 +1,56 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Subscribe from '../components/Subscribe.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { breadcrumbList } from '../lib/jsonld';
+import { getPosts, postPath } from '../lib/posts';
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const recent = (await getPosts()).slice(0, 5);
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Subscribe', path: '/subscribe/' },
+];
+---
+
+<BaseLayout
+  title="Subscribe to the newsletter"
+  description="Get 2 Minute Serverless by email: short, answer-first explainers on data, AI, distributed systems and startups. Free, no tracking pixels."
+  ogImage="/og/default.png"
+  ogImageAlt={`Subscribe to ${SITE.name}`}
+  jsonld={[breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap-narrow stack">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>Subscribe</h1>
+      <p>{SITE.tagline} — straight to your inbox.</p>
+    </header>
+    <Subscribe id="page-subscribe" heading="Join the list" />
+    <section class="stack">
+      <h2>What you get</h2>
+      <ul>
+        <li>One focused explainer per issue: a direct answer first, then the details.</li>
+        <li>Topics: data streaming, distributed systems, AI, cloud infrastructure and startup finance.</li>
+        <li>Roughly a 2-minute read. Occasional meetup recaps.</li>
+      </ul>
+      <h2>How often</h2>
+      <p>A few issues a month at most — only when there's something worth your two minutes.</p>
+      <h2>Privacy</h2>
+      <p>
+        Your email is used only to send the newsletter. Every email has a one-click unsubscribe. See the{' '}
+        <a href={url('/privacy/')}>privacy policy</a>.
+      </p>
+      <h2>Recent issues</h2>
+      <ul>
+        {recent.map((p) => (
+          <li>
+            <a href={url(postPath(p))}>{p.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

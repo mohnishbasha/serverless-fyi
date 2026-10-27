@@ -1,0 +1,64 @@
+---
+import '../styles/base.css';
+import '../styles/tokens.css';
+import '../styles/components.css';
+import '../styles/prose.css';
+import { CF_ANALYTICS_TOKEN } from '../lib/env';
+import type { Node } from '../lib/jsonld';
+import { SITE, SITE_VERSION } from '../lib/site';
+import { url } from '../lib/urls';
+import JsonLd from './JsonLd.astro';
+import SEO, { type Props as SeoProps } from './SEO.astro';
+
+export interface Props extends SeoProps {
+  jsonld: Array<Node | null | undefined>;
+}
+const { jsonld, ...seo } = Astro.props;
+
+// GitHub Pages cannot send response headers (ADR-008): the policy is delivered via <meta>.
+const csp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  "font-src 'self'",
+  "connect-src 'self' https://cloudflareinsights.com https://lists.serverless.fyi https://magic.beehiiv.com https://buttondown.com https://app.kit.com",
+  "form-action 'self' https://lists.serverless.fyi https://magic.beehiiv.com https://buttondown.com https://app.kit.com",
+  'frame-src https://www.youtube-nocookie.com https://platform.twitter.com',
+  "base-uri 'self'",
+  "object-src 'none'",
+].join('; ');
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content={csp} />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<script is:inline>
+  // Apply the saved theme before first paint (no flash). Storage may be unavailable.
+  try {
+    const t = localStorage.getItem('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch {
+    // storage unavailable (private mode, blocked)
+  }
+</script>
+<SEO {...seo} />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content={SITE.themeColorLight} />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content={SITE.themeColorDark} />
+<meta name="color-scheme" content="light dark" />
+<meta name="author" content="Mohinish Shaikh" />
+<meta name="generator" content={`serverless-fyi ${SITE_VERSION}`} />
+<link rel="icon" href={url('/brand/favicon.svg')} type="image/svg+xml" />
+<link rel="icon" href={url('/brand/favicon-32.png')} type="image/png" sizes="32x32" />
+<link rel="apple-touch-icon" href={url('/brand/apple-touch-icon.png')} />
+<link rel="manifest" href={url('/site.webmanifest')} />
+<JsonLd nodes={jsonld} />
+{CF_ANALYTICS_TOKEN && (
+  <script
+    is:inline
+    defer
+    src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon={JSON.stringify({ token: CF_ANALYTICS_TOKEN })}
+  />
+)}

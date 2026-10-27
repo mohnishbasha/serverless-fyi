@@ -1,0 +1,105 @@
+---
+import type { GetStaticPaths, GetStaticPathsItem, Page } from 'astro';
+import { getCollection } from 'astro:content';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import Pagination from '../../../components/Pagination.astro';
+import PostCard from '../../../components/PostCard.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { ctx } from '../../../lib/env';
+import { breadcrumbList, collectionPage, itemList } from '../../../lib/jsonld';
+import { getPosts, type Post, postPath } from '../../../lib/posts';
+import { SITE } from '../../../lib/site';
+import { tagLabel } from '../../../lib/tags';
+import { url } from '../../../lib/urls';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPosts();
+  const tagFiles = await getCollection('tags');
+  const tags = new Set([...tagFiles.map((t) => t.id), ...posts.flatMap((p) => p.data.tags)]);
+  return [...tags].flatMap((tag): GetStaticPathsItem[] => {
+    const tagged = posts.filter((p) => p.data.tags.includes(tag));
+    const description = tagFiles.find((t) => t.id === tag)?.data.description;
+    if (tagged.length === 0) return [{ params: { tag, page: undefined }, props: { empty: true, tag, description } }];
+    return paginate(tagged, {
+      params: { tag },
+      props: { tag, description, empty: false },
+      pageSize: SITE.postsPerTagPage,
+    });
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  tag: string;
+  description?: string | undefined;
+  empty: boolean;
+  page?: Page<Post>;
+}
+const { tag, description, empty, page } = Astro.props;
+const label = tagLabel(tag);
+const pageNo = page?.currentPage ?? 1;
+const intro = description?.trim() ? description.trim() : `Short, answer-first posts about ${label} from ${SITE.name}.`;
+const metaDescription =
+  `${label}: ${intro}`.length >= 70
+    ? `${label}: ${intro}`
+    : `${label} — ${intro} Read every ${label} issue of ${SITE.name} in two minutes or less.`;
+const path = `/t/${tag}/${pageNo > 1 ? `${pageNo}/` : ''}`;
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Tags', path: '/tags/' },
+  { name: label, path: `/t/${tag}/` },
+];
+const items = page?.data ?? [];
+---
+
+<BaseLayout
+  title={pageNo > 1 ? `${label} posts — page ${pageNo}` : `${label} posts`}
+  description={pageNo > 1 ? `${metaDescription} Page ${pageNo}.` : metaDescription}
+  ogImage="/og/default.png"
+  ogImageAlt={`${label} posts on ${SITE.name}`}
+  noindex={empty}
+  jsonld={[
+    collectionPage(path, `${label} posts`, metaDescription, ctx),
+    items.length
+      ? itemList(
+          items.map((p) => ({ path: postPath(p), name: p.data.title })),
+          ctx,
+        )
+      : null,
+    breadcrumbList(crumbs, ctx),
+  ]}
+>
+  <div class="wrap">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>
+        {label}
+        {pageNo > 1 && <span class="muted"> · page {pageNo}</span>}
+      </h1>
+      <p>{intro}</p>
+      <p>
+        <a href={url(`/t/${tag}/rss.xml`)}>RSS feed for {label}</a>
+      </p>
+    </header>
+    {empty ? (
+      <p>
+        No posts with this tag yet. Browse the <a href={url('/archive/')}>archive</a> instead.
+      </p>
+    ) : (
+      <ul class="cards">
+        {items.map((p) => (
+          <li>
+            <PostCard post={p} headingLevel={2} />
+          </li>
+        ))}
+      </ul>
+    )}
+    {page && (
+      <Pagination
+        prev={page.url.prev ? page.url.prev.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') : undefined}
+        next={page.url.next ? page.url.next.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') : undefined}
+        current={page.currentPage}
+        last={page.lastPage}
+      />
+    )}
+  </div>
+</BaseLayout>

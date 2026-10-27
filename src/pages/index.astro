@@ -1,0 +1,83 @@
+---
+import PostCard from '../components/PostCard.astro';
+import Subscribe from '../components/Subscribe.astro';
+import TagList from '../components/TagList.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { blog, itemList } from '../lib/jsonld';
+import { getPosts, postPath, tagCounts } from '../lib/posts';
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const posts = await getPosts();
+const latest = posts.slice(0, SITE.homeLatest);
+const startHere = SITE.startHere.map((s) => posts.find((p) => p.data.slug === s)).filter((p) => !!p);
+const counts = tagCounts(posts);
+---
+
+<BaseLayout
+  description={SITE.homeDescription}
+  ogImage="/og/default.png"
+  ogImageAlt={`${SITE.name} — ${SITE.tagline}`}
+  jsonld={[
+    blog(
+      ctx,
+      latest.map((p) => ({ slug: p.data.slug, title: p.data.title })),
+    ),
+    itemList(
+      latest.map((p) => ({ path: postPath(p), name: p.data.title })),
+      ctx,
+    ),
+  ]}
+>
+  <div class="wrap">
+    <section class="hero">
+      <div class="stack">
+        <p class="kicker">Data · AI · Distributed Systems · Startups</p>
+        <h1>2 Minute Serverless</h1>
+        <p class="lede">{SITE.tagline}. Answer-first explainers you can finish before your coffee cools.</p>
+      </div>
+      <Subscribe id="hero-subscribe" heading="Subscribe — it's free" />
+    </section>
+
+    {startHere.length > 0 && (
+      <section aria-labelledby="start-heading">
+        <h2 class="section-title" id="start-heading">
+          Start here
+        </h2>
+        <ul class="cards">
+          {startHere.map((p) => (
+            <li>
+              <PostCard post={p} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <section aria-labelledby="latest-heading">
+      <h2 class="section-title" id="latest-heading">
+        Latest posts
+      </h2>
+      <ul class="cards">
+        {latest.map((p) => (
+          <li>
+            <PostCard post={p} />
+          </li>
+        ))}
+      </ul>
+      <p style="margin-top:var(--space-5)">
+        <a class="btn btn-ghost" href={url('/archive/')}>
+          All posts in the archive →
+        </a>
+      </p>
+    </section>
+
+    <section aria-labelledby="topics-heading">
+      <h2 class="section-title" id="topics-heading">
+        Topics
+      </h2>
+      <TagList tags={[...counts.keys()]} counts={counts} cloud label="All topics" />
+    </section>
+  </div>
+</BaseLayout>

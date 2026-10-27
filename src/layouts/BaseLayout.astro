@@ -1,0 +1,27 @@
+---
+import BaseHead, { type Props as HeadProps } from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { ctx } from '../lib/env';
+import { organization, website } from '../lib/jsonld';
+
+export type Props = HeadProps;
+const { jsonld, ...rest } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead {...rest} jsonld={[website(ctx, true), organization(ctx), ...jsonld]} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

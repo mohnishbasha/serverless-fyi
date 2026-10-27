@@ -1,0 +1,54 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Subscribe from '../components/Subscribe.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { breadcrumbList } from '../lib/jsonld';
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about/' },
+];
+---
+
+<BaseLayout
+  title="About the newsletter"
+  description="2 Minute Serverless is a free newsletter of short, answer-first explainers on data, AI, distributed systems and startups by Mohinish Shaikh."
+  ogImage="/og/default.png"
+  ogImageAlt={`About ${SITE.name}`}
+  jsonld={[breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap-narrow stack">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>About {SITE.name}</h1>
+      <p>{SITE.tagline}.</p>
+    </header>
+    <div class="prose">
+      <p>
+        <strong>{SITE.name}</strong> is a free newsletter and blog about {SITE.description.replaceAll(' |', ',')}. Each
+        issue answers one question directly, then shows the details: numbers, versions, trade-offs and diagrams.
+      </p>
+      <p>
+        It is written by <a href={url('/authors/')}>Mohinish Shaikh</a> and published by Serverless Ventures LLC. The
+        site is static, fast, has no trackers, and every post is also available as Markdown for readers and AI agents (
+        <a href={url('/llms.txt')}>llms.txt</a>).
+      </p>
+      <h2>Start reading</h2>
+      <ul>
+        <li>
+          <a href={url('/archive/')}>The full archive</a>
+        </li>
+        <li>
+          <a href={url('/tags/')}>Browse by topic</a>
+        </li>
+        <li>
+          <a href={url('/rss.xml')}>RSS feed</a>
+        </li>
+      </ul>
+    </div>
+    <Subscribe id="about-subscribe" />
+  </div>
+</BaseLayout>
