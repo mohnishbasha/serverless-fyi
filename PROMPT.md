@@ -7,8 +7,18 @@
 > **Current host:** Beehiiv (https://www.serverless.fyi/)
 > **Target host:** GitHub Pages, built by GitHub Actions, custom domain `www.serverless.fyi`
 > **Repository:** `github.com/mohnishbasha/serverless-fyi`
-> **Prompt version:** 1.1.0 · 2026-10-26
+> **Prompt version:** 1.2.0 · 2026-10-27
 > **Hand this entire file to Claude Code (or any coding agent) as-is.** It is self-contained.
+
+---
+
+## Amendments (v1.2.0, 2026-10-27)
+
+Three owner decisions made on 2026-10-27 override the text below wherever they conflict (ADR-027 to ADR-029 in `docs/DECISIONS.md` are the source of truth):
+
+1. **Newsletter provider = Kit (kit.com) free plan, replacing Beehiiv immediately (ADR-028).** Beehiiv's paid Lite plan (~$59/mo at 1k subscribers) is too expensive. Kit free is $0 up to 10,000 subscribers (unlimited broadcasts and forms; one basic automation, no sequences, no A/B tests, no third-party integrations, Kit branding). Site config: `PUBLIC_NEWSLETTER_PROVIDER=kit`, `PUBLIC_NEWSLETTER_ID=<Kit form id>`, optional `PUBLIC_NEWSLETTER_URL` (host from Kit's embed code, default `https://app.kit.com`); the form POSTs `email_address` to `<host>/forms/<id>/subscriptions`. Authenticate `serverless.fyi` in Kit (DKIM/SPF) and add DMARC `p=none`; send from `newsletter@serverless.fyi`. There is no automatic post-to-email on the free plan: the owner pastes each broadcast from the post's `/p/<slug>.md` twin. The self-hosted listmonk + Amazon SES stack (`infra/newsletter/`) remains the long-term target: migrate before ~10,000 subscribers. Beehiiv is decommissioned now (export, then cancel); its provider code stays in the adapter until removal is tracked.
+2. **Serene UI theme (ADR-027):** calm white/mint base, sage green `#15803d`, sky-teal accent `#0e7490`, system fonts, no Tailwind.
+3. **Responsive requirement (ADR-029):** every template works from 320px to 1440px+ with zero horizontal overflow and 44px tap targets, checked at 320 / 375 / 414 / 768 / 1024 / 1280 / 1440.
 
 ---
 
@@ -84,14 +94,14 @@ Also create `docs/DECISIONS.md` (lightweight ADR log, one entry per decision in 
 | Language | TypeScript, `strict: true` | Type-safe content schema and components. |
 | Package manager | **pnpm** (version pinned via `packageManager` field + Corepack) | Fast, deterministic lockfile. |
 | Runtime | Node.js **24 LTS** (pinned in `.nvmrc` and `engines`) | Current active LTS. |
-| Styling | Plain CSS with custom properties + CSS layers (or Tailwind v4 if you prefer — record in DECISIONS.md) | Small CSS, easy theming, no runtime. |
+| Styling | Plain CSS with custom properties + CSS layers; serene theme, system fonts, no Tailwind (ADR-011, ADR-027) | Small CSS, easy theming, no runtime. |
 | Content | Markdown + MDX in `src/content/posts/` | Portable, diffable. |
 | Search | **Pagefind** (static index built post-build, lazy-loaded UI) | Zero backend, tiny payload. |
 | OG images | **satori** + **@resvg/resvg-js** at build time | Unique 1200×630 card per post. |
 | Diagrams | Mermaid rendered at build time (`rehype-mermaid` or pre-rendered SVG) | No client JS for diagrams. |
 | Code highlighting | Shiki (Astro built-in), dual light/dark theme | No client JS. |
 | Image pipeline | `astro:assets` (`<Image>`/`<Picture>`) → AVIF/WebP, width/height always set | CLS = 0, small images. |
-| Newsletter (email) | **Phased (§8):** Beehiiv as interim sender only → **self-hosted listmonk + Amazon SES** (target). Adapter keeps it swappable. | Owner wants to stop paying Beehiiv and run the newsletter himself. |
+| Newsletter (email) | **Phased (§8):** **Kit free plan** now → **self-hosted listmonk + Amazon SES** before ~10,000 subscribers. Beehiiv decommissioned. Adapter keeps it swappable (ADR-028). | Owner wants off Beehiiv's cost now and to own the newsletter later. |
 | Analytics | Cloudflare Web Analytics (cookieless) — optional, env-gated | No cookie banner needed. |
 | Hosting | GitHub Pages via `actions/deploy-pages` | Free, HTTPS, custom domain. |
 | CI | GitHub Actions | Already where the code lives. |
@@ -101,7 +111,7 @@ Also create `docs/DECISIONS.md` (lightweight ADR log, one entry per decision in 
 
 ### 2.2 Decisions to record in `docs/DECISIONS.md`
 
-ADR-001 SSG = Astro · ADR-002 Hosting = GitHub Pages · ADR-003 URL scheme preserves Beehiiv paths (`/p/<slug>/`, `/t/<tag>/`) · ADR-004 Trailing slashes always · ADR-005 Canonical host = `https://www.serverless.fyi` (apex redirects to www, matching current canonical) · ADR-006 Newsletter: Beehiiv interim sender → self-hosted listmonk + SES; Beehiiv fully decommissioned (§8, Sprints 9–10) · ADR-007 Redirects via static stubs (GitHub Pages has no server redirects) · ADR-008 Security headers via `<meta http-equiv>` where possible (GitHub Pages cannot set response headers; if real headers become required, front with Cloudflare proxy — documented, not done in v1) · ADR-009 AI crawlers allowed by default · ADR-010 Content license.
+ADR-001 SSG = Astro · ADR-002 Hosting = GitHub Pages · ADR-003 URL scheme preserves Beehiiv paths (`/p/<slug>/`, `/t/<tag>/`) · ADR-004 Trailing slashes always · ADR-005 Canonical host = `https://www.serverless.fyi` (apex redirects to www, matching current canonical) · ADR-006 Newsletter: Kit free plan now → self-hosted listmonk + SES before ~10k subscribers; Beehiiv decommissioned now (superseded by ADR-028; §8, Sprints 9–10) · ADR-007 Redirects via static stubs (GitHub Pages has no server redirects) · ADR-008 Security headers via `<meta http-equiv>` where possible (GitHub Pages cannot set response headers; if real headers become required, front with Cloudflare proxy — documented, not done in v1) · ADR-009 AI crawlers allowed by default · ADR-010 Content license.
 
 > **Repo visibility note:** GitHub Pages from a **private** repo requires a paid GitHub plan (Pro/Team/Enterprise). A public repo is free and also makes the content more discoverable to agents. Default: **public repo**, code MIT, content under the license chosen in ADR-010 (default: © Serverless Ventures LLC, all rights reserved, with excerpts allowed with attribution). Confirm with the owner before Sprint 1.
 
@@ -483,7 +493,8 @@ export default defineConfig({
 
 - Mobile-first CSS; breakpoints via container queries where components need them, media queries at `40rem`, `64rem`.
 - Fluid type with `clamp()`; prose measure `max-width: 68ch`; base font size ≥ 16 px; line-height 1.6 for prose.
-- Tap targets ≥ 44×44 px; no horizontal scroll at 320 px width (tested, §10.4).
+- Tap targets ≥ 44×44 px (standalone links and controls: `.more-link`, `.link-list`; subscribe input + button full width below `30rem`); no horizontal scroll from 320 px to 1440 px+ (audited at 320, 375, 414, 768, 1024, 1280, 1440; tested, §10.4; ADR-029). Mobile shows a second scrollable nav row.
+- Serene palette (ADR-027): white/mint base, sage green brand `#15803d`, sky-teal accent `#0e7490`, soft mint → sky → lavender page-top wash, pastel pills, mint TL;DR, frosted sticky header at ≥ `64rem`, gentle card hover lift (off under `prefers-reduced-motion`), deep green-slate dark mode.
 - System font stack by default (zero font requests). If a brand font is used, self-host one variable WOFF2, `font-display: swap`, preload it, subset Latin.
 - Dark mode: `prefers-color-scheme` + manual toggle persisted in `localStorage` (try/catch), applied before paint via a tiny inline script to avoid flash.
 - Color tokens in `tokens.css`; every text/background pair ≥ 4.5:1 contrast (tested by axe).
@@ -519,8 +530,8 @@ Also: legacy `/p/<slug>` (no trailing slash) is handled natively — GitHub Page
 
 | Phase | When | Website | Email sender | Subscribe form posts to |
 |---|---|---|---|---|
-| A — Interim | Cutover (Sprint 7) → Sprint 9 | GitHub Pages | Beehiiv (web hosting disconnected; downgrade to the cheapest plan that still sends to the list size) | Beehiiv embed |
-| B — Self-hosted | Sprint 9 onward | GitHub Pages | **listmonk + Amazon SES** | listmonk public subscription endpoint |
+| A — Kit free | Now (cutover, Sprint 7) → until ~10,000 subscribers | GitHub Pages | **Kit free plan** (manual broadcasts; Beehiiv decommissioned now) | Kit form `<host>/forms/<id>/subscriptions` (`email_address`) |
+| B — Self-hosted | Before ~10,000 subscribers (Sprint 9, deferred) | GitHub Pages | **listmonk + Amazon SES** | listmonk public subscription endpoint |
 | Fallback | Any time | GitHub Pages | none | — (`provider=none`: shows "issues paused, follow via RSS / LinkedIn / YouTube") |
 
 Build an adapter so the provider is one env variable:
@@ -1097,7 +1108,7 @@ echo "versions consistent: $PKG"
 
 1. Staging live at `https://mohnishbasha.github.io/serverless-fyi/` (`BASE_PATH=/serverless-fyi/`, `PUBLIC_INDEXABLE=false`). Full test suite + smoke green against staging.
 2. 👤 Content review: owner signs off on `migration/report.md`, spot-checks 10 posts side by side with Beehiiv.
-3. 👤 Newsletter (Phase A): confirm the subscriber CSV export from Sprint 2 is backed up; set `PUBLIC_NEWSLETTER_PROVIDER=beehiiv` so the new site's form keeps feeding the Beehiiv list until Sprint 9.
+3. 👤 Newsletter (Phase A): confirm the subscriber CSV export from Sprint 2 is backed up; import it into Kit as confirmed subscribers and set `PUBLIC_NEWSLETTER_PROVIDER=kit` and `PUBLIC_NEWSLETTER_ID=<Kit form id>` so the new site's form feeds the Kit list (ADR-028).
 4. 👤 Search Console: confirm Domain property is verified via DNS TXT (before touching DNS).
 5. Lower DNS TTL on `www` and apex to 300 s **24 h before** cutover.
 6. Flip repo variables: `SITE_URL=https://www.serverless.fyi`, `BASE_PATH=/`, `PUBLIC_INDEXABLE=true` → deploy (build emits `CNAME`).
@@ -1107,7 +1118,7 @@ echo "versions consistent: $PKG"
    - apex `serverless.fyi` A → `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`; AAAA → `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`
    - Remove the Beehiiv web-hosting records for the domain. Keep any Beehiiv/ESP email DNS records the ESP still needs.
 9. 👤 Wait for the TLS certificate, then tick **Enforce HTTPS**.
-10. 👤 In Beehiiv: disconnect the custom domain from **web hosting only**. Keep the publication and any email-sending DNS records — Beehiiv is the interim sender until Sprint 9. Downgrade to the cheapest plan that still sends to the list.
+10. 👤 In Beehiiv: disconnect the custom domain from web hosting, then — once Kit is verified (domain authenticated, test broadcast received) — export and cancel Beehiiv. Kit, not Beehiiv, is the sender.
 11. Run `smoke.yml` against production; run parity check against the live site (`scripts/validate-parity.ts --live`, which fetches every legacy URL and asserts 200 after redirects).
 12. Submit sitemap in GSC + Bing; IndexNow ping all URLs once.
 13. Tag `v1.0.0`. Monitor GSC Pages/Coverage, 404s, and CWV for 14 days; daily scheduled smoke continues.
@@ -1377,15 +1388,15 @@ SEO component, JSON-LD graph, OG image generation, feeds, sitemap lastmod, robot
 **Gate 4:** ☐ validate-seo 0 errors ☐ feeds valid ☐ Lighthouse thresholds met on 4 templates ☐ Rich Results Test passes on 3 sample posts (owner runs manually on staging URL, screenshots in PR) ☐ tag `v0.4.0`.
 
 ### Sprint 5 — Newsletter
-Provider adapter, Subscribe component (no-JS + enhanced), subscribe page, RSS-to-email documented.
-**Gate 5:** ☐ form works JS on/off (mocked in e2e) ☐ real test subscription succeeds on staging (owner) ☐ privacy page lists the ESP ☐ tag `v0.5.0`.
+Provider adapter, Subscribe component (no-JS + enhanced), subscribe page, Kit (free plan) as the Phase A provider; RSS-to-email is a paid Kit feature, so broadcasts are created manually from the `/p/<slug>.md` twin.
+**Gate 5:** ☐ form works JS on/off (mocked in e2e) ☐ real test subscription to Kit succeeds on staging (owner) ☐ privacy page lists the ESP ☐ tag `v0.5.0`.
 
 ### Sprint 6 — Hardening
 Performance pass, final a11y pass, link check clean, RUNBOOK complete, CONTRIBUTING complete, THIRD_PARTY_LICENSES generated, CHANGELOG complete, dependency audit (`pnpm audit --prod` no high/critical).
 **Gate 6:** ☐ every CI job green ☐ external link check clean or allowlisted ☐ RUNBOOK rehearsed (rollback dry run on staging) ☐ tag `v0.9.0` (release candidate).
 
 ### Sprint 7 — Cutover (§14)
-**Gate 7:** ☐ production smoke green ☐ live parity 100% ☐ HTTPS enforced ☐ apex → www ☐ sitemap submitted ☐ subscribe form still feeds the interim list ☐ tag `v1.0.0`.
+**Gate 7:** ☐ production smoke green ☐ live parity 100% ☐ HTTPS enforced ☐ apex → www ☐ sitemap submitted ☐ subscribe form feeds the Kit list ☐ tag `v1.0.0`.
 
 ### Sprint 8 — Post-launch (2 weeks)
 Monitor GSC, fix 404s by adding manifest entries (owner-approved), tune CWV, write the "we moved to GitHub" issue as the first post on the new stack.
@@ -1395,16 +1406,17 @@ Monitor GSC, fix 404s by adding manifest entries (owner-approved), tune CWV, wri
 
 ---
 
-### Sprint 9 — Self-hosted newsletter (listmonk + SES)
+### Sprint 9 — Self-hosted newsletter (listmonk + SES) — deferred until ~10,000 subscribers
+The stack in `infra/newsletter/` is built; applying it waits until the list nears Kit's free-plan ceiling (ADR-028).
 Start protocol: 👤 request SES production access at the start of the sprint. Tests first: adapter unit tests for `listmonk`, e2e for the form against a local listmonk in Docker, a unit test that the draft-campaign Action builds correct HTML from a post.
 Deliverables: `infra/newsletter/` (Compose, Caddy, Terraform), DNS records for DKIM/SPF/DMARC/MAIL FROM, bounce webhook, backups, `email/template.html`, draft-campaign Action, RUNBOOK sections (send an issue, restore backup, handle a complaint spike).
-👤 Import the Beehiiv subscriber CSV; send a test to yourself (Gmail, Outlook, Apple Mail); check headers show SPF/DKIM/DMARC pass and one-click unsubscribe; send the first real issue in batches.
+👤 Import the Kit subscriber export; send a test to yourself (Gmail, Outlook, Apple Mail); check headers show SPF/DKIM/DMARC pass and one-click unsubscribe; send the first real issue in batches.
 **Gate 9:** ☐ SES out of sandbox ☐ mail-tester / Gmail "show original" all pass ☐ double opt-in + unsubscribe verified end to end ☐ bounce webhook blocklists a test bounce ☐ backup restored successfully once ☐ first issue sent to the full list with bounce < 2% and complaints < 0.1% ☐ `PUBLIC_NEWSLETTER_PROVIDER=listmonk` live on the site ☐ tag `v1.1.0`.
 
-### Sprint 10 — Decommission Beehiiv
-1. 👤 Final exports: subscribers (catch anyone who joined during Phase A and merge into listmonk), per-post stats and open/click history, raw post JSON — stored privately.
-2. 👤 Keep the Beehiiv publication paused (no sends) for 30–60 days as a rollback.
-3. 👤 Remove every remaining Beehiiv DNS record (web and email); confirm `dig` shows only GitHub Pages and SES/listmonk records.
+### Sprint 10 — Decommission Beehiiv (can run now; Kit is the sender)
+1. 👤 Final exports: subscribers (already imported into Kit; keep signup dates), per-post stats and open/click history, raw post JSON — stored privately.
+2. 👤 Optionally keep the Beehiiv publication paused (no sends) for a short rollback window.
+3. 👤 Remove every remaining Beehiiv DNS record (web and email); confirm `dig` shows only GitHub Pages and Kit records.
 4. 👤 Cancel the Beehiiv paid plan; after the rollback window, delete the publication.
 5. Remove the `beehiiv` provider branch from the adapter (or keep it behind a test, record in DECISIONS.md); grep the repo and `dist/` for `beehiiv` — only migration provenance fields and docs may mention it.
 Known side effect (note in RUNBOOK): issues already in subscribers' inboxes load images from Beehiiv's servers and will show broken images after deletion; the web archive on serverless.fyi is unaffected.

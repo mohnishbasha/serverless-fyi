@@ -40,6 +40,15 @@ describe('formConfig', () => {
     });
   });
 
+  it("kit accepts an endpoint override copied from Kit's HTML embed code", () => {
+    expect(formConfig('kit', { id: '123', url: 'https://app.convertkit.com/' })?.action).toBe(
+      'https://app.convertkit.com/forms/123/subscriptions',
+    );
+    expect(formConfig('kit', { id: '123' })?.success).toMatch(/confirm/);
+    // An unset env var arrives as '' — must still use the default host.
+    expect(formConfig('kit', { id: '123', url: '' })?.action).toBe('https://app.kit.com/forms/123/subscriptions');
+  });
+
   it('returns null for none or when the id is missing', () => {
     expect(formConfig('none', { id: 'x' })).toBeNull();
     expect(formConfig('listmonk', { id: '' })).toBeNull();

@@ -16,6 +16,7 @@
 
 - Prefer deleting code to adding it. Prefer platform features to dependencies.
 - If a choice makes the page slower, heavier, or less accessible, it needs a written reason.
+- Taste: serene and calm to look at (soft mint, sage and sky, generous space), designed phone-first and responsive from 320px up.
 - When unsure, ask the owner rather than guess; when guessing is unavoidable, write the assumption in the PR.
 
 **Owner:** Mohinish Shaikh · Serverless Ventures LLC

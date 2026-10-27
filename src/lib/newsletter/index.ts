@@ -63,7 +63,8 @@ export function formConfig(provider: Provider, o: { id: string; url?: string; re
     case 'kit':
       return {
         provider,
-        action: `https://app.kit.com/forms/${o.id}/subscriptions`,
+        // Default Kit endpoint; set PUBLIC_NEWSLETTER_URL to the host in Kit's HTML embed code if it differs.
+        action: `${(o.url || 'https://app.kit.com').replace(/\/+$/, '')}/forms/${o.id}/subscriptions`,
         method: 'post',
         emailField: 'email_address',
         hidden: {},
@@ -80,6 +81,6 @@ export const providerLabel: Record<Provider, string> = {
   beehiiv: 'Beehiiv',
   listmonk: 'listmonk (self-hosted) + Amazon SES',
   buttondown: 'Buttondown',
-  kit: 'Kit',
+  kit: 'Kit (kit.com)',
   none: 'none',
 };

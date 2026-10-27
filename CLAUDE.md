@@ -12,3 +12,9 @@
 - After editing, the PostToolUse hook runs Prettier; don't fight it.
 - When CI fails, read the failing job log with `gh run view --log-failed` before changing code.
 - Keep responses about this repo terse; put long explanations in docs/.
+
+## Current product decisions (2026-10-27)
+
+- Newsletter: **Kit free plan** (`PUBLIC_NEWSLETTER_PROVIDER=kit`), migrate to listmonk + SES before ~10k subscribers (ADR-028). Beehiiv is being decommissioned.
+- Design: **serene theme** (ADR-027). Change colors only in `src/styles/tokens.css`, keep AA contrast in light and dark mode, and regenerate snapshots with `bash scripts/update-snapshots.sh`.
+- Responsive: every UI change must work from 320 px to 1440 px+, with no horizontal overflow and 44 px tap targets (ADR-029). Use the a11y-reviewer subagent for UI PRs.

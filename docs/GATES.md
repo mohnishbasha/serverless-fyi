@@ -6,7 +6,7 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 
 ## Gate 0 — Specs
 
-- ✅ Five spec docs, plus DECISIONS (ADR-001 to ADR-026), RUNBOOK and STYLE_GUIDE.
+- ✅ Five spec docs, plus DECISIONS (ADR-001 to ADR-029), RUNBOOK and STYLE_GUIDE.
 - ✅ Every ADR has a decision. ADR-002 (public repo), ADR-010 (content license) and ADR-020 (tag overrides) are marked "owner to confirm".
 - 👤 Owner approves the PRD (merge the PR).
 - ⏳ Tag `sprint-0`.
@@ -31,8 +31,8 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 
 ## Gate 3 — Templates and responsive design
 
-- ✅ E2E green on 4 viewports (desktop, iPhone 15, Pixel 7, 320 px) plus no-JS.
-- ✅ No overflow at 320 px on every template.
+- ✅ E2E green on 4 viewports (desktop 1280, iPhone 15, Pixel 7, 320 px) plus no-JS.
+- ✅ No overflow on every template from 320 to 1440 px (audited at 320, 375, 414, 768, 1024, 1280, 1440; ADR-029). Tap targets of at least 44 px.
 - ✅ axe: 0 violations in light and dark mode on 10 templates.
 - ✅ Visual snapshots committed (24, rendered on Linux).
 - ⏳ Tag `v0.3.0`.
@@ -49,7 +49,7 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 
 - ✅ The form works with JS on and off: e2e mocks the network; the no-JS project checks the plain form.
 - ✅ The privacy page names the email provider (derived from `PUBLIC_NEWSLETTER_PROVIDER`).
-- 👤 A real test subscription succeeds on staging (Beehiiv magic link, ADR-025).
+- 👤 Kit free account set up (subscribers imported, form created, sending domain authenticated, DMARC added), then a real test subscription succeeds on staging and a test broadcast is received (ADR-028, RUNBOOK section 10.1).
 - ⏳ Tag `v0.5.0`.
 
 ## Gate 6 — Hardening
@@ -64,14 +64,16 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 
 - 👤 DNS (copy the current Beehiiv records into RUNBOOK first), Pages custom domain and verified domain, Enforce HTTPS.
 - 👤 Disconnect web hosting only in Beehiiv.
-- ⏳ Production smoke, live parity (`pnpm exec tsx scripts/validate-parity.ts --live https://www.serverless.fyi`), apex → www, sitemap submitted, subscribe form still feeds the interim list. Tag `v1.0.0`.
+- ⏳ Production smoke, live parity (`pnpm exec tsx scripts/validate-parity.ts --live https://www.serverless.fyi`), apex → www, sitemap submitted, subscribe form feeds the Kit list. Tag `v1.0.0`.
 
 ## Gate 8 — Post-launch
 
 - ✅ "We moved" post drafted at `src/content/posts/we-moved-2-minute-serverless-now-runs-on-github-pages/`. It is `draft: true`, with `TODO(owner)` markers for your reasons and timeline.
 - 👤 Indexed pages ≥ pre-migration (GSC), no open `incident` issues, retro written in `docs/`.
 
-## Gate 9 — Self-hosted newsletter (listmonk + SES)
+## Gate 9 — Self-hosted newsletter (listmonk + SES) — deferred to ~10,000 subscribers
+
+Kit's free plan is the sender now (ADR-028). The items below are the migration target, to finish before the list reaches ~10,000 subscribers.
 
 - ✅ `infra/newsletter/`: Compose (Postgres 17, listmonk v6.2.0, Caddy, backups), Caddyfile, Terraform (SES identity, DKIM, MAIL FROM, SNS bounces, KMS-encrypted S3 backups, least-privilege IAM, optional Lightsail). `terraform validate`, `docker compose config` and `caddy validate` all pass.
 - ✅ Draft-campaign workflow plus `email/template.html` (never sends). Adapter unit tests for `listmonk`.
@@ -80,4 +82,5 @@ Last updated: 2026-10-27. Local verification: `pnpm check`, `pnpm test:e2e` (133
 
 ## Gate 10 — Decommission Beehiiv
 
-- 👤 Every item: final exports, 30–60-day paused rollback window, DNS clean-up, cancellation. After that, remove the `beehiiv` adapter branch (or keep it behind its unit test), record it in DECISIONS, and tag `v1.2.0`.
+- Can run now: it no longer waits for Gate 9, because Kit is the sender.
+- 👤 Every item: final exports, short paused rollback window, DNS clean-up, cancellation. After that, remove the `beehiiv` adapter branch (or keep it behind its unit test), record it in DECISIONS, and tag `v1.2.0`.

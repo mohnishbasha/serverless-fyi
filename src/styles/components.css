@@ -621,6 +621,12 @@
     height: 1px;
     overflow: hidden;
   }
+  @media (max-width: 30rem) {
+    .subscribe input[type='email'],
+    .subscribe button[type='submit'] {
+      flex-basis: 100%;
+    }
+  }
   .subscribe .status {
     flex-basis: 100%;
     min-height: 1.5em;
@@ -746,6 +752,20 @@
     color: inherit;
   }
 
+  /* Standalone links get a full-size tap target on touch screens (WCAG 2.5.8 and comfort). */
+  .more-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    font-weight: 600;
+  }
+  .link-list {
+    padding-inline-start: 1.25rem;
+  }
+  .link-list li a {
+    display: inline-block;
+    padding-block: var(--space-2);
+  }
   .page-intro {
     display: grid;
     gap: var(--space-3);

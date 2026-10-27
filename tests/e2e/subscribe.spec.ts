@@ -22,10 +22,13 @@ test.describe('subscribe form', () => {
     const form = page.locator('form[data-subscribe]').filter({ has: email });
     const status = form.locator('.status');
     let calls = 0;
-    await page.route(/magic\.beehiiv\.com|lists\.serverless\.fyi|buttondown\.com|app\.kit\.com/, (route) => {
-      calls++;
-      return route.fulfill({ status: 200, body: 'ok' });
-    });
+    await page.route(
+      /magic\.beehiiv\.com|lists\.serverless\.fyi|buttondown\.com|app\.kit\.com|app\.convertkit\.com/,
+      (route) => {
+        calls++;
+        return route.fulfill({ status: 200, body: 'ok' });
+      },
+    );
 
     await email.fill('not-an-email');
     await form.getByRole('button', { name: 'Subscribe' }).click();
@@ -47,8 +50,9 @@ test.describe('subscribe form', () => {
   test('shows an error when the provider is unreachable', async ({ page }) => {
     const email = page.locator('#page-subscribe-email');
     test.skip((await email.count()) === 0, 'provider=none build');
-    await page.route(/magic\.beehiiv\.com|lists\.serverless\.fyi|buttondown\.com|app\.kit\.com/, (route) =>
-      route.abort(),
+    await page.route(
+      /magic\.beehiiv\.com|lists\.serverless\.fyi|buttondown\.com|app\.kit\.com|app\.convertkit\.com/,
+      (route) => route.abort(),
     );
     const form = page.locator('form[data-subscribe]').filter({ has: email });
     await email.fill('reader@example.com');

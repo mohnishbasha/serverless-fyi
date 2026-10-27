@@ -52,7 +52,9 @@ const popular = SITE.startHere.map((s) => posts.find((p) => p.data.slug === s)).
       ))}
     </ul>
     <p style="margin-top:var(--space-5)">
-      <a href={url('/')}>← Back to the home page</a>
+      <a class="more-link" href={url('/')}>
+        ← Back to the home page
+      </a>
     </p>
   </div>
 </BaseLayout>

@@ -6,7 +6,7 @@ Repo: `github.com/mohnishbasha/serverless-fyi`. Production host: `https://www.se
 
 ## 1. Summary
 
-Move the publication from Beehiiv web hosting to a static site built with Astro, built and deployed by GitHub Actions to GitHub Pages. Every existing public URL keeps working. The email newsletter continues, first through Beehiiv as an interim sender, then through self-hosted listmonk + Amazon SES. Beehiiv is fully decommissioned at the end.
+Move the publication from Beehiiv web hosting to a static site built with Astro, built and deployed by GitHub Actions to GitHub Pages. Every existing public URL keeps working. The email newsletter continues, first through Kit's free plan (Phase A, ADR-028), then through self-hosted listmonk + Amazon SES before the list reaches ~10,000 subscribers (Phase B). Beehiiv is decommissioned now: export subscribers, import into Kit, cancel.
 
 ## 2. Goals
 
@@ -139,8 +139,9 @@ Bio, photo, `knowsAbout`, sameAs, list of posts. JSON-LD `ProfilePage` with `Per
 
 Provider form, what you get, frequency, privacy note, recent issues.
 
-- AC: plain HTML `<form>` submits to the provider endpoint with JS disabled (`beehiiv`: `GET magic.beehiiv.com/v1/<publication uuid>` per ADR-025; `listmonk`: `POST <PUBLIC_NEWSLETTER_URL>/subscription/form` with `email`, `l=<list uuid>` and a `nonce` honeypot).
-- AC: with JS, submits via `fetch` (`no-cors` for Beehiiv) and shows inline success/error in an `aria-live` region.
+- AC: plain HTML `<form>` submits to the provider endpoint with JS disabled (`kit`: `POST <host>/forms/<form id>/subscriptions` with `email_address`, host defaults to `https://app.kit.com` (ADR-028); `listmonk`: `POST <PUBLIC_NEWSLETTER_URL>/subscription/form` with `email`, `l=<list uuid>` and a `nonce` honeypot).
+- AC: with JS, submits via `fetch` (`no-cors` for Kit) and shows inline success/error in an `aria-live` region.
+- AC: on screens narrower than `30rem` the subscribe input and button are full width.
 - AC: honeypot field, labelled input, `autocomplete="email"`, `inputmode="email"`.
 - AC: `provider=none` renders the RSS/LinkedIn/YouTube follow block, no form.
 - AC: no API keys in client bundle; only `PUBLIC_*` values.
@@ -199,8 +200,11 @@ No build-time Mermaid renderer in v1. No migrated post uses Mermaid. Authors com
 
 ### F-15 Theming and responsive design
 
-System font stack, fluid type via `clamp()`, CSS split into `tokens.css`, `base.css`, `components.css`, `prose.css` under `@layer`, `prefers-color-scheme` plus persisted manual toggle applied before paint, `prefers-reduced-motion`, print stylesheet. Code uses Shiki `github-light-high-contrast` and `github-dark` (ADR-024). Theme colors `#ffffff` / `#0b0d10`.
+System font stack, fluid type via `clamp()`, CSS split into `tokens.css`, `base.css`, `components.css`, `prose.css` under `@layer`, `prefers-color-scheme` plus persisted manual toggle applied before paint, `prefers-reduced-motion`, print stylesheet. Code uses Shiki `github-light-high-contrast` and `github-dark` (ADR-024). Theme colors `#ffffff` / `#0b0d10`. The look is the serene theme (ADR-027): white/mint base, sage green brand `#15803d`, sky-teal accent `#0e7490`, soft mint to sky to lavender page-top wash, pastel pills, mint TL;DR, a frosted sticky header at 64rem and up, a gentle card hover lift (off under `prefers-reduced-motion`) and a deep green-slate dark mode. Responsive contract: ADR-029.
 
+- AC: every template works from 320px to 1440px+ with zero horizontal overflow, audited at 320, 375, 414, 768, 1024, 1280 and 1440.
+- AC: standalone links and controls (`.more-link`, `.link-list`) are at least 44px tall; mobile shows a second scrollable nav row.
+- AC: e2e covers chromium-desktop 1280, iPhone 15, Pixel 7, a 320px overflow spec and no-JS.
 - AC: axe has zero violations in light and dark on every template (home, post, tag, archive, authors, subscribe, tags, about, search, 404).
 - AC: all text/background pairs meet 4.5:1.
 - AC: `data-theme` is set before first paint (e2e).
@@ -209,7 +213,7 @@ System font stack, fluid type via `clamp()`, CSS split into `tokens.css`, `base.
 
 ### F-16 Newsletter adapter
 
-`PUBLIC_NEWSLETTER_PROVIDER` selects `beehiiv`, `listmonk`, `buttondown`, `kit` or `none`. See `docs/ARCHITECTURE.md` section 8.
+`PUBLIC_NEWSLETTER_PROVIDER` selects `kit` (current), `listmonk` (planned before ~10,000 subscribers), `buttondown`, `beehiiv` (legacy, code removal tracked for decommission) or `none`. See `docs/ARCHITECTURE.md` section 8.
 
 - AC: switching provider changes only env, not code.
 - AC: e2e covers JS on, JS off, success and error (mocked network).
@@ -240,7 +244,7 @@ Cloudflare Web Analytics, cookieless, env-gated.
 | Broken links                             | 0 internal, 0 non-allowlisted external                                                                                                  |
 | Indexed pages (GSC) 30 days post-cutover | >= pre-migration count                                                                                                                  |
 | Publish latency                          | merge to live < 5 min                                                                                                                   |
-| Newsletter health (Phase B)              | bounce < 2%, complaints < 0.1%                                                                                                          |
+| Newsletter health (Kit and Phase B)      | bounce < 2%, complaints < 0.1%                                                                                                          |
 
 ## 8. Cutover definition of done
 
@@ -251,13 +255,13 @@ Whole project is done when all are true:
 3. Lighthouse mobile >= 95/100/95/100 on the four measured templates; axe clean; no overflow at 320 px.
 4. `llms.txt`, `llms-full.txt`, `.md` twins, `api/posts.json`, RSS/Atom/JSON feeds, sitemap and robots are live and validated.
 5. HTTPS enforced, apex redirects to www.
-6. Subscribers receive new issues from listmonk + SES; Beehiiv has no account, no DNS and no cost.
+6. Subscribers receive new issues from Kit's free plan (listmonk + SES once the list nears ~10,000); Beehiiv has no account, no DNS and no cost.
 7. All agent files are present and accurate; a fresh Claude Code session can run `/new-post` end to end.
 8. Docs, CHANGELOG and RUNBOOK are current; `v1.0.0` tagged (`v1.1.0` for self-hosted email, `v1.2.0` for Beehiiv decommission).
 
-Cutover (Sprint 7) is complete when: production smoke green, live parity 100%, HTTPS enforced, apex to www working, sitemap submitted to GSC and Bing, IndexNow pinged, the subscribe form still feeds the interim list, `v1.0.0` tagged.
+Cutover (Sprint 7) is complete when: production smoke green, live parity 100%, HTTPS enforced, apex to www working, sitemap submitted to GSC and Bing, IndexNow pinged, the subscribe form feeds the Kit list, `v1.0.0` tagged.
 
-Owner-only actions at cutover: content sign-off, DNS changes, GitHub Pages custom domain and domain verification, Beehiiv domain disconnect and plan downgrade, GSC/Bing setup. Agents never do these.
+Owner-only actions at cutover: content sign-off, DNS changes, GitHub Pages custom domain and domain verification, Kit account, subscriber import and sending-domain authentication, Beehiiv domain disconnect and cancellation, GSC/Bing setup. Agents never do these.
 
 ## 9. Sprint plan summary
 
@@ -274,8 +278,8 @@ Every sprint ends in a hard gate: all checkboxes ticked and CI green on `main`. 
 | 6      | Hardening: perf, a11y, links, RUNBOOK, licenses, audit                                                    | All CI green, rollback dry run on staging                                                                                       | `v0.9.0`   |
 | 7      | Cutover                                                                                                   | Production smoke, live parity 100%, HTTPS, sitemap submitted                                                                    | `v1.0.0`   |
 | 8      | Post-launch, 2 weeks                                                                                      | Indexed pages >= baseline, no open `incident` issues, retro written                                                             | n/a        |
-| 9      | Self-hosted newsletter (listmonk + SES)                                                                   | SES out of sandbox, SPF/DKIM/DMARC pass, bounce webhook tested, backup restored, first full send within bounce/complaint limits | `v1.1.0`   |
-| 10     | Decommission Beehiiv                                                                                      | Exports archived, no Beehiiv DNS, plan cancelled, smoke + parity green                                                          | `v1.2.0`   |
+| 9      | Self-hosted newsletter (listmonk + SES), deferred until ~10,000 subscribers                               | SES out of sandbox, SPF/DKIM/DMARC pass, bounce webhook tested, backup restored, first full send within bounce/complaint limits | `v1.1.0`   |
+| 10     | Decommission Beehiiv (can run now; Kit is the sender)                                                     | Exports archived, no Beehiiv DNS, plan cancelled, smoke + parity green                                                          | `v1.2.0`   |
 
 ## 10. Risks
 

@@ -12,9 +12,9 @@ env:
   SITE_URL: https://www.serverless.fyi
   BASE_PATH: /
   PUBLIC_INDEXABLE: 'true'
-  # Phase A (docs/ARCHITECTURE.md § Newsletter): the form feeds the Beehiiv list. Public ID only.
-  PUBLIC_NEWSLETTER_PROVIDER: beehiiv
-  PUBLIC_NEWSLETTER_ID: 85ca74d5-31ae-4c86-965a-77f25e1d51da
+  # Kit (ADR-028). CI uses a placeholder form id; e2e mocks the network. Deploys use repo variables.
+  PUBLIC_NEWSLETTER_PROVIDER: kit
+  PUBLIC_NEWSLETTER_ID: ci-placeholder-form
 jobs:
   verify:
     runs-on: ubuntu-latest

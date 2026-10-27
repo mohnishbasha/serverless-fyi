@@ -78,7 +78,9 @@ const items = page?.data ?? [];
       <p>{intro}</p>
       {!empty && (
         <p>
-          <a href={url(`/t/${tag}/rss.xml`)}>RSS feed for {label}</a>
+          <a class="more-link" href={url(`/t/${tag}/rss.xml`)}>
+            RSS feed for {label}
+          </a>
         </p>
       )}
     </header>

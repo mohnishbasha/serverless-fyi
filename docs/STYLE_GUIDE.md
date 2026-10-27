@@ -152,6 +152,14 @@ The palette is "serene", adapted from serverlessvc.com (ADR-027):
 - **Dark:** a deep green-slate base (`#0d1512`), mint links (`#7ee2a8`) and a sky accent (`#7dd3fc`).
 - **Shared:** the top of every page carries a soft mint → sky → lavender wash (`--hero`) that fades into the background. Tag pills cycle through mint, sky and lavender. The header is frosted glass and sticky from 64rem up. Cards lift 3 px on hover, unless reduced motion is requested. Change colors in `tokens.css` only, then regenerate visual snapshots (`bash scripts/update-snapshots.sh`).
 
+### Responsive rules (ADR-029)
+
+- Every template works from 320px to 1440px+ with zero horizontal overflow. Test at 320, 375, 414, 768, 1024, 1280 and 1440, in light and dark.
+- No fixed widths. Use fluid sizing (`max-width`, `clamp()`, grid/flex wrapping, container queries) and the `40rem` / `64rem` breakpoints.
+- Standalone links and controls are at least 44px tall. Use `.more-link` for "more" links and `.link-list` for link lists; do not hand-roll small tap targets.
+- The subscribe input and button go full width below `30rem`. Mobile shows a second, scrollable nav row.
+- Wide content (tables, code) scrolls inside its own wrapper, never the page.
+
 ## 7. Pre-PR checklist for a post
 
 - [ ] `description` 70 to 160; unique

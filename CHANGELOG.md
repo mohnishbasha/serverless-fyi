@@ -7,6 +7,8 @@ All notable changes to the site codebase are documented here. The format follows
 ### Changed
 
 - A serene, calm color theme adapted from serverlessvc.com. It has a white and mint base, sage green accents, a soft gradient wash, pastel tag pills, a frosted sticky header, and a matching dark mode. OG cards, the favicon and the email template follow suit (ADR-027).
+- The newsletter provider is now Kit's free plan, replacing Beehiiv (`PUBLIC_NEWSLETTER_PROVIDER=kit`); self-hosted listmonk + SES is the planned migration before ~10,000 subscribers (ADR-028).
+- Responsive refinements: every template works from 320px to 1440px+ with no horizontal overflow, 44px tap targets (`.more-link`, `.link-list`), a full-width subscribe form below 30rem and a second scrollable nav row on mobile (ADR-029).
 
 ## [0.1.0] - 2026-10-27
 
