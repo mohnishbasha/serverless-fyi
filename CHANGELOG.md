@@ -4,6 +4,10 @@ All notable changes to the site codebase are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The home page is livelier. Post cards show cover thumbnails (AVIF/WebP, lazy, 16:9, with a gentle zoom on hover). "Latest posts" comes first and leads with a large **Latest issue** featured card. Tag and listing cards get thumbnails too.
+
 ## [1.0.0] - 2026-10-27
 
 Production cutover: `https://www.serverless.fyi` is served from GitHub Pages instead of Beehiiv.
