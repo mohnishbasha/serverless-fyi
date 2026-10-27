@@ -1,0 +1,57 @@
+---
+title: "We moved: 2 Minute Serverless now runs on GitHub Pages"
+subtitle: "Same URLs, faster pages, and every post is now plain Markdown in git"
+description: "2 Minute Serverless moved from Beehiiv to a static Astro site on GitHub Pages: every old URL still works, pages load faster, and agents can read every post."
+slug: we-moved-2-minute-serverless-now-runs-on-github-pages
+pubDate: 2026-10-27
+tags:
+  - newsletter
+  - serverless
+tldr: "serverless.fyi is now a static Astro site on GitHub Pages instead of Beehiiv. All 23 posts and every old URL moved over, pages score 100 on Lighthouse, and each post has a Markdown twin for AI agents."
+keyTakeaways:
+  - "All 23 posts and 63 legacy URLs moved over; old /t/ tag links redirect automatically."
+  - "Pages are static HTML on GitHub Pages: Lighthouse mobile 100/100/100/100, about 80 KB per post."
+  - "Every post is also available as Markdown at /p/<slug>.md, listed in /llms.txt for AI agents."
+  - "Email keeps working: the newsletter moves to a self-hosted listmonk + Amazon SES stack next."
+faq:
+  - q: "Do I need to resubscribe?"
+    a: "No. Your subscription carries over. TODO(owner): confirm once the listmonk import is done."
+  - q: "Did any links break?"
+    a: "No. Every URL from the old site is checked by an automated parity test on every deploy, and the old tag URLs redirect to their new form."
+draft: true
+---
+
+**2 Minute Serverless now lives on GitHub Pages.** The site you're reading is a static [Astro](https://astro.build) build, generated from Markdown files in a public git repository and deployed by GitHub Actions. Beehiiv served us well. But owning the content, the URLs and the inbox matters more as the newsletter grows.
+
+## What changed for readers?
+
+Almost nothing you'll have to think about:
+
+- **Same URLs.** All 23 posts kept their exact slugs. A test checks every one of the 63 legacy URLs on every deploy. Old tag links like `/t/distributed~systems` redirect to `/t/distributed-systems/`.
+- **Faster pages.** Pages are plain HTML with no framework JavaScript. Lighthouse on mobile scores 100 for performance, accessibility, best practices and SEO. A post weighs about 80 KB.
+- **Dark mode, search and feeds.** There's a theme toggle, full-text [search](/search/), and [RSS](/rss.xml), Atom and JSON feeds with full content.
+
+## Why move off Beehiiv?
+
+TODO(owner): your reasons in your own words — cost (~$50/month), owning the subscriber list, control over design and SEO, and so on.
+
+## How does it work under the hood?
+
+Each issue is one MDX file. Opening a pull request runs the full check suite:
+
+- unit and end-to-end tests on four screen sizes;
+- accessibility checks in light and dark mode;
+- Lighthouse budgets;
+- validators for structured data, feeds and the legacy URL list.
+
+Merging the PR publishes the post in under five minutes. The migration itself was code too: a scraper read each Beehiiv post, a converter turned the HTML into clean Markdown, and every image was downloaded so nothing hotlinks Beehiiv anymore.
+
+## What about AI agents?
+
+They're welcome. Every post has a Markdown twin. Add `.md` to any post URL, like [/p/understanding-the-dns-header.md](/p/understanding-the-dns-header.md). The whole archive is indexed in [/llms.txt](/llms.txt), and [/api/posts.json](/api/posts.json) is a machine-readable index. ChatGPT, Claude and Perplexity can read and cite posts cleanly.
+
+## What's next for the newsletter?
+
+Email moves to a self-hosted [listmonk](https://listmonk.app) server that sends through Amazon SES. Same issues, same inbox, no third-party tracking. TODO(owner): timeline and anything subscribers should expect.
+
+Thanks for reading. Two minutes at a time.

@@ -17,7 +17,7 @@ description: "TODO(owner): 70–160 characters that answer the title's question 
 slug: ${slug}
 pubDate: ${now.toISOString().slice(0, 10)}
 tags:
-  - TODO-owner
+  - todo-owner
 tldr: "TODO(owner): 1–3 sentences that directly answer the title. This is what answer engines quote."
 keyTakeaways:
   - "TODO(owner): concrete takeaway with a number, version or trade-off."

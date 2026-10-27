@@ -4,14 +4,14 @@ Operational procedures for serverless.fyi. 👤 marks an action only the owner c
 
 Quick facts:
 
-|            |                                                                                                           |
-| ---------- | --------------------------------------------------------------------------------------------------------- |
-| Production | `https://www.serverless.fyi` (apex redirects to www)                                                      |
-| Staging    | `https://mohnishbasha.github.io/serverless-fyi/` (`BASE_PATH=/serverless-fyi/`, `PUBLIC_INDEXABLE=false`) |
-| Repo       | `github.com/mohnishbasha/serverless-fyi`                                                                  |
-| Deploy     | merge to `main` runs `deploy.yml` (build, validate, upload, deploy, smoke)                                |
-| Smoke      | `scripts/smoke.sh <base_url>`, also scheduled every 6 hours                                               |
-| Incidents  | GitHub issues labeled `incident`                                                                          |
+|            |                                                                                                                                           |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Production | `https://www.serverless.fyi` (apex redirects to www)                                                                                      |
+| Staging    | `https://mohnishbasha.github.io/serverless-fyi/` (`BASE_PATH=/serverless-fyi/`, `PUBLIC_INDEXABLE=false`)                                 |
+| Repo       | `github.com/mohnishbasha/serverless-fyi`                                                                                                  |
+| Deploy     | merge to `main` runs `deploy.yml` (build, validate, upload, deploy, smoke)                                                                |
+| Smoke      | `scripts/smoke.sh <base_url>`, also scheduled every 6 hours (`smoke.yml`; target = var `SMOKE_URL`, default `https://www.serverless.fyi`) |
+| Incidents  | GitHub issues labeled `incident`                                                                                                          |
 
 ## 1. Publish a post
 
@@ -22,13 +22,13 @@ Target: merge to live in under 5 minutes.
 3. Fill frontmatter (see `docs/STYLE_GUIDE.md`): `title`, `description` (70 to 160), `pubDate`, `tags` (existing tags first), `cover` + `coverAlt`, `tldr`, `keyTakeaways` (at least 2), optional `faq`.
 4. Write the body (answer-first, starts at H2). Put images in the post folder.
 5. Preview: `pnpm dev`, then open `/p/<slug>/` and `/p/<slug>.md`.
-6. `pnpm check` (lint, typecheck, unit, build, validate). Fix everything.
+6. `pnpm check` (lint, typecheck, unit, build, validate). Fix everything. `pnpm validate` runs `check-content.ts` (TODO(owner) guard, slug equals folder, cover warning), parity, SEO, feeds, `validate-dist.ts` and html-validate.
 7. Commit with Conventional Commits: `content(post): <title>`.
 8. Open a PR. Fill the PR template. CI runs `verify`, `e2e`, `lighthouse`, `spec-touch`, `commitlint`.
 9. Get approval and squash-merge.
 10. Watch Actions: Deploy, then Smoke. Confirm the post at the live URL; confirm it is in `/rss.xml`, `/llms.txt`, and `sitemap-0.xml`.
-11. IndexNow runs automatically after deploy. Optionally request indexing in Search Console.
-12. Newsletter: Phase A: send from Beehiiv. Phase B: a draft campaign appears in listmonk; review and send (section 7).
+11. `indexnow.yml` runs automatically after a successful deploy (only when `PUBLIC_INDEXABLE=true`). Optionally request indexing in Search Console.
+12. Newsletter: Phase A: send from Beehiiv. Phase B: `newsletter-draft.yml` creates a draft campaign in listmonk; review and send (section 10.2).
 
 Scheduling: set `pubDate` in the future and `draft: true`; to publish, flip `draft` to `false` and set the date in a PR. Future-dated non-draft posts fail CI.
 
@@ -41,6 +41,8 @@ gh run list --workflow deploy.yml --limit 3
 bash scripts/smoke.sh https://www.serverless.fyi
 gh api repos/mohnishbasha/serverless-fyi/pages/builds/latest
 ```
+
+`dist/` can be inspected locally the way Pages serves it: `pnpm build && node scripts/serve-dist.mjs 4399` (GitHub Pages emulator: honors `BASE_PATH`, 301 to the trailing slash, `404.html` with status 404). Playwright and Lighthouse CI use the same server, because `astro preview` daemonizes in Astro 7.
 
 Check `/robots.txt` has `Allow: /`, the canonical on the home page is the production origin, and `/` returns 200 over HTTPS.
 
@@ -73,21 +75,22 @@ On staging, merge a deliberately broken change (for example a bad canonical), se
 
 ## 4. Fix a broken deploy
 
-| Symptom                                         | Likely cause                                                    | Fix                                                                                                    |
-| ----------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `build` fails on content                        | zod schema error (description length, missing `coverAlt`, tags) | Read the error, fix frontmatter.                                                                       |
-| `pnpm validate` fails: parity                   | A legacy URL missing                                            | Run `pnpm validate` locally; add the page or restore the slug. Never remove a manifest entry.          |
-| validate-seo: duplicate title/description       | Two posts share a title                                         | Make unique.                                                                                           |
-| `TODO(owner)` found                             | Unfilled TL;DR/takeaways                                        | Fill them or set `aeoPending: true`.                                                                   |
-| Guard step: `CNAME`/robots                      | `PUBLIC_INDEXABLE` variable wrong                               | Fix repo variables (section 6 of this doc, repo settings).                                             |
-| Deploy job stuck / 404 on site after deploy     | Pages source not set to GitHub Actions; environment protection  | Settings, Pages, Source = GitHub Actions. Environment `github-pages` allows `main`.                    |
-| Custom domain lost after deploy                 | `CNAME` not emitted                                             | Ensure `PUBLIC_INDEXABLE=true`; the build generates `CNAME`. Re-enter the domain in Pages settings 👤. |
-| HTTPS cert error                                | DNS wrong or Cloudflare proxied                                 | Records in section 9 must be DNS-only until the cert is issued.                                        |
-| Smoke fails right after deploy                  | CDN propagation                                                 | Re-run smoke after 5 minutes.                                                                          |
-| Smoke fails on `http://serverless.fyi` redirect | Apex records missing or Enforce HTTPS off                       | Check A/AAAA records 👤 and Enforce HTTPS.                                                             |
-| Broken assets on staging                        | Root-relative link bypassed `url()`                             | Fix link; the validator and lint rule should have caught it. Add a test.                               |
-| Pagefind missing                                | Integration did not run                                         | Check build log order: Pagefind runs after build on `dist/`.                                           |
-| CI cache or pnpm errors                         | Lockfile drift                                                  | `pnpm install --frozen-lockfile` locally; commit the lockfile.                                         |
+| Symptom                                         | Likely cause                                                    | Fix                                                                                                                                                |
+| ----------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build` fails on content                        | zod schema error (description length, missing `coverAlt`, tags) | Read the error, fix frontmatter.                                                                                                                   |
+| `pnpm validate` fails: parity                   | A legacy URL missing                                            | Run `pnpm validate` locally; add the page or restore the slug. Never remove a manifest entry.                                                      |
+| validate-seo: duplicate title/description       | Two posts share a title                                         | Make unique.                                                                                                                                       |
+| `TODO(owner)` found                             | Unfilled TL;DR/takeaways                                        | Fill them or set `aeoPending: true`.                                                                                                               |
+| Guard step: `CNAME`/robots                      | `PUBLIC_INDEXABLE` variable wrong                               | Fix repo variables (section 6 of this doc, repo settings).                                                                                         |
+| Deploy job stuck / 404 on site after deploy     | Pages source not set to GitHub Actions; environment protection  | Settings, Pages, Source = GitHub Actions. Environment `github-pages` allows `main`.                                                                |
+| Custom domain lost after deploy                 | `CNAME` not emitted                                             | Ensure `PUBLIC_INDEXABLE=true`; the build generates `CNAME`. Re-enter the domain in Pages settings 👤.                                             |
+| HTTPS cert error                                | DNS wrong or Cloudflare proxied                                 | Records in section 9 must be DNS-only until the cert is issued.                                                                                    |
+| Smoke fails right after deploy                  | CDN propagation                                                 | Re-run smoke after 5 minutes.                                                                                                                      |
+| Smoke fails on `http://serverless.fyi` redirect | Apex records missing or Enforce HTTPS off                       | Check A/AAAA records 👤 and Enforce HTTPS.                                                                                                         |
+| Broken assets on staging                        | Root-relative link bypassed `url()`                             | Fix link; `validate-dist.ts` and the lint rule should have caught it. Add a test.                                                                  |
+| Visual snapshot diff in CI                      | Intentional UI change, or snapshots rendered on macOS           | Snapshots are Linux-only. Run `bash scripts/update-snapshots.sh` (Docker, after `pnpm build`) or label the PR `update-snapshots`; review the diff. |
+| Pagefind missing                                | Integration did not run                                         | Check build log order: Pagefind runs after build on `dist/`.                                                                                       |
+| CI cache or pnpm errors                         | Lockfile drift                                                  | `pnpm install --frozen-lockfile` locally; commit the lockfile.                                                                                     |
 
 General method: `gh run view <id> --log-failed`, reproduce locally with the same env (`SITE_URL`, `BASE_PATH`, `PUBLIC_INDEXABLE`), write a failing test if it is a code bug, fix, push.
 
@@ -104,11 +107,14 @@ The site needs no secrets for deploy (Pages OIDC). Secrets that exist:
 | SES SMTP credentials / IAM access keys     | AWS IAM, Secrets Manager       | Create a new IAM key, update listmonk SMTP settings, verify a test send, delete the old key. Rotate every 90 days.          |
 | SNS bounce webhook secret/basic auth       | listmonk + SNS subscription    | Update both; test with an SES simulator address.                                                                            |
 | `INDEXNOW_KEY`                             | public file `public/<key>.txt` | Generate new key, add new file, update repo variable, deploy, then remove old file.                                         |
+| `LISTMONK_API_USER`, `LISTMONK_API_TOKEN`  | GitHub secrets (Phase B)       | Used by `newsletter-draft.yml`; also set variables `PUBLIC_NEWSLETTER_URL` and `LISTMONK_LIST_ID`.                          |
 | Cloudflare analytics token                 | repo variable (public)         | Not secret; regenerate in Cloudflare if needed.                                                                             |
 
 If a secret is committed: revoke it first, then remove it from history only if necessary (history rewrite on `main` is forbidden; prefer revocation). Secret scanning and push protection are enabled (section 8).
 
-Check expiry: `public/.well-known/security.txt` `Expires` is renewed yearly.
+Check expiry: `public/.well-known/security.txt` `Expires` (currently 2027-10-26) is renewed yearly; `validate-dist.ts` fails the build when it is missing or within 30 days.
+
+Third-party licenses: `pnpm licenses:gen` (not `pnpm licenses`) regenerates `THIRD_PARTY_LICENSES.md`; CI fails on a diff and runs `pnpm audit --prod --audit-level high`.
 
 ## 6. Release checklist (versioning, Prompt §13)
 
@@ -135,7 +141,7 @@ Apply once, verify after any repo transfer.
 1. **Branch protection on `main`:** require pull request; 1 approval (CODEOWNERS = @mohnishbasha, so agent PRs need the human); required status checks `verify`, `e2e`, `lighthouse`, `spec-touch`, `commitlint`; require linear history; squash merge only (disable merge commits and rebase); auto-delete head branches; no force pushes; no deletions; require conversation resolution; do not allow bypass.
 2. **Environments:** `github-pages` restricted to `main`.
 3. **Pages:** Settings, Pages, Source = **GitHub Actions**.
-4. **Actions variables** (Settings, Secrets and variables, Actions, Variables): `SITE_URL`, `BASE_PATH`, `PUBLIC_INDEXABLE`, `PUBLIC_NEWSLETTER_PROVIDER`, `PUBLIC_NEWSLETTER_ID`, `PUBLIC_CF_ANALYTICS_TOKEN`, `INDEXNOW_KEY`.
+4. **Actions variables** (Settings, Secrets and variables, Actions, Variables): `SITE_URL`, `BASE_PATH`, `PUBLIC_INDEXABLE`, `PUBLIC_NEWSLETTER_PROVIDER`, `PUBLIC_NEWSLETTER_ID`, `PUBLIC_NEWSLETTER_URL`, `PUBLIC_CF_ANALYTICS_TOKEN`, `INDEXNOW_KEY`, optional `SMOKE_URL`. CI builds with provider `beehiiv` and publication id `85ca74d5-31ae-4c86-965a-77f25e1d51da` (public; ADR-025).
 
    | Variable                     | Staging                          | Production                                |
    | ---------------------------- | -------------------------------- | ----------------------------------------- |
@@ -143,6 +149,10 @@ Apply once, verify after any repo transfer.
    | `BASE_PATH`                  | `/serverless-fyi/`               | `/`                                       |
    | `PUBLIC_INDEXABLE`           | `false`                          | `true`                                    |
    | `PUBLIC_NEWSLETTER_PROVIDER` | `beehiiv` or `none`              | `beehiiv` (Phase A), `listmonk` (Phase B) |
+   | `PUBLIC_NEWSLETTER_ID`       | Beehiiv publication UUID         | Beehiiv UUID, or listmonk list UUID       |
+   | `PUBLIC_NEWSLETTER_URL`      | unset                            | unset (Phase A), listmonk base URL (B)    |
+
+   Providers: `beehiiv`, `listmonk`, `buttondown`, `kit`, `none`.
 
 5. **Secrets:** none required for deploy. `BEEHIIV_API_KEY` stays local. Add `LISTMONK_API_TOKEN` only in Phase B.
 6. **Security:** enable secret scanning + push protection, Dependabot alerts and security updates, private vulnerability reporting, CodeQL default setup (or `codeql.yml`).
@@ -155,7 +165,7 @@ Steps in order. 👤 = owner. Do not skip. Do not start until Gate 6 is green an
 
 1. Staging is live at `https://mohnishbasha.github.io/serverless-fyi/` with `PUBLIC_INDEXABLE=false`. Full test suite and smoke are green against staging.
 2. 👤 Content review: sign off `migration/report.md`; spot-check 10 posts side by side with Beehiiv (23 posts total in the inventory).
-3. 👤 Newsletter Phase A: confirm the subscriber CSV from Sprint 2 is backed up outside the repo; set `PUBLIC_NEWSLETTER_PROVIDER=beehiiv` so the new form feeds the Beehiiv list.
+3. 👤 Newsletter Phase A (the Beehiiv form is a plain GET to `magic.beehiiv.com/v1/<publication uuid>`; verify one real subscription on staging first): confirm the subscriber CSV from Sprint 2 is backed up outside the repo; set `PUBLIC_NEWSLETTER_PROVIDER=beehiiv` so the new form feeds the Beehiiv list.
 4. 👤 Search Console: confirm the **Domain property** `serverless.fyi` is verified by DNS TXT (before touching DNS). Import to Bing Webmaster.
 5. 👤 **Record current Beehiiv DNS records** into section 9 below (before any change). Gate: the placeholders must be replaced.
 6. 👤 Lower TTL on `www` and apex to 300 s, 24 hours before cutover.
@@ -169,7 +179,7 @@ Steps in order. 👤 = owner. Do not skip. Do not start until Gate 6 is green an
 10. 👤 Wait for the TLS certificate (can take up to an hour); then tick **Enforce HTTPS**.
 11. 👤 In Beehiiv, disconnect the custom domain from **web hosting only**. Keep the publication and the email DNS records. Downgrade to the cheapest plan that still sends to the list.
 12. Run `smoke.yml` (workflow_dispatch, production). Run `pnpm exec tsx scripts/validate-parity.ts --live` and require 100 percent.
-13. 👤 Submit `https://www.serverless.fyi/sitemap-index.xml` in Search Console and Bing. Run IndexNow with `all=true` once.
+13. 👤 Submit `https://www.serverless.fyi/sitemap-index.xml` in Search Console and Bing. Run `indexnow.yml` manually (workflow_dispatch) with `all: true` once to ping every sitemap URL.
 14. Tag `v1.0.0` (section 6). Monitor GSC Pages and Core Web Vitals, 404s, and `incident` issues for 14 days. Scheduled smoke continues.
 
 Gate 7: production smoke green, live parity 100 percent, HTTPS enforced, apex to www, sitemap submitted, subscribe form still feeding the interim list, tag `v1.0.0`.
@@ -219,11 +229,13 @@ Raw `dig` output (paste):
 
 ### 10.2 Phase B (listmonk + SES)
 
-Hosts: listmonk at `https://lists.serverless.fyi` (Docker Compose: listmonk, PostgreSQL, Caddy) in `infra/newsletter/`. Admin behind strong password and IP allowlist or Cloudflare Access.
+Hosts: listmonk at `https://lists.serverless.fyi` in `infra/newsletter/` (Docker Compose: PostgreSQL 17, listmonk v6.2.0, Caddy, backup; Terraform for SES, SNS, S3, KMS, IAM and an optional Lightsail host). The Caddyfile allowlists `/admin` and `/api` (except `/api/public`) by IP and exposes only the SES webhook and `POST /api/campaigns`. Admin also needs a strong password.
+
+👤 Before Phase B: `email/template.html` contains `TODO(owner): physical mailing address (required by CAN-SPAM)`. Replace it; no campaign may be sent until it is gone.
 
 **Send an issue**
 
-1. Merge the post. The deploy Action creates a **draft campaign** in listmonk from the post HTML using `email/template.html`. It never sends.
+1. Merge the post. After a successful deploy, `newsletter-draft.yml` (runs only when `PUBLIC_NEWSLETTER_PROVIDER=listmonk`) runs `scripts/newsletter-draft.ts` and creates a **draft campaign** in listmonk for each newly added post, using `email/template.html`. It never sends.
 2. 👤 Open listmonk, Campaigns, open the draft. Check subject, preheader, links (absolute, to `www.serverless.fyi`), images (absolute URLs to the new site, not Beehiiv), unsubscribe link present.
 3. Send a test to yourself; view in Gmail, Outlook, Apple Mail. In Gmail, "Show original" must show SPF, DKIM, DMARC all PASS and `List-Unsubscribe` with `List-Unsubscribe-Post: List-Unsubscribe=One-Click`.
 4. Schedule or send. For the first sends after migration, batch: 25 percent, then 50, then 100 across three issues (use a segment or list-percentage), watching rates.

@@ -8,6 +8,10 @@ describe('checkPostSource', () => {
     const r = checkPostSource('t', fm('tldr: "TODO(owner): write"\ncover: ./c.jpg'));
     expect(r.errors[0]).toMatch(/TODO\(owner\)/);
   });
+  it('blocks the scaffold placeholder tag in a published post', () => {
+    const r = checkPostSource('t', fm('tags:\n  - todo-owner\ncover: ./c.jpg'));
+    expect(r.errors.join()).toMatch(/todo-owner/);
+  });
   it('allows TODO(owner) in drafts', () => {
     expect(checkPostSource('t', fm('draft: true\ntldr: "TODO(owner)"')).errors).toEqual([]);
   });

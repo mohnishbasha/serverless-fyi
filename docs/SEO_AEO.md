@@ -13,11 +13,11 @@ Related: `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/TEST_PLAN.md`, `docs/DECIS
 | Site name                      | `2 Minute Serverless`                                                                                                           |
 | Tagline                        | `Freshly baked serverless nuggets in 2-minutes`                                                                                 |
 | Short description              | `Data \| AI \| Distributed Systems \| Start Ups`                                                                                |
-| Author                         | Mohinish S (Mohinish Shaikh), id `mohinish`, page `/authors/`                                                                   |
+| Author                         | Mohinish Shaikh (alternate name Mohinish S), id `mohinish`, page `/authors/`                                                    |
 | Publisher                      | Serverless Ventures LLC                                                                                                         |
 | Twitter handle                 | `@mohinishbasha`                                                                                                                |
-| Theme colors                   | light `#ffffff`, dark `#000000` (legacy brand color is `#000000`)                                                               |
-| Current inventory              | 23 posts, 17 tags, `/authors/mohinish-s` legacy URL (redirects to `/authors/`)                                                  |
+| Theme colors                   | light `#ffffff`, dark `#0b0d10` (`SITE.themeColorLight/Dark`); web manifest `theme_color` `#000000` (legacy brand color)        |
+| Current inventory              | 23 posts, 22 tags (17 Beehiiv + 5 from ADR-020), `/authors/mohinish-s` legacy URL (redirects to `/authors/`)                    |
 | Env switches                   | `SITE_URL`, `BASE_PATH`, `PUBLIC_INDEXABLE` (`true` = production, `false` = staging)                                            |
 
 Rules that apply everywhere:
@@ -29,29 +29,29 @@ Rules that apply everywhere:
 
 ## 2. Per-page `<head>` (component `src/components/SEO.astro`)
 
-`validate-seo.ts` asserts every row for every non-stub HTML file in `dist/`.
+`validate-seo.ts` asserts the core rows (lang, one `<h1>`, unique title, description 70 to 160 and unique, absolute canonical equal to the path, OG and Twitter tags, `og:image` file exists, JSON-LD required properties, robots meta per environment) for every non-stub HTML file in `dist/`. The remaining rows are covered by unit tests and review.
 
-| Tag                                                                                                 | Spec                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `<html lang="en">`                                                                                  | Always present.                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `<meta charset="utf-8">` and `<meta name="viewport" content="width=device-width, initial-scale=1">` | Always.                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `<title>`                                                                                           | Post: `"{title} \| 2 Minute Serverless"`. Target 60 characters or fewer for the whole string; if over, drop the site suffix (never truncate the title mid-word). Home: `2 Minute Serverless — Data, AI & Distributed Systems in 2 Minutes`. Tag: `{Tag name} posts \| 2 Minute Serverless`. Archive: `Archive: every post \| 2 Minute Serverless` (page N: `Archive — page N \| 2 Minute Serverless`). Unique across the site. |
-| `<meta name="description">`                                                                         | 70 to 160 characters, unique across the site. Source: post `description`; tag description file or default template; static text for fixed pages.                                                                                                                                                                                                                                                                               |
-| `<link rel="canonical">`                                                                            | Absolute, trailing slash (except file-like URLs), built from `SITE_URL`. See section 9.                                                                                                                                                                                                                                                                                                                                        |
-| `<meta name="robots">`                                                                              | Production indexable page: `index,follow,max-image-preview:large,max-snippet:-1`. Drafts, `noindex: true` posts, redirect stubs, staging, 404: `noindex` (404 and stubs also `follow`).                                                                                                                                                                                                                                        |
-| Open Graph                                                                                          | `og:type` (`article` for posts, `website` otherwise), `og:title`, `og:description`, `og:url` (= canonical), `og:image` (absolute, 1200x630 PNG from `/og/<slug>.png`), `og:image:width` 1200, `og:image:height` 630, `og:image:alt`, `og:site_name` = `2 Minute Serverless`, `og:locale` = `en_US`.                                                                                                                            |
-| Open Graph, article only                                                                            | `article:published_time` (ISO 8601 with offset), `article:modified_time` (`updatedDate ?? pubDate`), `article:author` (absolute URL of `/authors/`), `article:tag` (one meta per tag), `article:section` (first tag).                                                                                                                                                                                                          |
-| Twitter                                                                                             | `twitter:card` = `summary_large_image`, `twitter:site` = `@mohinishbasha`, `twitter:creator` = `@mohinishbasha`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:image:alt`.                                                                                                                                                                                                                                 |
-| Theme                                                                                               | `<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">`, `<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">`, `<meta name="color-scheme" content="light dark">`.                                                                                                                                                                                                    |
-| Generator                                                                                           | `<meta name="generator" content="serverless-fyi {SITE_VERSION}">`.                                                                                                                                                                                                                                                                                                                                                             |
-| Author                                                                                              | `<meta name="author" content="Mohinish Shaikh">`.                                                                                                                                                                                                                                                                                                                                                                              |
-| Feeds                                                                                               | `<link rel="alternate" type="application/rss+xml" title="2 Minute Serverless" href="/rss.xml">`, `application/atom+xml` for `/atom.xml`, `application/feed+json` for `/feed.json`. Tag pages additionally link their own `/t/<tag>/rss.xml`.                                                                                                                                                                                   |
-| Markdown twin (posts only)                                                                          | `<link rel="alternate" type="text/markdown" href="/p/<slug>.md">`.                                                                                                                                                                                                                                                                                                                                                             |
-| Sitemap                                                                                             | `<link rel="sitemap" type="application/xml" href="/sitemap-index.xml">`.                                                                                                                                                                                                                                                                                                                                                       |
-| Favicons                                                                                            | SVG favicon (`rel="icon" type="image/svg+xml"`), 32x32 PNG (`rel="icon" sizes="32x32"`), 180x180 `apple-touch-icon`, `<link rel="manifest" href="/site.webmanifest">`. Assets in `public/brand/`.                                                                                                                                                                                                                              |
-| Pagination                                                                                          | Paginated listings emit `rel="prev"` and `rel="next"`. Google ignores them; Bing and others still read them.                                                                                                                                                                                                                                                                                                                   |
-| Security meta (ADR-008)                                                                             | `<meta http-equiv="Content-Security-Policy">` where it works from a meta tag (no `frame-ancestors`, no `report-uri`), `<meta name="referrer" content="strict-origin-when-cross-origin">`. Real response headers are not possible on GitHub Pages.                                                                                                                                                                              |
-| Analytics                                                                                           | Cloudflare Web Analytics beacon only when `PUBLIC_CF_ANALYTICS_TOKEN` is set. Cookieless.                                                                                                                                                                                                                                                                                                                                      |
+| Tag                                                                                                 | Spec                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<html lang="en">`                                                                                  | Always present.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `<meta charset="utf-8">` and `<meta name="viewport" content="width=device-width, initial-scale=1">` | Always.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `<title>`                                                                                           | Post: `"{title} \| 2 Minute Serverless"`. Target 60 characters or fewer for the whole string; if over, drop the site suffix (never truncate the title mid-word). Home: `2 Minute Serverless — Data, AI & Distributed Systems in 2 Minutes`. Tag: `{Tag name} posts \| 2 Minute Serverless` (page N: `{Tag name} posts — page N`). Archive: `Archive: every post \| 2 Minute Serverless` (page N: `Archive — page N`). Fixed pages use their short title plus the suffix, for example `All topics`, `Search`, `Subscribe to the newsletter`. The suffix is added only when the whole string fits in 60 characters. Unique across the site. |
+| `<meta name="description">`                                                                         | 70 to 160 characters, unique across the site. Source: post `description`; tag description file or default template; static text for fixed pages.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `<link rel="canonical">`                                                                            | Absolute, trailing slash (except file-like URLs), built from `SITE_URL`. See section 9.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `<meta name="robots">`                                                                              | Production indexable page: `index,follow,max-image-preview:large,max-snippet:-1`. Drafts, `noindex: true` posts, empty tag pages (ADR-021), `/search/`, 404 and redirect stubs: `noindex,follow`. Staging: `noindex,nofollow`.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Open Graph                                                                                          | `og:type` (`article` for posts, `website` otherwise), `og:title`, `og:description`, `og:url` (= canonical), `og:image` (absolute, 1200x630 PNG from `/og/<slug>.png`), `og:image:width` 1200, `og:image:height` 630, `og:image:alt`, `og:site_name` = `2 Minute Serverless`, `og:locale` = `en_US`.                                                                                                                                                                                                                                                                                                                                       |
+| Open Graph, article only                                                                            | `article:published_time` (ISO 8601 with offset), `article:modified_time` (`updatedDate ?? pubDate`), `article:author` (absolute URL of `/authors/`), `article:tag` (one meta per tag), `article:section` (first tag).                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Twitter                                                                                             | `twitter:card` = `summary_large_image`, `twitter:site` = `@mohinishbasha`, `twitter:creator` = `@mohinishbasha`, `twitter:title`, `twitter:description`, `twitter:image`, `twitter:image:alt`.                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Theme                                                                                               | `<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">`, `<meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)">`, `<meta name="color-scheme" content="light dark">`.                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Generator                                                                                           | `<meta name="generator" content="serverless-fyi {SITE_VERSION}">`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Author                                                                                              | `<meta name="author" content="Mohinish Shaikh">`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Feeds                                                                                               | `<link rel="alternate" type="application/rss+xml" title="2 Minute Serverless (RSS)" href="/rss.xml">`, `application/atom+xml` for `/atom.xml`, `application/feed+json` for `/feed.json`. Tag pages additionally link their own `/t/<tag>/rss.xml`.                                                                                                                                                                                                                                                                                                                                                                                        |
+| Markdown twin (posts only)                                                                          | `<link rel="alternate" type="text/markdown" href="/p/<slug>.md">`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Sitemap                                                                                             | `<link rel="sitemap" href="/sitemap-index.xml">`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Favicons                                                                                            | SVG favicon (`rel="icon" type="image/svg+xml"`), 32x32 PNG (`rel="icon" sizes="32x32"`), 180x180 `apple-touch-icon`, `<link rel="manifest" href="/site.webmanifest">`. Assets in `public/brand/`.                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Pagination                                                                                          | Paginated listings emit `rel="prev"` and `rel="next"` on the pagination links (not in `<head>`). Google ignores them; Bing and others still read them.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Security meta (ADR-008)                                                                             | `<meta http-equiv="Content-Security-Policy">` (shape in ARCHITECTURE section 7; no `frame-ancestors`, no `report-uri`), `<meta name="referrer" content="strict-origin-when-cross-origin">`. Real response headers are not possible on GitHub Pages.                                                                                                                                                                                                                                                                                                                                                                                       |
+| Analytics                                                                                           | Cloudflare Web Analytics beacon only when `PUBLIC_CF_ANALYTICS_TOKEN` is set. Cookieless.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 All internal hrefs in `<head>` go through `url()` so staging with `BASE_PATH` works. Absolute URLs (canonical, og:url, og:image) include `BASE_PATH` on staging.
 
@@ -68,17 +68,17 @@ One `<script type="application/ld+json">` per page containing a single `@graph`.
 
 ### 3.1 Types by template
 
-| Template                  | Graph nodes                                                                                                                                 |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Every page                | `WebSite` (`name`, `url`, `description`, `inLanguage: "en"`, `publisher` -> Organization, `potentialAction` `SearchAction`), `Organization` |
-| Post                      | `BlogPosting`, `BreadcrumbList`, `FAQPage` (conditional)                                                                                    |
-| Tag                       | `CollectionPage`, `ItemList`, `BreadcrumbList`                                                                                              |
-| Archive (all pages)       | `Blog`, `ItemList`, `BreadcrumbList`                                                                                                        |
-| Home                      | `Blog`, `ItemList` (latest 10 posts)                                                                                                        |
-| Authors                   | `ProfilePage` with `mainEntity` -> `Person`                                                                                                 |
-| Subscribe, About, Privacy | `WebPage` (plus the "every page" nodes). `About` may use `AboutPage`.                                                                       |
-| Search                    | `WebPage` (plus "every page" nodes). Does not itself need a `SearchResultsPage` type.                                                       |
-| 404, redirect stubs       | No JSON-LD.                                                                                                                                 |
+| Template                          | Graph nodes                                                                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Every page                        | `WebSite` (`name`, `url`, `description`, `inLanguage: "en"`, `publisher` -> Organization, `potentialAction` `SearchAction`), `Organization` |
+| Post                              | `BlogPosting`, `BreadcrumbList`, `FAQPage` (conditional)                                                                                    |
+| Tag                               | `CollectionPage`, `ItemList`, `BreadcrumbList`                                                                                              |
+| Archive (all pages)               | `Blog`, `ItemList`, `BreadcrumbList`                                                                                                        |
+| Home                              | `Blog`, `ItemList` (latest 10 posts)                                                                                                        |
+| Authors                           | `ProfilePage` with `mainEntity` -> `Person`, `Person`, `BreadcrumbList`                                                                     |
+| Tags index (`/tags/`)             | `CollectionPage`, `BreadcrumbList`                                                                                                          |
+| Subscribe, About, Privacy, Search | `BreadcrumbList` (plus the "every page" nodes). No `WebPage` node is emitted.                                                               |
+| 404, redirect stubs               | No JSON-LD.                                                                                                                                 |
 
 ### 3.2 Required properties
 
@@ -94,7 +94,7 @@ One `<script type="application/ld+json">` per page containing a single `@graph`.
 }
 ```
 
-The search page must read `?q=` and run the query on load. A unit test asserts the template resolves to a real page in `dist/` and e2e asserts `?q=` pre-fills and returns results.
+The search page reads `?q=` and runs the query on load; `search.spec.ts` asserts `?q=` pre-fills and returns results. `/search/` itself is `noindex` and not in the sitemap.
 
 `Organization`: `name` = `Serverless Ventures LLC`, `url`, `logo` (`ImageObject` with absolute `url`, `width`, `height`), `sameAs` (the four profiles below).
 
@@ -105,7 +105,7 @@ The search page must read `?q=` and run the query on load. A unit test asserts t
 - `https://www.youtube.com/@TwoMinuteServerless`
 - `https://github.com/mohnishbasha`
 
-`BlogPosting`: `@id`, `headline` (the post title, max 110), `description`, `image` (array: absolute OG image URL, plus the cover image URL if present), `datePublished`, `dateModified` (`updatedDate ?? pubDate`), `author` -> Person `@id`, `publisher` -> Organization `@id`, `mainEntityOfPage` (`WebPage` with canonical `@id`), `url`, `keywords` (comma-joined tags), `articleSection` (first tag), `wordCount` (words in rendered body), `inLanguage: "en"`, `isPartOf` -> Blog `@id`. When a TL;DR exists and `aeoPending` is false, add `abstract` = `tldr`. Do not add `speakable` (low value, limited support).
+`BlogPosting`: `@id`, `headline` (the post title, max 110), `description`, `image` (array: absolute OG image URL, plus the cover image URL if present), `datePublished`, `dateModified` (`updatedDate ?? pubDate`), `author` -> Person `@id`, `publisher` -> Organization `@id`, `mainEntityOfPage` (`WebPage` with canonical `@id`), `url`, `keywords` (comma-joined tags), `articleSection` (first tag), `wordCount` (words in rendered body), `inLanguage: "en"`, `isPartOf` -> Blog `@id`. When a TL;DR exists and `aeoPending` is false, add `abstract` = `tldr`. Do not add `speakable` (low value, limited support). The Blog node in the graph is on home and archive pages; posts reference its `@id` through `isPartOf`.
 
 `BreadcrumbList`: `ItemList` elements with `position`, `name`, `item` (absolute). Post: Home > Archive > Title (the last item may omit `item`). Tag: Home > Tags > Tag. Names must equal the visible breadcrumb text.
 
@@ -129,7 +129,7 @@ Posts with `aeoPending: true` (migrated posts awaiting owner-written content):
 - `/llms.txt` entry for that post uses the post `description` as the one-liner instead of `tldr`.
 - `/api/posts.json` returns `tldr: null` for the post and `aeoPending: true`.
 - `llms-full.txt` and the Markdown twin omit the TL;DR and takeaways blocks.
-- `validate-seo.ts` fails if a post with `aeoPending: true` renders a TL;DR block or contains `TODO(owner)` markers in rendered output, and fails a production build if `aeoPending: false` and any `TODO(owner)` remains in the post source.
+- `scripts/check-content.ts` (first step of `pnpm validate`) fails if a post that is not `aeoPending` contains `TODO(owner)` markers in its source; `validate-seo.ts` does not repeat this check.
 
 ### 3.4 FAQ and rich results
 
@@ -137,7 +137,7 @@ Google restricted FAQ rich results in 2023 to well-known authoritative governmen
 
 ### 3.5 Validation (`scripts/validate-seo.ts`)
 
-Parses every `dist/**/*.html`, extracts all JSON-LD blocks, and fails the build if:
+Parses every `dist/**/*.html`, extracts all JSON-LD blocks, and fails the build when JSON-LD does not parse, a required property for any emitted type is missing or empty, a `FAQPage` question is not visible in `.faq`, a post lacks `BlogPosting` or exactly one Markdown alternate, the authors page lacks `ProfilePage`, or a tag page lacks `CollectionPage`. The wider rules below are enforced by the JSON-LD unit tests (`jsonld.test.ts`):
 
 - JSON does not parse, or there is more than one JSON-LD script per page.
 - A required property for any emitted type is missing or empty.
@@ -160,7 +160,7 @@ All feeds list the 50 most recent published, non-draft, non-`noindex` posts, new
 
 No Beehiiv RSS feed was ever enabled on the live site, so there is no legacy feed URL to preserve. The first feed URLs are new. Do not add redirects for `/rss` or `/feed` unless the owner confirms inbound traffic.
 
-`scripts/validate-feeds.ts` asserts: well-formed XML (and valid JSON for JSON Feed), required elements present, every link and image `src` absolute, GUIDs unique, item count equals `min(50, published posts)`, and tag feeds exist for every tag with at least one post.
+`scripts/validate-feeds.ts` asserts: well-formed XML (and valid JSON for JSON Feed), required elements present, every item link and content URL absolute, and the JSON Feed version. Item-count and per-tag-feed checks are in the backlog (`docs/TEST_PLAN.md` section 4).
 
 ## 5. Sitemap
 
@@ -169,11 +169,11 @@ No Beehiiv RSS feed was ever enabled on the live site, so there is no legacy fee
   - post pages: `updatedDate ?? pubDate`
   - tag pages: date of the newest post in the tag
   - archive pages, home: date of the newest post overall
-  - authors, subscribe, about, privacy, search: build date of the file's last git change, or the newest post date if unavailable (no `new Date()` build-time stamps for static pages, because that makes every deploy look like a change)
-- `changefreq` and `priority` are omitted (Google ignores both).
+  - authors, subscribe, about, privacy: the newest post date (no `new Date()` build-time stamps for static pages, because that makes every deploy look like a change)
+- `changefreq` is set to `weekly` by the integration; `priority` is omitted (Google ignores both).
 - `filter` excludes: `/og/`, `/redirects/`, redirect stubs (every `legacy-urls.json` entry with `type: redirect`), `/404/`, `/search/` (utility page, `noindex` is not set, but it is not listed), drafts, `noindex` posts, `.md` twins and API files.
-- Included: home, each post, each tag page (and paginated tag pages), archive pages, authors, subscribe, about, privacy.
-- Count sanity (asserted in `validate-seo.ts`): sitemap URL count equals published posts + listing pages + fixed pages, every sitemap URL exists in `dist/`, and none is a stub.
+- Included: home, each post, each tag page with posts (and paginated tag pages), `/tags/`, archive pages, authors, subscribe, about, privacy. Empty tag pages (`object-storage`, `xrp`; ADR-021) are excluded.
+- Sanity (asserted in `validate-dist.ts`): every sitemap URL exists in `dist/`, none is a stub, an OG image or (on production) `noindex`, and the URL count equals the number of indexable pages in `dist/`.
 - Staging builds still generate a sitemap (for tests) but `robots.txt` disallows all and the sitemap is not submitted anywhere.
 
 ## 6. robots.txt policy
@@ -221,14 +221,33 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
+# Social link previews (need /og/ images)
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
 Sitemap: https://www.serverless.fyi/sitemap-index.xml
 ```
 
 Notes:
 
-- Named groups do not inherit from `User-agent: *`, which is why the AI bots have their own `Allow: /`. Because they do not inherit `Disallow: /og/`, add `Disallow: /og/` to each named group too if the owner wants OG images hidden from AI crawlers. Default: leave `/og/` open for named AI bots (they are harmless card images); the `*` group disallows them for general crawlers to save crawl budget. Social platforms fetch OG images with their own user agents (`facebookexternalhit`, `Twitterbot`, `LinkedInBot`, `Slackbot`), which fall under `*`. Because `Disallow: /og/` would block them, it is **not** applied to those: add explicit groups `Twitterbot`, `facebookexternalhit`, `LinkedInBot`, `Slackbot`, `Discordbot`, `WhatsApp` with `Allow: /`. Add these groups to the generator and test them.
+- Named groups do not inherit from `User-agent: *`, which is why the AI bots have their own `Allow: /`. Because they do not inherit `Disallow: /og/`, add `Disallow: /og/` to each named group too if the owner wants OG images hidden from AI crawlers. Default: leave `/og/` open for named AI bots (they are harmless card images); the `*` group disallows them for general crawlers to save crawl budget. Social platforms fetch OG images with their own user agents, which would fall under `*` and be blocked by `Disallow: /og/`, so the generator (`SOCIAL_CRAWLERS` in `src/lib/robots.ts`) emits explicit `Allow: /` groups for `Twitterbot`, `facebookexternalhit`, `LinkedInBot`, `Slackbot`, `Discordbot` and `WhatsApp`.
 - Each bot's role: `GPTBot` (OpenAI training), `OAI-SearchBot` (ChatGPT search index), `ChatGPT-User` (user-initiated fetch), `ClaudeBot` (Anthropic training crawl), `Claude-User` (user-initiated fetch), `Claude-SearchBot` (Anthropic search index), `PerplexityBot` (Perplexity index), `Perplexity-User` (user-initiated fetch), `Google-Extended` (opt-in token controlling Gemini training and grounding; does not affect Search), `Applebot-Extended` (Apple AI training token), `CCBot` (Common Crawl, feeds many models).
-- The owner can flip any individual bot to `Disallow: /` through a single list in `src/lib/site.ts` (`AI_CRAWLERS: { name, allow }[]`). Changing the list requires an ADR-009 update.
+- The owner can flip any individual bot to `Disallow: /` by removing it from `AI_CRAWLERS` (a list of names in `src/lib/robots.ts`) and adding an explicit `Disallow: /` group; changing the policy requires an ADR-009 update.
 - robots.txt is advisory. Not all agents obey it. It is not an access control.
 
 ### 6.2 Staging (`PUBLIC_INDEXABLE=false`)
@@ -242,7 +261,7 @@ No `Sitemap:` line. Every page also carries `<meta name="robots" content="noinde
 
 ### 6.3 Tests
 
-`tests/unit/robots.test.ts` covers: production output contains all listed AI bots and the sitemap line with the right origin; staging output is exactly the disallow-all form; flipping an entry in `AI_CRAWLERS` changes only that bot's group.
+`tests/unit/robots.test.ts` covers production output (AI bots, social preview bots, sitemap line with the right origin) and the staging disallow-all form. `validate-dist.ts` checks `robots.txt` against the environment.
 
 ## 7. Agent-ready endpoints (AEO)
 
@@ -254,36 +273,30 @@ Structure, in order:
 
 1. `# 2 Minute Serverless` (H1, exact text; smoke test greps for it).
 2. Blockquote summary: `> Freshly baked serverless nuggets in 2-minutes. Data, AI, distributed systems and start-ups, written by Mohinish Shaikh.`
-3. A short paragraph (no headings): what the publication is, posting cadence, license summary, and that every post has a Markdown twin.
-4. `## Start here`: the 3 pinned posts from `site.ts`.
-5. `## Posts by topic`: for each tag (alphabetical) an `### {tag}` subsection listing its posts newest first. Each line: `- [Title](https://www.serverless.fyi/p/slug.md): one-line summary`. The summary is `tldr` truncated at a sentence or word boundary to 200 characters; for `aeoPending` posts use `description`. A post with several tags is listed under each tag.
-6. `## About`: links to `/authors/`, `/about/`, `/subscribe/`, feeds.
-7. `## Optional`: `llms-full.txt`, `/api/posts.json`, `/feed.json`, `/sitemap-index.xml`, `/privacy/`, license page.
+3. `## Start here`: the 3 pinned posts from `site.ts`.
+4. `## Posts by topic`: for each tag (alphabetical, display label) an `### {Tag}` subsection listing its posts newest first. Each line: `- [Title](https://www.serverless.fyi/p/slug.md): summary`. The summary is `tldr`, or `description` for `aeoPending` posts. A post is listed under its first tag only.
+5. `## About`: links to `/about/`, `/authors/`, `/subscribe/`.
+6. `## Optional`: `llms-full.txt`, `/api/posts.json`, `/feed.json`, `/rss.xml`.
 
-Rules: only published, non-draft, non-`noindex` posts. Links point at the `.md` twin. Absolute URLs. Staging builds use staging origin. `tests/unit/llms.test.ts` asserts H1, blockquote, section order, every published post present at least once, and no draft present.
+Rules: only published, non-draft posts. Links point at the `.md` twin. Absolute URLs. Staging builds use staging origin. `tests/unit/llms.test.ts` asserts the structure; `validate-dist.ts` asserts the H1 and that every post's twin is linked.
 
 ### 7.2 `/llms-full.txt`
 
-All published posts concatenated as clean Markdown, newest first. Per post:
+All published posts concatenated as clean Markdown, newest first. The file starts with `# 2 Minute Serverless` and a blockquote. Per post:
 
 ```md
+---
+
 # {title}
 
 URL: https://www.serverless.fyi/p/{slug}/
-Markdown: https://www.serverless.fyi/p/{slug}.md
 Published: {YYYY-MM-DD}
-Updated: {YYYY-MM-DD} (only if updatedDate)
 Tags: {tag1}, {tag2}
-Author: Mohinish Shaikh
-
-{TL;DR and takeaways blocks, unless aeoPending}
 
 {body markdown}
-
----
 ```
 
-Heading demotion: body headings keep their levels (body starts at H2 already). Remove MDX components and replace with plain Markdown equivalents (see 7.3). Size limit: under 5 MB, asserted in `validate-seo.ts`. If it ever approaches 4 MB, split: keep `llms-full.txt` as the newest 100 posts and link `llms-full-archive.txt` from `llms.txt` (record in ADR).
+Heading demotion: body headings keep their levels (body starts at H2 already). Remove MDX components and replace with plain Markdown equivalents (see 7.3). Size limit: under 5 MB, asserted in `validate-dist.ts`. If it ever approaches 4 MB, split: keep `llms-full.txt` as the newest 100 posts and link `llms-full-archive.txt` from `llms.txt` (record in ADR).
 
 ### 7.3 Markdown twin `/p/<slug>.md`
 
@@ -294,11 +307,10 @@ Content:
 ```md
 ---
 title: '{title}'
-subtitle: '{subtitle}' # omitted if empty
 url: https://www.serverless.fyi/p/{slug}/
-date: { YYYY-MM-DD }
-updated: { YYYY-MM-DD } # omitted if empty
 author: Mohinish Shaikh
+published: { YYYY-MM-DD }
+updated: { YYYY-MM-DD } # omitted if empty
 tags: [tag1, tag2]
 description: '{description}'
 ---
@@ -313,16 +325,14 @@ description: '{description}'
 
 {body}
 
-## FAQ
+## Frequently asked questions
 
 ### {q}
 
 {a}
-
-Source: https://www.serverless.fyi/p/{slug}/ (c) Serverless Ventures LLC. Excerpts with attribution allowed.
 ```
 
-Rules: frontmatter-lite only (the fields above, no internal fields like `beehiivId`, `draft`). Relative image paths become absolute URLs to the optimized image. Internal links become absolute canonical URLs. MDX components: `<YouTube id>` becomes `[Video: title](https://www.youtube.com/watch?v=ID)`, `<Tweet id>` becomes a plain link, `<Tldr>` etc. are not in bodies. `aeoPending` posts omit TL;DR, takeaways and FAQ. Mermaid blocks (none in v1, ADR-014) remain as fenced code with language `mermaid`. The smoke test checks `# Understanding the DNS Header` appears in the twin.
+Rules: frontmatter-lite only (the fields above, no internal fields like `beehiivId`, `draft`; no `subtitle`). Relative image paths become absolute URLs. Internal links become absolute canonical URLs. MDX embed components become plain links (`<YouTube>` to a watch URL, `<Tweet>` to a status URL). `aeoPending` posts omit TL;DR, takeaways and FAQ. Mermaid blocks (none in v1, ADR-014) remain as fenced code. The smoke test checks `# Understanding the DNS Header` appears in the twin. Covered by `markdown.test.ts`.
 
 ### 7.4 `/api/posts.json`
 
@@ -330,43 +340,37 @@ Static JSON, one array element per published post, newest first.
 
 ```json
 {
-  "version": "1.0.0",
-  "siteVersion": "1.0.0",
-  "generated": "2026-10-26T00:00:00Z",
+  "version": "0.1.0",
+  "generated": "2026-10-26T00:00:00.000Z",
   "count": 23,
   "posts": [
     {
       "slug": "understanding-the-dns-header",
       "title": "Understanding the DNS Header",
-      "subtitle": "The Tiny Packet That Runs the Internet",
       "description": "...",
-      "tldr": "...",
-      "keyTakeaways": ["..."],
-      "tags": ["dns", "networking"],
-      "pubDate": "2025-10-29",
+      "tldr": null,
+      "tags": ["dns", "..."],
+      "pubDate": "2025-10-29T00:00:00.000Z",
       "updatedDate": null,
       "url": "https://www.serverless.fyi/p/understanding-the-dns-header/",
       "markdownUrl": "https://www.serverless.fyi/p/understanding-the-dns-header.md",
-      "ogImage": "https://www.serverless.fyi/og/understanding-the-dns-header.png",
-      "wordCount": 540,
-      "readingTimeMinutes": 3,
-      "aeoPending": false
+      "ogImage": "https://www.serverless.fyi/og/understanding-the-dns-header.png"
     }
   ]
 }
 ```
 
-Schema notes: required keys are `slug`, `title`, `description`, `tags`, `pubDate`, `url`, `markdownUrl`, `ogImage`, `aeoPending`. `tldr` is `null` and `keyTakeaways` is `[]` when `aeoPending`. Dates are `YYYY-MM-DD`. `generated` is the build time (this file is the one place a build timestamp is acceptable). Include a JSON Schema at `tests/fixtures/posts.schema.json` and validate the output against it in `validate-seo.ts`. Adding fields is non-breaking; removing or renaming requires a `version` major bump and a spec change.
+Schema notes: `version` is `SITE_VERSION`. `tldr` is `null` for `aeoPending` posts. Dates are ISO 8601 timestamps. `generated` is the build time (this file is the one place a build timestamp is acceptable). Adding fields is non-breaking; removing or renaming requires a spec change. Presence of the endpoint and of every post is asserted by `validate-dist.ts`. Not built (backlog): `subtitle`, `keyTakeaways`, `wordCount`, `readingTimeMinutes`, `aeoPending` fields and a JSON Schema fixture.
 
 ### 7.5 Other endpoints
 
-| Endpoint                    | Spec                                                                                                                                                                                         |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/feed.json`                | JSON Feed 1.1 (section 4).                                                                                                                                                                   |
-| `/.well-known/security.txt` | `Contact: mailto:mohinish@serverlessvc.com`, `Expires` (one year out, CI warns 30 days before), `Preferred-Languages: en`, `Canonical: https://www.serverless.fyi/.well-known/security.txt`. |
-| `/humans.txt`               | Optional credits.                                                                                                                                                                            |
-| `/site.webmanifest`         | name, short_name, icons, theme_color, background_color, display `browser`.                                                                                                                   |
-| `/<indexnow-key>.txt`       | Contains only the key (section 11.3).                                                                                                                                                        |
+| Endpoint                    | Spec                                                                                                                                                                                                                                                                                                                   |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/feed.json`                | JSON Feed 1.1 (section 4).                                                                                                                                                                                                                                                                                             |
+| `/.well-known/security.txt` | Static file `public/.well-known/security.txt`: `Contact: mailto:mohinish@serverlessvc.com`, `Expires: 2027-10-26` (renewed yearly; `validate-dist.ts` fails when it is within 30 days), `Preferred-Languages: en`, `Canonical: https://www.serverless.fyi/.well-known/security.txt`, `Policy` (SECURITY.md on GitHub). |
+| `/humans.txt`               | Credits (generated).                                                                                                                                                                                                                                                                                                   |
+| `/site.webmanifest`         | name, short_name, icons, theme_color, background_color, display `minimal-ui`.                                                                                                                                                                                                                                          |
+| `/<indexnow-key>.txt`       | Contains only the key (section 12.3).                                                                                                                                                                                                                                                                                  |
 
 ## 8. Writing for answer engines (summary)
 
@@ -383,7 +387,7 @@ The authoring rules live in `docs/STYLE_GUIDE.md`. The technical hooks are: visi
 7. Tag canonical uses the kebab-case slug (`/t/distributed-systems/`), never the Beehiiv `~` form.
 8. Markdown twins and API/feed files are not HTML and carry no canonical `<link>`. For twins, send readers back via the `Source:` line. Optionally add an HTTP `Link: rel=canonical` header only if a proxy is ever added; not possible on GitHub Pages.
 9. Staging canonical points at the staging origin and every page is `noindex`.
-10. `validate-seo.ts` asserts canonical is absolute, ends with `/` for HTML pages, and matches the file path in `dist/`.
+10. `validate-seo.ts` asserts canonical is absolute and matches the file path in `dist/` (the `canonical` frontmatter override is not yet validated).
 
 ## 10. Redirect rules
 
@@ -420,14 +424,14 @@ The `<title>` of stubs is exempt from the "unique title" check, and stubs are ex
 
 | Old                                                      | New                   | Mechanism                                                                                                                                  |
 | -------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/t/<tag-with-~>` (for example `/t/distributed~systems`) | `/t/<tag-with-dash>/` | Stub, generated from `migration/tag-map.json`                                                                                              |
+| `/t/<tag-with-~>` (for example `/t/distributed~systems`) | `/t/<tag-with-dash>/` | Stub, generated from `migration/legacy-urls.json`                                                                                          |
 | `/authors/mohinish-s`                                    | `/authors/`           | Stub                                                                                                                                       |
-| `/login`, `/upgrade`, account pages                      | `/subscribe/`         | Stub                                                                                                                                       |
+| `/login`, `/signup`, `/upgrade`, `/account`              | `/subscribe/`         | Stub                                                                                                                                       |
 | `/archive?page=N`                                        | `/archive/N/`         | Inline script in `/archive/` (query strings cannot be routed statically). The script runs `location.replace` for N >= 2 and is not a stub. |
 | `/p/<slug>` (no trailing slash)                          | `/p/<slug>/`          | Native: GitHub Pages serves a 301 to the directory URL.                                                                                    |
 | `/feed`, `/rss`                                          | not provided          | No legacy feed existed.                                                                                                                    |
 
-Only tags that contain `-` in the new slug need a `~` stub; all 17 tags are listed in the manifest regardless, with `type: same` for tags that have no dash.
+Only tags that contain `-` in the new slug need a `~` stub (9 today); all 22 tags are listed in the manifest regardless, with `type: same` for the canonical form. The manifest has 63 entries, 14 of them redirect stubs.
 
 ### 10.3 404 fallback
 
@@ -443,24 +447,24 @@ Only tags that contain `-` in the new slug need a `~` stub; all 17 tags are list
 
 ### 11.1 Targets
 
-| Metric                        | Target                                          | Where measured                              |
-| ----------------------------- | ----------------------------------------------- | ------------------------------------------- |
-| Lighthouse mobile Performance | >= 95                                           | LHCI on PR                                  |
-| Lighthouse Accessibility      | 100                                             | LHCI on PR                                  |
-| Lighthouse Best Practices     | >= 95                                           | LHCI on PR                                  |
-| Lighthouse SEO                | 100                                             | LHCI on PR                                  |
-| LCP (field p75)               | < 2.0 s                                         | Search Console Core Web Vitals report, CrUX |
-| CLS (field p75)               | < 0.05                                          | same                                        |
-| INP (field p75)               | < 200 ms                                        | same                                        |
-| Total byte weight, post page  | <= 400 KB                                       | LHCI assertion                              |
-| JS on a post page             | < 30 KB gzipped (excludes lazy-loaded Pagefind) | build-output check                          |
-| Total CSS                     | < 30 KB                                         | build-output check                          |
-| Any `dist/` file              | <= 1 MB unless allowlisted                      | asset sanity                                |
-| Build time                    | < 3 min                                         | CI job duration                             |
+| Metric                        | Target                                             | Where measured                                              |
+| ----------------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
+| Lighthouse mobile Performance | >= 95                                              | LHCI on PR                                                  |
+| Lighthouse Accessibility      | 100                                                | LHCI on PR                                                  |
+| Lighthouse Best Practices     | >= 95                                              | LHCI on PR                                                  |
+| Lighthouse SEO                | 100                                                | LHCI on PR                                                  |
+| LCP (field p75)               | < 2.0 s                                            | Search Console Core Web Vitals report, CrUX                 |
+| CLS (field p75)               | < 0.05                                             | same                                                        |
+| INP (field p75)               | < 200 ms                                           | same                                                        |
+| Total byte weight, post page  | <= 400 KB (`resource-summary:total:size`)          | LHCI assertion (measured 80 KB)                             |
+| JS on a post page             | < 30 KB gzipped (excludes lazy-loaded Pagefind)    | by construction (about 3 KB inline); no automated check yet |
+| Total CSS                     | < 30 KB                                            | by construction; no automated check yet                     |
+| Any `dist/` file              | <= 1 MB except Pagefind assets and `llms-full.txt` | `validate-dist.ts`                                          |
+| Build time                    | < 3 min                                            | CI job duration                                             |
 
 ### 11.2 Implementation requirements
 
-- Zero client JS by default. Allowed: inline theme script (< 1 KB), Subscribe enhancement, Pagefind UI loaded on first interaction with search (not on page load), legacy-redirect snippets on 404 and archive.
+- Zero client JS by default. Allowed islands are listed in ADR-026: theme script, Subscribe enhancement, code-block wrap toggle, YouTube facade, archive and 404 redirect snippets, and the search page, which lazily imports Pagefind (not on page load).
 - Cover image is the LCP element: `loading="eager"`, `fetchpriority="high"`, explicit `width` and `height`, AVIF/WebP via `astro:assets`, and `sizes` set. All other images `loading="lazy" decoding="async"` with dimensions.
 - Remote cover images (for example Unsplash) are downloaded and committed beside the post (ADR-017). No hotlinking.
 - System font stack by default. If a brand font is added: one self-hosted variable WOFF2, `font-display: swap`, preload, Latin subset.
@@ -471,7 +475,7 @@ Only tags that contain `-` in the new slug need a `~` stub; all 17 tags are list
 
 ### 11.3 Enforcement
 
-`lighthouserc.json`: pages = home, one post, one tag, archive; preset mobile; `numberOfRuns: 3`; assertions `categories:performance >= 0.95`, `categories:accessibility = 1`, `categories:best-practices >= 0.95`, `categories:seo = 1`, `total-byte-weight <= 400000` on the post URL, `unused-javascript` warn. Field metrics are monitored in Search Console after launch; regression below target for 28 days opens a GitHub issue labeled `perf`.
+`lighthouserc.json`: pages = home, `/p/understanding-the-dns-header/`, `/t/distributed-systems/`, archive; mobile; `numberOfRuns: 3`; assertions `categories:performance >= 0.95`, `categories:accessibility = 1`, `categories:best-practices >= 0.95`, `categories:seo = 1`, `resource-summary:total:size <= 409600` on post URLs, `unused-javascript` warn. Measured locally: 100/100/100/100 on all four, LCP 1.0 to 1.4 s, CLS <= 0.002. Field metrics are monitored in Search Console after launch; regression below target for 28 days opens a GitHub issue labeled `perf`.
 
 ## 12. Search engine onboarding
 
@@ -493,8 +497,8 @@ Only tags that contain `-` in the new slug need a `~` stub; all 17 tags are list
 ### 12.3 IndexNow (agent builds, owner verifies)
 
 1. Generate a key: 8 to 128 characters, `[a-zA-Z0-9-]`. Create `public/<key>.txt` whose content is exactly the key. Commit it (the key is public by design). Store the key name in the repo variable `INDEXNOW_KEY`.
-2. `.github/workflows/indexnow.yml` runs after a successful production deploy on `main` (skip when `PUBLIC_INDEXABLE` is not `true`).
-3. It diffs changed `src/content/posts/**` paths in the merge commit, maps each to its canonical URL (also the tag pages and `/archive/` for new posts, plus `/`), and POSTs JSON to `https://api.indexnow.org/indexnow`:
+2. `.github/workflows/indexnow.yml` runs after a successful `Deploy to GitHub Pages` run on `main` (skipped unless `vars.PUBLIC_INDEXABLE == 'true'`) and on manual dispatch. The key file is found by name (32 hex characters) in `public/`.
+3. `scripts/indexnow.sh` diffs added or modified `src/content/posts/*/index.md*` files in the last commit, maps each to its `/p/<slug>/` URL (plus `/` and `/archive/`), and POSTs JSON to `https://api.indexnow.org/indexnow`:
 
    ```json
    {
@@ -506,7 +510,7 @@ Only tags that contain `-` in the new slug need a `~` stub; all 17 tags are list
    ```
 
 4. Expect HTTP 200 or 202. 4xx fails the job with a warning, not a block.
-5. At cutover, ping every URL once from the sitemap (manual `workflow_dispatch` with `all=true`).
+5. At cutover, ping every URL once from `sitemap-0.xml` (manual `workflow_dispatch` with input `all: true`).
 6. IndexNow is honored by Bing, Yandex, Seznam, Naver and others; Google does not use it.
 
 ## 13. Acceptance checklist (Sprint 4 gate)

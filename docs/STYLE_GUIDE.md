@@ -36,11 +36,11 @@ Owner: Mohinish Shaikh, Serverless Ventures LLC.
 7. Images live beside the post (`src/content/posts/<slug>/`), referenced relatively so `astro:assets` optimizes them. No hotlinked images, including Unsplash (ADR-017). No `media.beehiiv.com` URLs.
 8. Diagrams: commit an SVG (ADR-014). No Mermaid in posts.
 9. Internal links use root-relative canonical form with trailing slash (`/p/other-post/`); build code converts via `url()`. Link to at least 2 related posts where relevant.
-10. Tags: reuse existing tags first (video-streaming, iac, dns, apache-flink, apache-pulsar, rfm, distributed-systems, terraform, 2024, pqca, tax, qsbs, object-storage, distributed-filesystem, serverless-meetup, xrp, crypto, plus any added since). New tags are kebab-case, 1 to 6 per post.
+10. Tags: reuse existing tags first (22 today: 2024, ai-agents, algorithms, apache-flink, apache-kafka, apache-pulsar, containers, crypto, distributed-filesystem, distributed-systems, dns, iac, newsletter, object-storage, pqca, qsbs, rfm, serverless-meetup, tax, terraform, video-streaming, xrp). `object-storage` and `xrp` have no posts yet, so their pages are `noindex` until one is tagged. New tags are kebab-case, 1 to 6 per post, and need a `src/content/tags/<tag>.md` file.
 11. Tables: use GFM tables for tabular data; keep them narrow enough to scroll inside the wrapper on phones.
 12. Embeds: use `<YouTube id="…" />` and `<Tweet id="…" />` facades. No third-party scripts.
 13. Dates and numbers: write absolute dates ("2025-11-06" or "6 November 2025"), not "recently". Put version numbers on tools.
-14. Spelling and lint: `pnpm lint` runs cspell and markdownlint; add proper nouns to `cspell.json`.
+14. Spelling and lint: `pnpm lint` runs ESLint, Prettier, markdownlint and cspell; add proper nouns to `cspell.json`.
 15. Never change a published `slug`.
 
 ## 3. Writing for answer engines (AEO)
@@ -58,7 +58,7 @@ Enforced by the `seo-aeo-reviewer` subagent and documented here. Technical detai
 9. **Cite sources** with descriptive links; prefer primary sources (RFCs, papers, project docs).
 10. **No thin content.** Under 300 words needs a reason (for example a meetup recap).
 11. **Unique title and description per post.** Title keyword-first, 60 characters or fewer for title + site suffix when possible.
-12. **`aeoPending` posts** (migrated, awaiting owner-written content): TL;DR and Key takeaways are hidden and omitted from JSON-LD, the Markdown twin, `llms.txt` one-liners (description is used), and the API (`tldr: null`). Remove `aeoPending` once `tldr` and at least 2 `keyTakeaways` are written. Production deploy blocks on leftover `TODO(owner)` unless `aeoPending: true`.
+12. **`aeoPending` posts** (migrated, awaiting owner-written content): TL;DR and Key takeaways are hidden and omitted from JSON-LD, the Markdown twin, `llms.txt` one-liners (description is used), and the API (`tldr: null`). Remove `aeoPending` once `tldr` and at least 2 `keyTakeaways` are written. `pnpm validate` (`scripts/check-content.ts`) fails on leftover `TODO(owner)` unless `aeoPending: true`, so the production deploy blocks on it.
 
 Reviewer checklist (per post): title ≤ 60 and keyword-first; description 70 to 160 and unique; one H1, logical H2s; TL;DR answers the title in ≤ 3 sentences; takeaways concrete; FAQ real and visible; 2+ internal links; alt text; JSON-LD matches visible content; `.md` twin renders; not thin.
 
@@ -93,7 +93,7 @@ Cross-field rules: `cover` requires `coverAlt`; unless `aeoPending`, `tldr` and 
 
 Authors (`src/content/authors/authors.json`): `id`, `name`, `shortName`, `jobTitle`, `bio`, `avatar`, `url`, `sameAs[]`, `knowsAbout[]`. Keep identical to JSON-LD `Person`.
 
-Tags may have an optional description file `src/content/tags/<tag>.md` used for the tag page intro and meta description (70 to 160 chars). Without it, the default template is used.
+Every tag has a description file `src/content/tags/<tag>.md` (written by `migration/build-manifest.ts`, with the Beehiiv description) used for the tag page intro. The meta description is built from the label and intro and padded to at least 70 characters; without a file the default intro is used.
 
 ### Example
 
@@ -142,7 +142,11 @@ Numbers, versions, limits.
 - [Descriptive link text](/p/related-post/)
 ```
 
-## 6. Pre-PR checklist for a post
+## 6. Theme and design tokens
+
+Plain CSS with `@layer reset, tokens, base, layout, components, prose, utilities` in `src/styles/` (`tokens.css`, `base.css`, `components.css`, `prose.css`). System font stack (no web fonts), fluid type via `clamp()`, 68ch measure, 44 px tap targets. Light and dark palettes are tokens on `:root` and `:root[data-theme]`; every text/background pair meets 4.5:1 and axe checks it in CI. Code blocks use Shiki `github-light-high-contrast` and `github-dark` (ADR-024). Change colors in `tokens.css` only, then regenerate visual snapshots (`bash scripts/update-snapshots.sh`).
+
+## 7. Pre-PR checklist for a post
 
 - [ ] `description` 70 to 160; unique
 - [ ] `tldr` and ≥ 2 `keyTakeaways` (or `aeoPending: true` with reason in the PR)
@@ -152,3 +156,4 @@ Numbers, versions, limits.
 - [ ] 2+ internal links, descriptive link text
 - [ ] No `TODO(owner)` left (unless `aeoPending`)
 - [ ] `pnpm check` is green; `.md` twin previewed
+- [ ] Scaffolded with `pnpm new-post "Title"`

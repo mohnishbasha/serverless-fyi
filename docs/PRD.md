@@ -1,6 +1,6 @@
 # PRD — serverless.fyi static rebuild
 
-Status: Draft for owner approval (Gate 0). Source of truth once merged; supersedes `Prompt.md` where they differ (deviations go in `docs/DECISIONS.md`).
+Status: implemented through Sprint 6 hardening; this document now describes what was built. Source of truth; supersedes `Prompt.md` where they differ (deviations go in `docs/DECISIONS.md`, notably ADR-015 and ADR-020 to ADR-026).
 Owner: Mohinish Shaikh, Serverless Ventures LLC. Publication: **2 Minute Serverless**.
 Repo: `github.com/mohnishbasha/serverless-fyi`. Production host: `https://www.serverless.fyi`. Staging: `https://mohnishbasha.github.io/serverless-fyi/`.
 
@@ -58,25 +58,29 @@ Additional facts:
 - Live tag slugs use hyphens. The `~` form (`/t/distributed~systems`) is a legacy Beehiiv encoding that we still serve as a redirect stub.
 - `/archive?page=1` and `?page=2` together list the same 23 posts. `/archive` is not in the sitemap but is a public URL and is in the manifest.
 - No Beehiiv RSS feed is enabled (publication `rss_feeds = []`). Legacy feed URLs need no parity. New feeds are additive.
-- Other legacy paths to keep resolving: `/login`, `/upgrade`, `/account` (redirect to `/subscribe/`), `/authors/mohinish-s` (redirect to `/authors/`).
+- Other legacy paths to keep resolving: `/login`, `/signup`, `/upgrade`, `/account` (redirect to `/subscribe/`), `/authors/mohinish-s` (redirect to `/authors/`).
+- The final manifest has 63 entries (49 `same`, 14 redirect stubs). It includes 22 tag pages: the 17 Beehiiv tags plus 5 added for untagged posts (ADR-020: `newsletter`, `containers`, `apache-kafka`, `ai-agents`, `algorithms`). `object-storage` and `xrp` have no posts and render `noindex` (ADR-021).
+- Author data from Beehiiv: name "Mohinish Shaikh", bio "Serverless Ventures | Cloud, Data & Distributed Systems | Angel & Advisor | Infra & Data Startups", photo `public/brand/mohinish.jpg`.
 
 URL mapping:
 
-| Beehiiv URL                      | New page                   | Behavior                                            |
-| -------------------------------- | -------------------------- | --------------------------------------------------- |
-| `/`                              | Home                       | same                                                |
-| `/p/<slug>`                      | `/p/<slug>/`               | same (GitHub Pages 301s slashless to slash)         |
-| `/t/<tag>`                       | `/t/<tag>/`                | same                                                |
-| `/t/<a~b>`                       | `/t/<a-b>/`                | redirect stub, one per hyphenated tag               |
-| `/archive`, `/archive?page=N`    | `/archive/`, `/archive/N/` | same; inline script maps `?page=N` to `/archive/N/` |
-| `/authors`                       | `/authors/`                | same                                                |
-| `/authors/mohinish-s`            | `/authors/`                | redirect stub                                       |
-| `/subscribe`                     | `/subscribe/`              | same                                                |
-| `/login`, `/upgrade`, `/account` | `/subscribe/`              | redirect stub                                       |
+| Beehiiv URL                                 | New page                   | Behavior                                            |
+| ------------------------------------------- | -------------------------- | --------------------------------------------------- |
+| `/`                                         | Home                       | same                                                |
+| `/p/<slug>`                                 | `/p/<slug>/`               | same (GitHub Pages 301s slashless to slash)         |
+| `/t/<tag>`                                  | `/t/<tag>/`                | same                                                |
+| `/t/<a~b>`                                  | `/t/<a-b>/`                | redirect stub, one per hyphenated tag               |
+| `/archive`, `/archive?page=N`               | `/archive/`, `/archive/N/` | same; inline script maps `?page=N` to `/archive/N/` |
+| `/authors`                                  | `/authors/`                | same                                                |
+| `/authors/mohinish-s`                       | `/authors/`                | redirect stub                                       |
+| `/subscribe`                                | `/subscribe/`              | same                                                |
+| `/login`, `/signup`, `/upgrade`, `/account` | `/subscribe/`              | redirect stub                                       |
 
 ## 6. Feature list and acceptance criteria
 
 Each feature maps to a template or capability. "AC" items are testable and are enforced by the suites named in `docs/TEST_PLAN.md`.
+
+New pages that Beehiiv never had (additive, no parity impact): `/tags/` (all-topics index), `/about/`, `/privacy/`, `/search/` (`noindex`, not in the sitemap), `/archive/N/`, `/t/<tag>/N/`, `/t/<tag>/rss.xml`, `/p/<slug>.md`, `/og/<slug>.png`, feeds, `llms.txt`, `llms-full.txt`, `robots.txt`, `api/posts.json`, `site.webmanifest`, `humans.txt`, `/.well-known/security.txt`.
 
 ### F-01 BaseLayout
 
@@ -111,7 +115,8 @@ Breadcrumbs, H1 title, subtitle, author, date, updated date, reading time, cover
 
 Intro, paginated cards (10 per page), JSON-LD `CollectionPage` + `ItemList` + `BreadcrumbList`, per-tag RSS.
 
-- AC: all 17 live tag URLs exist at `/t/<tag>/`.
+- AC: all 22 tag URLs (17 live plus 5 from ADR-020) exist at `/t/<tag>/`. A tag with no posts renders a "No posts with this tag yet" note, `noindex`, no feed, not in the sitemap (ADR-021).
+- AC: `/tags/` lists every tag with post counts.
 - AC: pagination at `/t/<tag>/2/` etc. only when more than 10 posts; no empty pages.
 - AC: tags without a description file use the default template description (70-160 chars).
 
@@ -134,8 +139,8 @@ Bio, photo, `knowsAbout`, sameAs, list of posts. JSON-LD `ProfilePage` with `Per
 
 Provider form, what you get, frequency, privacy note, recent issues.
 
-- AC: plain HTML `<form>` POSTs to the provider endpoint with JS disabled.
-- AC: with JS, submits via `fetch` and shows inline success/error in an `aria-live` region.
+- AC: plain HTML `<form>` submits to the provider endpoint with JS disabled (`beehiiv`: `GET magic.beehiiv.com/v1/<publication uuid>` per ADR-025; `listmonk`: `POST <PUBLIC_NEWSLETTER_URL>/subscription/form` with `email`, `l=<list uuid>` and a `nonce` honeypot).
+- AC: with JS, submits via `fetch` (`no-cors` for Beehiiv) and shows inline success/error in an `aria-live` region.
 - AC: honeypot field, labelled input, `autocomplete="email"`, `inputmode="email"`.
 - AC: `provider=none` renders the RSS/LinkedIn/YouTube follow block, no form.
 - AC: no API keys in client bundle; only `PUBLIC_*` values.
@@ -156,7 +161,7 @@ Generated from `migration/legacy-urls.json` for every `type: redirect` entry.
 
 ### F-10 Search
 
-Pagefind index built post-build. Search page at `/search/`; UI lazy-loads on first interaction.
+Pagefind index built post-build. Search page at `/search/` (`noindex`); the page lazily imports the Pagefind JS API on first interaction or when `?q=` is present and renders its own result list.
 
 - AC: `/search/` returns results for a known term (e2e).
 - AC: no search JS is loaded on a post page until the user interacts with search.
@@ -173,10 +178,10 @@ Per-page head set, JSON-LD graph per template, sitemap with `lastmod`, robots by
 
 ### F-12 Feeds and agent endpoints
 
-`/rss.xml` (alias `/feed.xml`), `/atom.xml`, `/feed.json`, `/t/<tag>/rss.xml`, `/llms.txt`, `/llms-full.txt` (under 5 MB), `/api/posts.json`, `/.well-known/security.txt`.
+`/rss.xml` (alias `/feed.xml`), `/atom.xml`, `/feed.json`, `/t/<tag>/rss.xml`, `/llms.txt`, `/llms-full.txt` (under 5 MB), `/api/posts.json`, `/robots.txt` (AI crawlers and social preview bots allowed), `/.well-known/security.txt` (static file, `Expires` 2027-10-26).
 
 - AC: `validate-feeds.ts` passes (well-formed, absolute URLs, last 50 posts, full content).
-- AC: every published post appears in `llms.txt` and `api/posts.json`.
+- AC: every published post appears in `llms.txt` and `api/posts.json` (checked by `validate-dist.ts`).
 
 ### F-13 OG images
 
@@ -194,12 +199,13 @@ No build-time Mermaid renderer in v1. No migrated post uses Mermaid. Authors com
 
 ### F-15 Theming and responsive design
 
-System font stack, fluid type via `clamp()`, `prefers-color-scheme` plus persisted manual toggle applied before paint, `prefers-reduced-motion`, print stylesheet.
+System font stack, fluid type via `clamp()`, CSS split into `tokens.css`, `base.css`, `components.css`, `prose.css` under `@layer`, `prefers-color-scheme` plus persisted manual toggle applied before paint, `prefers-reduced-motion`, print stylesheet. Code uses Shiki `github-light-high-contrast` and `github-dark` (ADR-024). Theme colors `#ffffff` / `#0b0d10`.
 
-- AC: axe has zero violations in light and dark on every template.
+- AC: axe has zero violations in light and dark on every template (home, post, tag, archive, authors, subscribe, tags, about, search, 404).
 - AC: all text/background pairs meet 4.5:1.
 - AC: `data-theme` is set before first paint (e2e).
 - AC: tables scroll inside a wrapper on small screens.
+- AC: visual snapshots (Linux only) cover six templates in both schemes; see `docs/TEST_PLAN.md` section 8.
 
 ### F-16 Newsletter adapter
 
@@ -211,7 +217,8 @@ System font stack, fluid type via `clamp()`, `prefers-color-scheme` plus persist
 ### F-17 Content pipeline guardrails
 
 - AC: build fails on schema violation (zod).
-- AC: `description` 70-160 chars; migrated posts that cannot meet it from author words are flagged in `migration/report.md`.
+- AC: `description` 70-160 chars; migrated posts that cannot meet it from author words are composed from the author's own text and flagged in `migration/report.md` (10 of 23, ADR-018).
+- AC: `scripts/check-content.ts` fails on `TODO(owner)` outside `aeoPending` posts and on slug not equal to folder name, and warns on a missing cover.
 - AC: migrated posts carry `aeoPending: true`; production deploy is not blocked by them, but they render no TL;DR/takeaways and emit no AEO JSON-LD.
 - AC: `pubDate` in the future requires `draft: true`.
 
@@ -223,17 +230,17 @@ Cloudflare Web Analytics, cookieless, env-gated.
 
 ## 7. Success metrics
 
-| Metric                                   | Target                                                                  |
-| ---------------------------------------- | ----------------------------------------------------------------------- |
-| Legacy URL parity                        | 100% of manifest URLs return 200 (page or redirect stub)                |
-| Lighthouse (mobile)                      | Performance >= 95, Accessibility = 100, Best Practices >= 95, SEO = 100 |
-| LCP / CLS / INP (field, p75)             | < 2.0 s / < 0.05 / < 200 ms                                             |
-| JS shipped on a post page                | < 30 KB gzipped (excluding search, which lazy-loads)                    |
-| Build time                               | < 3 min on a GitHub-hosted runner                                       |
-| Broken links                             | 0 internal, 0 non-allowlisted external                                  |
-| Indexed pages (GSC) 30 days post-cutover | >= pre-migration count                                                  |
-| Publish latency                          | merge to live < 5 min                                                   |
-| Newsletter health (Phase B)              | bounce < 2%, complaints < 0.1%                                          |
+| Metric                                   | Target                                                                                                                                  |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Legacy URL parity                        | 100% of manifest URLs return 200 (page or redirect stub)                                                                                |
+| Lighthouse (mobile)                      | Performance >= 95, Accessibility = 100, Best Practices >= 95, SEO = 100 (measured locally: 100/100/100/100 on home, post, tag, archive) |
+| LCP / CLS / INP (field, p75)             | < 2.0 s / < 0.05 / < 200 ms (lab: LCP 1.0 to 1.4 s, CLS <= 0.002)                                                                       |
+| JS shipped on a post page                | < 30 KB gzipped (excluding search, which lazy-loads); about 3 KB measured, post page 80 KB total                                        |
+| Build time                               | < 3 min on a GitHub-hosted runner                                                                                                       |
+| Broken links                             | 0 internal, 0 non-allowlisted external                                                                                                  |
+| Indexed pages (GSC) 30 days post-cutover | >= pre-migration count                                                                                                                  |
+| Publish latency                          | merge to live < 5 min                                                                                                                   |
+| Newsletter health (Phase B)              | bounce < 2%, complaints < 0.1%                                                                                                          |
 
 ## 8. Cutover definition of done
 
@@ -241,7 +248,7 @@ Whole project is done when all are true:
 
 1. Every Beehiiv URL in `migration/legacy-urls.json` resolves on `https://www.serverless.fyi` (live parity 100%, `validate-parity.ts --live`).
 2. Publishing is a merged PR with one MDX file; feeds, sitemap and IndexNow update in under 5 minutes.
-3. Lighthouse mobile >= 95/100/95/100 on all templates; axe clean; no overflow at 320 px.
+3. Lighthouse mobile >= 95/100/95/100 on the four measured templates; axe clean; no overflow at 320 px.
 4. `llms.txt`, `llms-full.txt`, `.md` twins, `api/posts.json`, RSS/Atom/JSON feeds, sitemap and robots are live and validated.
 5. HTTPS enforced, apex redirects to www.
 6. Subscribers receive new issues from listmonk + SES; Beehiiv has no account, no DNS and no cost.
@@ -261,7 +268,7 @@ Every sprint ends in a hard gate: all checkboxes ticked and CI green on `main`. 
 | 0      | Specs: PRD, ARCHITECTURE, CONTENT_MIGRATION, SEO_AEO, TEST_PLAN, DECISIONS, RUNBOOK skeleton, STYLE_GUIDE | Specs complete, ADRs decided, owner approves PRD                                                                                | `sprint-0` |
 | 1      | Scaffold, tooling, CI/CD, agent files, `url()` helper                                                     | `pnpm check` green, staging deploy with BASE_PATH works, smoke passes                                                           | `v0.1.0`   |
 | 2      | Migration: fixtures, exporter, converter, image localizer, manifest, report                               | Post count = 23, 0 remote Beehiiv images, parity 100%, owner reviewed report, subscriber CSV stored privately                   | `v0.2.0`   |
-| 3      | Templates, responsive design, dark mode, TOC, pagination, 404, stubs, Pagefind                            | e2e on 4 viewports, no 320 px overflow, axe 0, snapshots, JS-off green                                                          | `v0.3.0`   |
+| 3      | Templates, responsive design, dark mode, TOC, pagination, 404, stubs, Pagefind                            | e2e on 5 Playwright projects, no 320 px overflow, axe 0, snapshots, JS-off green                                                | `v0.3.0`   |
 | 4      | SEO, JSON-LD, OG images, feeds, robots, llms.txt, twins, API index, IndexNow                              | validate-seo 0 errors, feeds valid, Lighthouse thresholds, Rich Results Test on 3 posts                                         | `v0.4.0`   |
 | 5      | Newsletter adapter, Subscribe component, subscribe page                                                   | Form works JS on/off, real test subscription on staging, privacy page names the ESP                                             | `v0.5.0`   |
 | 6      | Hardening: perf, a11y, links, RUNBOOK, licenses, audit                                                    | All CI green, rollback dry run on staging                                                                                       | `v0.9.0`   |
@@ -272,14 +279,16 @@ Every sprint ends in a hard gate: all checkboxes ticked and CI green on `main`. 
 
 ## 10. Risks
 
-| Risk                                                          | Mitigation                                                                            |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Lost URLs or SEO drop                                         | Manifest + parity test on build and live; sitemap resubmission; 14-day monitoring.    |
-| Scraped HTML is noisy (inline-styled wrappers, `utm_*` links) | Golden-fixture converter tests; never rewrite prose.                                  |
-| Missing short descriptions                                    | Compose only from author words, flag in report, owner reviews.                        |
-| SES sandbox / deliverability                                  | Request production access at start of Sprint 9; batch warm-up.                        |
-| Beehiiv API key unavailable                                   | Sitemap scrape is the primary path; API exporter exists for when the key is supplied. |
-| GitHub Pages has no redirects or headers                      | Static stubs, meta tags; Cloudflare proxy documented as a future option.              |
+| Risk                                                          | Mitigation                                                                                           |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Lost URLs or SEO drop                                         | Manifest + parity test on build and live; sitemap resubmission; 14-day monitoring.                   |
+| Scraped HTML is noisy (inline-styled wrappers, `utm_*` links) | Golden-fixture converter tests; never rewrite prose.                                                 |
+| Missing short descriptions                                    | Compose only from author words, flag in report, owner reviews.                                       |
+| SES sandbox / deliverability                                  | Request production access at start of Sprint 9; batch warm-up.                                       |
+| Beehiiv API key unavailable                                   | Sitemap scrape is the primary path (used); API exporter exists for when the key is supplied.         |
+| Astro 7 differences from the prompt's snippets                | Pinned at 7.4.2; deviations logged in ADR-015.                                                       |
+| Email template lacks a physical mailing address               | `email/template.html` has `TODO(owner)`; must be filled before Phase B sends (RUNBOOK section 10.2). |
+| GitHub Pages has no redirects or headers                      | Static stubs, meta tags; Cloudflare proxy documented as a future option.                             |
 
 ## 11. v2 backlog
 
