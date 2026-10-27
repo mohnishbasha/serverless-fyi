@@ -14,9 +14,9 @@ pre-commit:
       run: pnpm exec markdownlint-cli2 {staged_files}
     cspell:
       glob: '*.{md,mdx,astro}'
-      run: pnpm exec cspell --no-progress {staged_files}
+      run: pnpm exec cspell --no-progress --no-must-find-files {staged_files}
     secrets:
-      run: git diff --cached | grep -E '(BEEHIIV_API_KEY=.+|sk-[A-Za-z0-9]{20,})' && exit 1 || exit 0
+      run: git diff --cached -- . ':(exclude)lefthook.yml' | grep -E '^\+.*(BEEHIIV_API_KEY=[A-Za-z0-9]|sk-[A-Za-z0-9]{20,})' && exit 1 || exit 0
 commit-msg:
   commands:
     commitlint:

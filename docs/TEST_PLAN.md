@@ -133,7 +133,7 @@ Runs against `node scripts/serve-dist.mjs <port>` (a GitHub Pages emulator: base
 
 ## 8. Visual regression
 
-`tests/visual/templates.spec.ts`: `toHaveScreenshot` for home, post, tag, archive, authors and subscribe x (light, dark), in the `chromium-desktop` and `pixel-7` projects. Snapshots are committed in `tests/visual/__snapshots__/` (`{name}-{scheme}-{project}.png`). Settings: `maxDiffPixelRatio: 0.01`, animations disabled, reduced motion, system fonts, footer copyright line masked. The spec skips on non-Linux hosts (font rendering differs). Regenerate with `bash scripts/update-snapshots.sh` (Docker, official Playwright image, after `pnpm build`) or through a PR labeled `update-snapshots`; the reviewer must look at the diff.
+`tests/visual/templates.spec.ts`: `toHaveScreenshot` for home, post, tag, archive, authors and subscribe x (light, dark), in the `chromium-desktop` and `pixel-7` projects. Snapshots are committed in `tests/visual/__snapshots__/` (`{name}-{scheme}-{project}.png`). Settings: `maxDiffPixelRatio: 0.01`, animations disabled, reduced motion, system fonts, footer copyright line masked. The spec skips on non-Linux hosts (font rendering differs). Regenerate with `bash scripts/update-snapshots.sh` (Docker, official Playwright image, after `pnpm build`) or through a PR labeled `update-snapshots`; the reviewer must look at the diff. The CI `e2e` job runs inside the same `mcr.microsoft.com/playwright:v<version>-noble` container, because hosted-runner fonts differ from the image and caused 5–14% pixel diffs. Keep the container tag equal to the `@playwright/test` version.
 
 ## 9. Lighthouse CI
 

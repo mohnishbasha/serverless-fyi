@@ -5,7 +5,8 @@ import { writeFileSync } from 'node:fs';
 type Pkg = { name: string; versions: string[]; homepage?: string };
 const raw = execFileSync('pnpm', ['licenses', 'list', '--prod', '--json'], { encoding: 'utf8' });
 // Platform-specific optional binaries differ between macOS and Linux CI; leave them out so the file is stable.
-const PLATFORM = /(darwin|linux|win32|android|freebsd|openbsd|sunos|wasm32|musl|gnueabihf|-arm64|-x64|-ia32)/;
+const PLATFORM =
+  /(^fsevents$|darwin|linux|win32|android|freebsd|openbsd|sunos|wasm32|musl|gnueabihf|-arm64|-x64|-ia32)/;
 const byLicense = Object.fromEntries(
   Object.entries(JSON.parse(raw) as Record<string, Pkg[]>)
     .map(([k, v]) => [k, v.filter((p) => !PLATFORM.test(p.name))] as const)
