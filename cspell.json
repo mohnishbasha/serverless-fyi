@@ -1,7 +1,17 @@
 {
   "version": "0.2",
   "language": "en",
-  "ignorePaths": ["node_modules/**", "dist/**", "migration/raw/**", "pnpm-lock.yaml"],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "migration/raw/**",
+    "pnpm-lock.yaml",
+    "THIRD_PARTY_LICENSES.md",
+    "PROMPT.md",
+    "migration/fixtures/**",
+    "migration/report.md",
+    "infra/**/.terraform/**"
+  ],
   "ignoreRegExpList": [
     "/\\]\\([^)]*\\)/g",
     "/https?:\\/\\/\\S+/g",
