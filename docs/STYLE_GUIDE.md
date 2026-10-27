@@ -171,3 +171,7 @@ The palette is "serene", adapted from serverlessvc.com (ADR-027):
 - [ ] No `TODO(owner)` left (unless `aeoPending`)
 - [ ] `pnpm check` is green; `.md` twin previewed
 - [ ] Scaffolded with `pnpm new-post "Title"`
+
+### Post cards
+
+Cards show the post cover as a 16:9 thumbnail. Give every post a `cover` and `coverAlt`; without one, the card falls back to the generated OG image, which works but is plain. The thumbnail uses `alt=""` (decorative) because the card title already names the post. On the home page, the newest post is a full-width "Latest issue" card with the image beside the text from 48rem up.

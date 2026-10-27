@@ -306,3 +306,9 @@ Every sprint ends in a hard gate: all checkboxes ticked and CI green on `main`. 
 - Per-tag newsletters and preference center in listmonk.
 - Webmentions, related-post ranking beyond shared tags, i18n.
 - Dedicated analytics dashboard for newsletter stats imported from listmonk.
+
+### Home page cards (2026-10-27)
+
+- AC: Every post card shows a 16:9 cover thumbnail (OG image fallback), lazy-loaded below the fold, with explicit width and height (CLS 0).
+- AC: The home page shows "Latest posts" first. The newest post is a full-width featured card labelled "Latest issue". Covered by e2e `cards.spec.ts`.
+- AC: Lighthouse on the home page stays at 100/100/100/100.

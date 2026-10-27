@@ -42,6 +42,24 @@ const counts = tagCounts(posts);
       <Subscribe id="hero-subscribe" heading="Subscribe — it's free" />
     </section>
 
+    <section aria-labelledby="latest-heading">
+      <h2 class="section-title" id="latest-heading">
+        Latest posts
+      </h2>
+      <ul class="cards">
+        {latest.map((p, i) => (
+          <li>
+            <PostCard post={p} featured={i === 0} eager={i === 0} />
+          </li>
+        ))}
+      </ul>
+      <p style="margin-top:var(--space-5)">
+        <a class="btn btn-ghost" href={url('/archive/')}>
+          All posts in the archive →
+        </a>
+      </p>
+    </section>
+
     {startHere.length > 0 && (
       <section aria-labelledby="start-heading">
         <h2 class="section-title" id="start-heading">
@@ -56,24 +74,6 @@ const counts = tagCounts(posts);
         </ul>
       </section>
     )}
-
-    <section aria-labelledby="latest-heading">
-      <h2 class="section-title" id="latest-heading">
-        Latest posts
-      </h2>
-      <ul class="cards">
-        {latest.map((p) => (
-          <li>
-            <PostCard post={p} />
-          </li>
-        ))}
-      </ul>
-      <p style="margin-top:var(--space-5)">
-        <a class="btn btn-ghost" href={url('/archive/')}>
-          All posts in the archive →
-        </a>
-      </p>
-    </section>
 
     <section aria-labelledby="topics-heading">
       <h2 class="section-title" id="topics-heading">
