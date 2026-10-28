@@ -312,3 +312,8 @@ Every sprint ends in a hard gate: all checkboxes ticked and CI green on `main`. 
 - AC: Every post card shows a 16:9 cover thumbnail (OG image fallback), lazy-loaded below the fold, with explicit width and height (CLS 0).
 - AC: The home page shows "Latest posts" first. The newest post is a full-width featured card labelled "Latest issue". Covered by e2e `cards.spec.ts`.
 - AC: Lighthouse on the home page stays at 100/100/100/100.
+
+### Move announcement (2026-10-27)
+
+- AC: A dismissible banner under the header links to `/why-we-moved/`. Dismissal persists across pages, and the banner never flashes on load once dismissed.
+- AC: `/why-we-moved/` shows the cost math with sources and a date: $59/mo → $0 today ($708/yr), and the projections at 10k, 100k and 1M subscribers. Covered by e2e `banner.spec.ts`.

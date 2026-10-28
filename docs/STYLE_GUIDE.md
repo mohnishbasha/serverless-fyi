@@ -175,3 +175,7 @@ The palette is "serene", adapted from serverlessvc.com (ADR-027):
 ### Post cards
 
 Cards show the post cover as a 16:9 thumbnail. Give every post a `cover` and `coverAlt`; without one, the card falls back to the generated OG image, which works but is plain. The thumbnail uses `alt=""` (decorative) because the card title already names the post. On the home page, the newest post is a full-width "Latest issue" card with the image beside the text from 48rem up.
+
+### Announcement banner
+
+`SITE.banner` (in `src/lib/site.ts`) renders a one-line banner under the header with an emoji, a short (preferably funny) message and one link. Readers can dismiss it, and the choice is remembered per banner `id`. To announce something new, change the text **and** the `id`, so everyone sees it again. Keep it under about 160 characters so it stays at two lines or fewer on phones.

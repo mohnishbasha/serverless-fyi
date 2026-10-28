@@ -27,6 +27,8 @@ Owner decisions made on 2026-10-27 override the text below wherever they conflic
 9. **Analytics = Google Analytics 4 `G-DKDHH7T239` (ADR-032):** production builds only, loaded after the page `load` event, skipped when the browser sends Global Privacy Control or Do Not Track. Set via the `PUBLIC_GA_MEASUREMENT_ID` repo variable. The privacy page discloses GA cookies. This replaces the cookieless-analytics default in §2.1 and §9.6.
 
 
+10. **Move announcement:** a small dismissible banner under the header (`SITE.banner` in `src/lib/site.ts`; dismissal is stored per banner `id` and hidden before paint) jokes about the move and links to `/why-we-moved/`. That page explains the move with the math: Beehiiv Lite $59/mo ($708/yr) versus $0 now; $139 vs ≈$11 at 10k; $469 vs ≈$60–105 at 100k; enterprise vs ≈$480–790 at 1M. Sources and a date are shown.
+
 ---
 
 ## 0. Execution Order (read first)

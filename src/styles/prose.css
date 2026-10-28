@@ -109,6 +109,17 @@
   .prose th {
     background: var(--surface-2);
   }
+  /* Math tables (why-we-moved) */
+  .prose .math td.num,
+  .prose .math th.num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .prose .math tr.total td {
+    font-weight: 700;
+    background: var(--tldr-bg);
+  }
   .prose figure figcaption {
     margin-block-start: var(--space-2);
     font-size: var(--step--1);
