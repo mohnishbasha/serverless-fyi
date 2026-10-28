@@ -4,6 +4,10 @@ All notable changes to the site codebase are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A dismissible announcement banner under the header: "We moved out of Beehiiv… the bees kept the furniture". It links to a new `/why-we-moved/` page with the cost math: $708 a year saved today, plus the comparison at 10k, 100k and 1M subscribers, with sources. The banner is configured in `SITE.banner`; change its `id` to show a new announcement.
+
 ### Changed
 
 - The home page is livelier. Post cards show cover thumbnails (AVIF/WebP, lazy, 16:9, with a gentle zoom on hover). "Latest posts" comes first and leads with a large **Latest issue** featured card. Tag and listing cards get thumbnails too.

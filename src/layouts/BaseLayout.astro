@@ -1,6 +1,7 @@
 ---
 import BaseHead, { type Props as HeadProps } from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
+import Banner from '../components/Banner.astro';
 import Header from '../components/Header.astro';
 import { ctx } from '../lib/env';
 import { organization, website } from '../lib/jsonld';
@@ -19,6 +20,7 @@ const { jsonld, ...rest } = Astro.props;
       Skip to content
     </a>
     <Header />
+    <Banner />
     <main id="main" tabindex="-1">
       <slot />
     </main>

@@ -1,0 +1,34 @@
+---
+/** Site announcement under the header (SITE.banner). Dismissal is remembered per banner id. */
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const b = SITE.banner;
+---
+
+<aside class="announce" aria-label="Site announcement" data-banner-id={b.id}>
+  <div class="wrap announce-inner">
+    <p>
+      <span aria-hidden="true">{b.emoji}</span> {b.text} <a href={url(b.href)}>{b.linkText} →</a>
+    </p>
+    <button class="announce-close" type="button" aria-label="Dismiss announcement" hidden>
+      ×
+    </button>
+  </div>
+</aside>
+<script is:inline>
+  (function () {
+    const el = document.querySelector('.announce');
+    if (!el) return;
+    const btn = el.querySelector('.announce-close');
+    btn.hidden = false;
+    btn.addEventListener('click', function () {
+      el.hidden = true;
+      try {
+        localStorage.setItem('banner-dismissed', el.dataset.bannerId);
+      } catch {
+        // storage unavailable
+      }
+    });
+  })();
+</script>

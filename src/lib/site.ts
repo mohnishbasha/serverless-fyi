@@ -32,6 +32,14 @@ export const SITE = {
     'understanding-the-dns-header',
     'ensuring-distributed-system-reliability-with-jepsen',
   ],
+  /** Site-wide announcement under the header. Change `id` to show a new one to everyone again. */
+  banner: {
+    id: 'moved-off-beehiiv-2026-10',
+    emoji: '🐝📦',
+    text: 'We moved out of Beehiiv! Packed all 23 posts into Markdown, left the $59/month rent behind, and the bees kept the furniture.',
+    linkText: 'See the math',
+    href: '/why-we-moved/',
+  },
   postsPerTagPage: 10,
   postsPerArchivePage: 20,
   homeLatest: 10,

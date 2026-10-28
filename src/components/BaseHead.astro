@@ -37,11 +37,13 @@ const csp = [
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta http-equiv="Content-Security-Policy" content={csp} />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
-<script is:inline>
+<script is:inline data-banner={SITE.banner.id}>
   // Apply the saved theme before first paint (no flash). Storage may be unavailable.
   try {
     const t = localStorage.getItem('theme');
     if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    if (localStorage.getItem('banner-dismissed') === document.currentScript?.dataset.banner)
+      document.documentElement.dataset.bannerDismissed = '';
   } catch {
     // storage unavailable (private mode, blocked)
   }

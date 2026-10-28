@@ -1,0 +1,171 @@
+---
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Subscribe from '../components/Subscribe.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ctx } from '../lib/env';
+import { breadcrumbList } from '../lib/jsonld';
+import { SITE } from '../lib/site';
+import { url } from '../lib/urls';
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Why we moved', path: '/why-we-moved/' },
+];
+// Monthly prices, monthly billing, as of October 2026. Sources listed at the bottom of the page.
+const beehiivLite = { 1000: 59, 10000: 139, 100000: 469 } as const;
+const yearlyNow = beehiivLite[1000] * 12; // $708
+const usd = (n: number) => `$${n.toLocaleString('en-US')}`;
+---
+
+<BaseLayout
+  title="Why we moved off Beehiiv (with the math)"
+  description="Why 2 Minute Serverless left Beehiiv for GitHub Pages and Kit: $708 a year saved today, and the cost math at 10k, 100k and 1M subscribers."
+  ogImage="/og/default.png"
+  ogImageAlt="Why we moved off Beehiiv"
+  jsonld={[breadcrumbList(crumbs, ctx)]}
+>
+  <div class="wrap-narrow">
+    <Breadcrumbs items={crumbs} />
+    <header class="page-intro">
+      <h1>Why we moved off Beehiiv</h1>
+      <p>Short version: same posts, same URLs, faster pages, and the rent went from $59 a month to $0.</p>
+    </header>
+
+    <aside class="tldr" aria-labelledby="moved-tldr">
+      <h2 id="moved-tldr">TL;DR</h2>
+      <p>
+        {SITE.name} now runs on GitHub Pages (free) with Kit's free email plan. That saves {usd(yearlyNow)} a year at
+        today's ~1,000 subscribers, and the gap only widens as the list grows.
+      </p>
+    </aside>
+
+    <div class="prose">
+      <h2>What does it cost today?</h2>
+      <p>At roughly 1,000 subscribers, monthly billing:</p>
+      <table class="math">
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col" class="num">
+              Beehiiv (before)
+            </th>
+            <th scope="col" class="num">
+              Now
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Website hosting</td>
+            <td class="num">included</td>
+            <td class="num">$0 (GitHub Pages)</td>
+          </tr>
+          <tr>
+            <td>Newsletter (1,000 subscribers)</td>
+            <td class="num">$59 (Lite)</td>
+            <td class="num">$0 (Kit free)</td>
+          </tr>
+          <tr>
+            <td>Domain (serverless.fyi)</td>
+            <td class="num">same</td>
+            <td class="num">same</td>
+          </tr>
+          <tr class="total">
+            <td>Per month</td>
+            <td class="num">$59</td>
+            <td class="num">$0</td>
+          </tr>
+          <tr class="total">
+            <td>Per year</td>
+            <td class="num">{usd(yearlyNow)}</td>
+            <td class="num">$0</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>That's {usd(yearlyNow)} a year back. Annual billing on Beehiiv would have been $588 — still not zero.</p>
+
+      <h2>What happens as the list grows?</h2>
+      <p>
+        Hosted newsletter platforms charge per subscriber. Kit's free plan covers us up to 10,000 subscribers; before
+        then we move email to a self-hosted <a href="https://listmonk.app">listmonk</a> server that sends through Amazon
+        SES, which charges per email instead (about $0.10–$0.16 per 1,000). Assuming four issues a month:
+      </p>
+      <table class="math">
+        <thead>
+          <tr>
+            <th scope="col">Subscribers</th>
+            <th scope="col" class="num">
+              Beehiiv Lite
+            </th>
+            <th scope="col" class="num">
+              Our stack
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1,000</td>
+            <td class="num">$59/mo</td>
+            <td class="num">$0 (Kit free)</td>
+          </tr>
+          <tr>
+            <td>10,000</td>
+            <td class="num">$139/mo</td>
+            <td class="num">≈ $11/mo (listmonk + SES)</td>
+          </tr>
+          <tr>
+            <td>100,000</td>
+            <td class="num">{usd(beehiivLite[100000])}/mo</td>
+            <td class="num">≈ $60–105/mo</td>
+          </tr>
+          <tr>
+            <td>1,000,000</td>
+            <td class="num">enterprise quote</td>
+            <td class="num">≈ $480–790/mo</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        At 100,000 readers that's about {usd(beehiivLite[100000] * 12)} a year on Beehiiv versus roughly $720–1,260
+        self-hosted. The self-hosted numbers are estimates: SES's per-email price is published, the server size is our
+        guess.
+      </p>
+
+      <h2>What else did we get?</h2>
+      <ul>
+        <li>Every post is a Markdown file in git — portable, reviewable, ours.</li>
+        <li>All 63 old Beehiiv URLs still work (an automated test checks them on every deploy).</li>
+        <li>Pages score 100 on Lighthouse for performance, accessibility, best practices and SEO.</li>
+        <li>
+          AI agents can read everything: <a href={url('/llms.txt')}>llms.txt</a>, a Markdown copy of every post, and
+          <a href={url('/feeds/')}>RSS feeds</a>.
+        </li>
+      </ul>
+
+      <h2>What did we give up?</h2>
+      <p>
+        Beehiiv's built-in extras: referral programs, paid subscriptions and its ad network. We used none of them. Kit's
+        free plan adds a small Kit logo to emails and has no automatic post-to-email, so each issue is sent by hand —
+        about two minutes of work, which felt on brand.
+      </p>
+
+      <h2>Sources</h2>
+      <p class="muted">Prices as of October 2026, monthly billing.</p>
+      <ul>
+        <li>
+          <a href="https://www.beehiiv.com/pricing">beehiiv pricing</a> (official)
+        </li>
+        <li>
+          <a href="https://aws.amazon.com/ses/pricing/">Amazon SES pricing</a> (official)
+        </li>
+        <li>
+          <a href="https://eden.so/blog/kit-pricing/">Kit pricing at every list size</a> (independent review)
+        </li>
+      </ul>
+    </div>
+
+    <div style="margin-top:var(--space-7)">
+      <Subscribe id="moved-subscribe" heading="Same newsletter, new home — subscribe" />
+    </div>
+  </div>
+</BaseLayout>
