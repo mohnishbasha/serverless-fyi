@@ -71,7 +71,7 @@
     "html-validate": "11.17.0",
     "lefthook": "2.2.2",
     "markdownlint-cli2": "0.24.0",
-    "mdast-util-mdx-jsx": "3.2.0",
+    "mdast-util-mdx-jsx": "3.2.1",
     "pagefind": "1.5.2",
     "prettier": "3.9.10",
     "prettier-plugin-astro": "1.1.2",
