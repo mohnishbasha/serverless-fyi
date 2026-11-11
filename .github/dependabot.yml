@@ -7,7 +7,7 @@ updates:
     commit-message: { prefix: 'build(deps)' }
     groups:
       astro:
-        patterns: ['astro', '@astrojs/*', 'pagefind', 'satori', '@resvg/*', 'sharp']
+        patterns: ['astro', '@astrojs/*', '@emnapi/*', 'pagefind', 'satori', '@resvg/*', 'sharp']
       testing:
         patterns: ['vitest', '@vitest/*', '@playwright/*', '@axe-core/*', '@lhci/*', 'html-validate']
       lint:
@@ -28,6 +28,9 @@ updates:
     directory: /
     schedule: { interval: weekly }
     commit-message: { prefix: 'ci' }
+    groups:
+      codeql:
+        patterns: ['github/codeql-action*']
   - package-ecosystem: terraform
     directory: /infra/newsletter/terraform
     schedule: { interval: monthly }
