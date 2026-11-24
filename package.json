@@ -68,7 +68,7 @@
     "globals": "17.14.0",
     "hast-util-from-html": "2.1.0",
     "hast-util-select": "6.0.4",
-    "hast-util-to-html": "9.0.6",
+    "hast-util-to-html": "9.0.7",
     "hast-util-to-string": "3.0.1",
     "html-validate": "11.19.0",
     "lefthook": "2.2.2",
